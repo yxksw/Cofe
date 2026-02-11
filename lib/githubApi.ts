@@ -75,7 +75,7 @@ async function ensureRepoExists(octokit: Octokit, owner: string, repo: string) {
           path: 'README.md',
           message: 'Update README.md with default content',
           content: Buffer.from(
-            '# Cofe Blog\n\nWrite blog posts and memos at https://tinymind.me with data stored on GitHub.'
+            '# YXK\'s BLOG\n\nWrite blog posts and memos at https://tinymind.me with data stored on GitHub.'
           ).toString('base64'),
           sha: readmeContent.sha,
         })

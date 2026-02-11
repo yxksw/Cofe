@@ -32,13 +32,13 @@ export function Navbar() {
             className="flex items-center gap-2 text-foreground font-semibold text-lg hover:text-primary transition-colors"
           >
             <Image
-              src="/icon.jpg"
-              alt="Cofe Blog"
+              src="https://cn.cravatar.com/avatar/eb7277a11fa4dc00606e73afda41aeeb?=256"
+              alt="YXK BLOG"
               width={32}
               height={32}
               className="rounded-full"
             />
-            <span className="hidden sm:inline">Cofe Blog</span>
+            <span className="hidden sm:inline">YXK BLOG</span>
           </Link>
 
           {/* Desktop Navigation */}

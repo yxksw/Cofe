@@ -27,7 +27,7 @@ export async function POST(request: NextRequest) {
       `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&zoom=18&addressdetails=1`,
       {
         headers: {
-          'User-Agent': 'Cofe Blog App',
+          'User-Agent': 'YXK\'s BLOG App',
           'Accept': 'application/json'
         }
       }

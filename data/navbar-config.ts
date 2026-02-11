@@ -12,7 +12,7 @@ import { NavbarConfig } from '@/types/navbar'
  */
 export const navbarConfig: NavbarConfig = {
   brand: {
-    name: 'Cofe Blog',
+    name: 'YXK\'s BLOG',
     href: '/',
     logo: '/icon.jpg',
   },
