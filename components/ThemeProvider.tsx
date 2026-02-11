@@ -105,11 +105,7 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
     setThemeState(newTheme)
   }
 
-  // 防止 hydration 不匹配
-  if (!mounted) {
-    return <>{children}</>
-  }
-
+  // 即使在未挂载时也渲染 ThemeContext.Provider，提供默认值
   return (
     <ThemeContext.Provider value={{ theme, toggleTheme, setTheme }}>
       {children}
