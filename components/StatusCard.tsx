@@ -106,41 +106,41 @@ export const StatusCard = ({
                   textClassName='text-xs'
                 />
               )}
-              {links['t.me'] && (
+              {(links['t.me'] || links['tELEGRAM']) && (
                 <SocialLink
-                  href={links['t.me']}
+                  href={links['t.me'] || links['tELEGRAM']}
                   title='Telegram'
                   icon='mdi:telegram'
                   label='Telegram'
                 />
               )}
-              {links['discord.com'] && (
+              {(links['discord.com'] || links['discord']) && (
                 <SocialLink
-                  href={links['discord.com']}
+                  href={links['discord.com'] || links['discord']}
                   title='Discord'
                   icon='mdi:discord'
                   label='Discord'
                 />
               )}
-              {links['qm.qq.com'] && (
+              {(links['qm.qq.com'] || links['qq']) && (
                 <SocialLink
-                  href={links['qm.qq.com']}
+                  href={links['qm.qq.com'] || links['qq']}
                   title='QQ群'
                   icon='mdi:qqchat'
                   label='QQ群'
                 />
               )}
-              {links['mastodon.social'] && (
+              {(links['mastodon.social'] || links['mastodon']) && (
                 <SocialLink
-                  href={links['mastodon.social']}
+                  href={links['mastodon.social'] || links['mastodon']}
                   title='Mastodon'
                   icon='mdi:mastodon'
                   label='Mastodon'
                 />
               )}
-              {links['mailto'] && (
+              {(links['mailto'] || links['mail']) && (
                 <SocialLink
-                  href={links['mailto']}
+                  href={links['mailto'] || links['mail']}
                   title='Email'
                   icon='mdi:email'
                   label='Email'
