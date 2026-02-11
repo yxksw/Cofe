@@ -2,7 +2,7 @@
 
 import 'katex/dist/katex.min.css'
 
-import React from 'react'
+import React, { useEffect, useRef } from 'react'
 import ReactMarkdown from 'react-markdown'
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
 import { format } from 'date-fns'
@@ -28,6 +28,26 @@ interface BlogPostContentProps {
 }
 
 export function BlogPostContent({ title, date, content, slug, headerContent, discussionsComponent, location }: BlogPostContentProps) {
+  const contentRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    // 加载 articletoc.js 文件
+    const script = document.createElement('script')
+    script.src = '/js/articletoc.js'
+    script.async = true
+    document.body.appendChild(script)
+
+    // 清理函数
+    return () => {
+      document.body.removeChild(script)
+      // 清理创建的目录元素
+      const tocElement = document.querySelector('.toc')
+      const tocIcon = document.querySelector('.toc-icon')
+      if (tocElement) tocElement.remove()
+      if (tocIcon) tocIcon.remove()
+    }
+  }, [])
+
   return (
     <div className='max-w-3xl mx-auto px-4 py-8'>
       {headerContent && (
@@ -48,7 +68,7 @@ export function BlogPostContent({ title, date, content, slug, headerContent, dis
           </div>
         </header>
         <FancyboxWrapper>
-          <div className='prose prose-lg dark:prose-invert max-w-none text-foreground leading-relaxed prose-p:my-3 prose-img:my-0'>
+          <div className='prose prose-lg dark:prose-invert max-w-none text-foreground leading-relaxed prose-p:my-3 prose-img:my-0 markdown-body' ref={contentRef}>
             <ReactMarkdown
               remarkPlugins={[remarkGfm, remarkMath]}
               rehypePlugins={[rehypeKatex]}
