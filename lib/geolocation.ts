@@ -22,7 +22,7 @@ export async function getCurrentLocation(): Promise<LocationData | null> {
 
     const { latitude, longitude } = position.coords
     
-    // Reverse geocoding using Nominatim (OpenStreetMap)
+    // 调用服务器端 API 进行反向地理编码
     const locationDetails = await reverseGeocode(latitude, longitude)
     
     return {
@@ -44,14 +44,14 @@ interface GeocodeResult {
 
 async function reverseGeocode(lat: number, lon: number): Promise<GeocodeResult | null> {
   try {
-    const response = await fetch(
-      `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&zoom=18&addressdetails=1`,
-      {
-        headers: {
-          'User-Agent': 'Cofe Blog App'
-        }
-      }
-    )
+    // 调用本地 API 端点，避免 CORS 错误
+    const response = await fetch('/api/geocode', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ latitude: lat, longitude: lon })
+    })
 
     if (!response.ok) {
       throw new Error('Failed to reverse geocode')
@@ -59,14 +59,9 @@ async function reverseGeocode(lat: number, lon: number): Promise<GeocodeResult |
 
     const data = await response.json()
     
-    // Extract city and street from the response
-    const address = data.address || {}
-    const city = address.city || address.town || address.village || address.municipality || address.county || ''
-    const street = address.road || address.street || address.highway || ''
-
     return {
-      city: city,
-      street: street
+      city: data.city,
+      street: data.street
     }
   } catch (error) {
     console.error('Error reverse geocoding:', error)

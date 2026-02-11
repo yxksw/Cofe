@@ -466,10 +466,10 @@ export default function Editor({
       
       {/* Header - Clean and minimal */}
       <div className="mb-8">
-        <div className="flex justify-between items-center">
+        <div className="flex justify-between items-center flex-wrap gap-4">
           {/* Draft/Published toggle on the left */}
           {type === "blog" && (
-            <div className="flex items-center gap-1 bg-secondary rounded-lg p-1">
+            <div className="flex items-center gap-1 bg-secondary rounded-lg p-1 flex-wrap">
               <button
                 type="button"
                 onClick={() => setIsPublished(false)}
@@ -499,7 +499,7 @@ export default function Editor({
           {type === "memo" && <div />} {/* Empty div to maintain justify-between spacing */}
           
           {/* Memo/Blog selector on the right */}
-          <div className="flex items-center gap-1 bg-secondary rounded-lg p-1">
+          <div className="flex items-center gap-1 bg-secondary rounded-lg p-1 flex-wrap">
             <button
               type="button"
               onClick={() => handleTypeChange("memo")}
@@ -556,8 +556,8 @@ export default function Editor({
           <div className="bg-card rounded-lg border border-border overflow-hidden" {...getRootProps()}>
             <input {...getInputProps()} />
             <div className="border-b border-border bg-muted/50">
-              <div className="flex items-center justify-between px-4">
-                <div className="flex">
+              <div className="flex items-center justify-between px-4 flex-wrap gap-2">
+                <div className="flex flex-wrap gap-1">
                   <button
                     type="button"
                     onClick={() => setIsPreview(false)}
@@ -648,9 +648,7 @@ export default function Editor({
                       </a>
                     ),
                     blockquote: ({ children }) => (
-                      <div className="pl-4 border-l-4 border-border text-muted-foreground">
-                        {children}
-                      </div>
+                      <div className="pl-4 border-l-4 border-border text-muted-foreground">{children}</div>
                     ),
                   }}
                 >
@@ -684,12 +682,12 @@ export default function Editor({
           {/* Location Section - Only show when location is attached */}
           {type === "blog" && isLocationAttached && postLocation && (
             <div className="bg-muted rounded-lg border border-border p-4">
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-foreground flex items-center gap-2">
+              <div className="flex items-center justify-between flex-wrap gap-2">
+                <span className="text-sm text-foreground flex items-center gap-2 flex-wrap">
                   <span>📍</span>
                   <span>{postLocation.city}{postLocation.street ? ` · ${postLocation.street}` : ''}</span>
                 </span>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 flex-wrap">
                   <Button
                     type="button"
                     variant="ghost"
@@ -739,14 +737,14 @@ export default function Editor({
           {/* External Discussions - Only show when discussions exist */}
           {type === "blog" && discussions.length > 0 && (
             <div className="bg-muted rounded-lg border border-border p-4">
-              <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center justify-between mb-3 flex-wrap gap-2">
                 <span className="text-sm font-medium text-foreground">
                   External Discussions ({discussions.length})
                 </span>
               </div>
               <div className="space-y-2">
                 {discussions.map((discussion, index) => (
-                  <div key={index} className="flex gap-2 items-center">
+                  <div key={index} className="flex gap-2 items-center flex-wrap">
                     <select
                       value={discussion.platform}
                       onChange={(e) => updateDiscussion(index, 'platform', e.target.value as ExternalDiscussion['platform'])}
@@ -762,7 +760,7 @@ export default function Editor({
                       value={discussion.url}
                       onChange={(e) => updateDiscussion(index, 'url', e.target.value)}
                       placeholder="Paste discussion URL..."
-                      className="flex-1 border-border text-xs h-8 bg-card"
+                      className="flex-1 min-w-[150px] border-border text-xs h-8 bg-card"
                       disabled={isLoading || isImageUploading}
                     />
                     <Button
@@ -784,12 +782,12 @@ export default function Editor({
           {/* Location for Memos - Only show when location is available and not ignored */}
           {type === "memo" && location && !isMemoLocationIgnored && (
             <div className="bg-muted rounded-lg border border-border p-4">
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-foreground flex items-center gap-2">
+              <div className="flex items-center justify-between flex-wrap gap-2">
+                <span className="text-sm text-foreground flex items-center gap-2 flex-wrap">
                   <span>📍</span>
                   <span>{location.city}{location.street ? ` · ${location.street}` : ''}</span>
                 </span>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 flex-wrap">
                   <Button
                     type="button"
                     variant="ghost"
@@ -833,8 +831,8 @@ export default function Editor({
           )}
 
           {/* Action Buttons */}
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
+          <div className="flex items-center justify-between flex-wrap gap-4">
+            <div className="flex items-center gap-3 flex-wrap">
               {/* Add Location button for Blog posts when no location attached */}
               {type === "blog" && !isLocationAttached && (
                 <Button
@@ -854,7 +852,7 @@ export default function Editor({
                     }
                   }}
                   disabled={locationLoading}
-                  className="flex items-center gap-2 text-sm"
+                  className="flex items-center gap-2 text-sm flex-wrap"
                 >
                   {locationLoading ? (
                     <Loader2 className="h-3 w-3 animate-spin" />
@@ -882,7 +880,7 @@ export default function Editor({
                     }
                   }}
                   disabled={locationLoading}
-                  className="flex items-center gap-2 text-sm"
+                  className="flex items-center gap-2 text-sm flex-wrap"
                 >
                   {locationLoading ? (
                     <Loader2 className="h-3 w-3 animate-spin" />
@@ -900,25 +898,25 @@ export default function Editor({
                   size="sm"
                   onClick={addDiscussion}
                   disabled={isLoading || isImageUploading}
-                  className="text-sm"
+                  className="text-sm flex-wrap"
                 >
                   + Add Discussion Link
                 </Button>
               )}
               {isSuccess && (
-                <span className="text-sm text-green-600 flex items-center gap-2">
+                <span className="text-sm text-green-600 flex items-center gap-2 flex-wrap">
                   <span className="inline-block w-2 h-2 bg-green-600 rounded-full"></span>
                   {t("successPublished")}
                 </span>
               )}
             </div>
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-4 flex-wrap">
               <Button
                 type="button"
                 variant="outline"
                 onClick={() => router.push(type === "blog" ? "/blog" : "/memos")}
                 disabled={isLoading || isImageUploading}
-                className="px-6"
+                className="px-4 flex-wrap"
               >
                 Cancel
               </Button>
@@ -926,7 +924,7 @@ export default function Editor({
               <Button
                 type="submit"
                 disabled={isLoading || isImageUploading || (!content || (type === "blog" && !title))}
-                className="px-8 bg-primary hover:bg-primary/90 text-primary-foreground disabled:opacity-50"
+                className="px-4 bg-primary hover:bg-primary/90 text-primary-foreground disabled:opacity-50 flex-wrap"
               >
                 {isLoading ? (
                   <>

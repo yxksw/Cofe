@@ -62,18 +62,16 @@ interface ThemeProviderProps {
  */
 export function ThemeProvider({ children }: ThemeProviderProps) {
   const [theme, setThemeState] = useState<Theme>('light')
-  const [mounted, setMounted] = useState(false)
 
   // 初始化主题
   useEffect(() => {
     const initialTheme = getInitialTheme()
     setThemeState(initialTheme)
-    setMounted(true)
   }, [])
 
   // 应用主题到文档
   useEffect(() => {
-    if (!mounted) return
+    if (typeof window === 'undefined') return
 
     const root = document.documentElement
 
@@ -89,7 +87,7 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
     } catch {
       // localStorage 不可用时的静默处理
     }
-  }, [theme, mounted])
+  }, [theme])
 
   /**
    * 切换主题
@@ -105,7 +103,6 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
     setThemeState(newTheme)
   }
 
-  // 即使在未挂载时也渲染 ThemeContext.Provider，提供默认值
   return (
     <ThemeContext.Provider value={{ theme, toggleTheme, setTheme }}>
       {children}
