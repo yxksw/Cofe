@@ -25,13 +25,9 @@ export function FancyboxWrapper({
     const container = containerRef.current
     if (!container) return
 
-    // 初始化 Fancybox
+    // 初始化 Fancybox - 使用简化配置
     NativeFancybox.bind(container, delegate, {
-      // 默认配置
-      animated: true,
-      showClass: 'f-fadeIn',
-      hideClass: 'f-fadeOut',
-      dragToClose: true,
+      // 工具栏配置
       Toolbar: {
         display: {
           left: ['infobar'],
@@ -39,6 +35,7 @@ export function FancyboxWrapper({
           right: ['slideshow', 'thumbs', 'close'],
         },
       },
+      // 图片配置
       Image: {
         click: 'toggleZoom',
         doubleClick: 'toggleZoom',
