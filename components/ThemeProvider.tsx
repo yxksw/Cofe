@@ -35,7 +35,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   // 在客户端使用useState的初始值函数来获取主题，这样只会在客户端执行
   const [theme, setTheme] = useState<Theme>('light')
 
-  // 只在客户端初始化主题和应用到文档
+  // 只在客户端初始化主题
   useEffect(() => {
     if (typeof window === 'undefined') return
 
@@ -43,9 +43,6 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     const savedTheme = localStorage.getItem(STORAGE_KEY) as Theme | null
     const initialTheme = savedTheme || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light')
     setTheme(initialTheme)
-
-    // 应用主题到DOM
-    document.documentElement.classList.toggle('dark', initialTheme === 'dark')
   }, [])
 
   // 主题变化时更新DOM和localStorage
