@@ -98,8 +98,8 @@
 @layer utilities {
   /* 主题切换时的特殊过渡类 */
   .theme-transition {
-    transition: background-color 0.3s ease-in-out, 
-                color 0.3s ease-in-out, 
+    transition: background-color 0.3s ease-in-out,
+                color 0.3s ease-in-out,
                 border-color 0.3s ease-in-out,
                 fill 0.3s ease-in-out,
                 stroke 0.3s ease-in-out;
@@ -116,3 +116,188 @@
     transition: none !important;
   }
 }
+
+/* Gitalk 暗黑模式样式 */
+.dark .gt-container {
+  --gt-color-main: hsl(210 100% 75%);
+  --gt-color-bg: hsl(0 0% 8%);
+  --gt-color-text: hsl(0 0% 90%);
+  --gt-color-border: hsl(0 0% 20%);
+  --gt-color-input-bg: hsl(0 0% 15%);
+  --gt-color-input-border: hsl(0 0% 20%);
+  --gt-color-btn-bg: hsl(0 0% 15%);
+  --gt-color-btn-border: hsl(0 0% 20%);
+  --gt-color-btn-hover-bg: hsl(0 0% 20%);
+  --gt-color-popover-bg: hsl(0 0% 8%);
+  --gt-color-popover-border: hsl(0 0% 20%);
+}
+
+.dark .gt-container .gt-header-textarea {
+  background-color: hsl(0 0% 15%);
+  border-color: hsl(0 0% 20%);
+  color: hsl(0 0% 90%);
+}
+
+.dark .gt-container .gt-header-textarea:focus {
+  background-color: hsl(0 0% 12%);
+  border-color: hsl(210 100% 75%);
+}
+
+.dark .gt-container .gt-header-preview {
+  background-color: hsl(0 0% 15%);
+  border-color: hsl(0 0% 20%);
+  color: hsl(0 0% 90%);
+}
+
+.dark .gt-container .gt-comment-content {
+  background-color: hsl(0 0% 12%);
+  border-color: hsl(0 0% 20%);
+}
+
+.dark .gt-container .gt-comment-content:hover {
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+}
+
+.dark .gt-container .gt-comment-body {
+  color: hsl(0 0% 90%) !important;
+}
+
+.dark .gt-container .gt-comment-admin .gt-comment-content {
+  background-color: hsl(210 100% 15%);
+}
+
+.dark .gt-container .gt-popup {
+  background-color: hsl(0 0% 8%);
+  border-color: hsl(0 0% 20%);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+}
+
+.dark .gt-container .gt-copyright {
+  border-top-color: hsl(0 0% 20%);
+}
+
+.dark .gt-container .gt-link {
+  border-bottom-color: hsl(210 100% 75%);
+}
+
+.dark .gt-container .gt-btn {
+  background-color: hsl(0 0% 15%);
+  border-color: hsl(0 0% 20%);
+  color: hsl(0 0% 90%);
+}
+
+.dark .gt-container .gt-btn:hover {
+  background-color: hsl(0 0% 20%);
+  border-color: hsl(0 0% 25%);
+}
+
+.dark .gt-container .gt-btn-primary {
+  background-color: hsl(210 100% 45%);
+  border-color: hsl(210 100% 45%);
+  color: white;
+}
+
+.dark .gt-container .gt-btn-primary:hover {
+  background-color: hsl(210 100% 55%);
+  border-color: hsl(210 100% 55%);
+}
+
+.dark .gt-container .gt-svg svg {
+  fill: hsl(0 0% 90%);
+}
+
+.dark .gt-container .gt-ico-text {
+  color: hsl(0 0% 60%);
+}
+
+.dark .gt-container .gt-meta {
+  border-bottom-color: hsl(0 0% 20%);
+}
+
+.dark .gt-container .gt-user .gt-ico svg {
+  fill: hsl(0 0% 90%);
+}
+
+.dark .gt-container .gt-comment-username {
+  color: hsl(210 100% 75%);
+}
+
+.dark .gt-container .gt-comment-text {
+  color: hsl(0 0% 60%);
+}
+
+.dark .gt-container .gt-comment-date {
+  color: hsl(0 0% 45%);
+}
+
+.dark .gt-container .gt-header-controls-tip {
+  color: hsl(0 0% 60%);
+}
+
+.dark .gt-container .gt-btn-login {
+  background-color: hsl(210 100% 45%);
+  border-color: hsl(210 100% 45%);
+  color: white;
+}
+
+.dark .gt-container .gt-btn-login:hover {
+  background-color: hsl(210 100% 55%);
+  border-color: hsl(210 100% 55%);
+}
+
+/* 代码块样式 - 亮色模式 */
+.code-block-wrapper {
+  background-color: #f6f8fa;
+  border: 1px solid hsl(var(--border));
+}
+
+.code-block-wrapper pre {
+  margin: 0;
+  padding: 1rem;
+  background: transparent;
+}
+
+.code-block {
+  display: block;
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+  font-size: 0.875rem;
+  line-height: 1.7;
+  color: #24292f;
+  white-space: pre;
+  word-wrap: normal;
+  tab-size: 2;
+}
+
+/* 行内代码样式 */
+.inline-code {
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+  color: hsl(var(--foreground));
+}
+
+/* 代码块样式 - 暗黑模式 */
+.dark .code-block-wrapper {
+  background-color: #161b22;
+  border-color: hsl(var(--border));
+}
+
+.dark .code-block {
+  color: #c9d1d9;
+}
+
+/* 代码高亮颜色 - 亮色模式 */
+.code-block .keyword { color: #cf222e; }
+.code-block .string { color: #0a3069; }
+.code-block .number { color: #0550ae; }
+.code-block .function { color: #8250df; }
+.code-block .comment { color: #6e7781; font-style: italic; }
+.code-block .operator { color: #cf222e; }
+.code-block .punctuation { color: #24292f; }
+
+/* 代码高亮颜色 - 暗黑模式 */
+.dark .code-block .keyword { color: #ff7b72; }
+.dark .code-block .string { color: #a5d6ff; }
+.dark .code-block .number { color: #79c0ff; }
+.dark .code-block .function { color: #d2a8ff; }
+.dark .code-block .comment { color: #8b949e; font-style: italic; }
+.dark .code-block .operator { color: #ff7b72; }
+.dark .code-block .punctuation { color: #c9d1d9; }

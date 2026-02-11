@@ -106,6 +106,46 @@ export const StatusCard = ({
                   textClassName='text-xs'
                 />
               )}
+              {links['t.me'] && (
+                <SocialLink
+                  href={links['t.me']}
+                  title='Telegram'
+                  icon='mdi:telegram'
+                  label='Telegram'
+                />
+              )}
+              {links['discord.com'] && (
+                <SocialLink
+                  href={links['discord.com']}
+                  title='Discord'
+                  icon='mdi:discord'
+                  label='Discord'
+                />
+              )}
+              {links['qm.qq.com'] && (
+                <SocialLink
+                  href={links['qm.qq.com']}
+                  title='QQ群'
+                  icon='mdi:qqchat'
+                  label='QQ群'
+                />
+              )}
+              {links['mastodon.social'] && (
+                <SocialLink
+                  href={links['mastodon.social']}
+                  title='Mastodon'
+                  icon='mdi:mastodon'
+                  label='Mastodon'
+                />
+              )}
+              {links['mailto'] && (
+                <SocialLink
+                  href={links['mailto']}
+                  title='Email'
+                  icon='mdi:email'
+                  label='Email'
+                />
+              )}
             </div>
           </div>
 

@@ -9,6 +9,17 @@ import DisconnectedFriendsList from '@/components/DisconnectedFriendsList';
 import SiteInfo from '@/components/SiteInfo';
 import ErrorBoundary from '@/components/ErrorBoundary';
 import FriendLinkModal from '@/components/FriendLinkModal';
+import dynamic from 'next/dynamic';
+
+// 动态导入 GitalkComments 组件，避免 SSR 问题
+const GitalkComments = dynamic(() => import('@/components/GitalkComments'), {
+  ssr: false,
+  loading: () => (
+    <div className="mt-8 p-8 bg-card rounded-lg border border-border text-center text-muted-foreground">
+      评论加载中...
+    </div>
+  ),
+});
 
 // 本站信息配置
 const SITE_INFO = {
@@ -84,7 +95,7 @@ export default function LinkPage() {
                                     任意格式均可,包含基本信息即可
                                 </p>
                             </div>
-                            
+
                             {/* 申请友链按钮 */}
                             <button
                                 onClick={handleOpenModal}
@@ -97,13 +108,22 @@ export default function LinkPage() {
 
                         {/* 本站信息 */}
                         <ErrorBoundary>
-                            <SiteInfo 
+                            <SiteInfo
                                 name={SITE_INFO.name}
                                 url={SITE_INFO.url}
                                 description={SITE_INFO.description}
                                 avatar={SITE_INFO.avatar}
                             />
                         </ErrorBoundary>
+                    </div>
+
+                    {/* Gitalk 评论区 */}
+                    <div className="bg-card rounded-lg border border-border p-8">
+                        <h2 className="text-xl font-bold mb-6 text-foreground flex items-center gap-2">
+                            <Icon icon="lucide:message-circle" className="w-5 h-5" />
+                            评论
+                        </h2>
+                        <GitalkComments id="friend-links" title="友情链接" />
                     </div>
                 </div>
             </main>

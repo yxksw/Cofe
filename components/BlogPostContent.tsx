@@ -4,16 +4,25 @@ import 'katex/dist/katex.min.css'
 
 import React, { useEffect, useRef, useState } from 'react'
 import ReactMarkdown from 'react-markdown'
-import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
 import { format } from 'date-fns'
 import rehypeKatex from 'rehype-katex'
 import remarkGfm from 'remark-gfm'
 import remarkMath from 'remark-math'
-import { tomorrow } from 'react-syntax-highlighter/dist/esm/styles/prism'
 import Image from 'next/image'
 import LikeButton from './LikeButton'
 import { FancyboxWrapper } from './FancyboxWrapper'
 import { Icon } from '@iconify/react'
+import dynamic from 'next/dynamic'
+
+// 动态导入 GitalkComments 组件，避免 SSR 问题
+const GitalkComments = dynamic(() => import('./GitalkComments'), {
+  ssr: false,
+  loading: () => (
+    <div className="mt-8 p-8 bg-card rounded-lg border border-border text-center text-muted-foreground">
+      评论加载中...
+    </div>
+  ),
+})
 
 interface Heading {
   id: string;
@@ -131,27 +140,25 @@ export function BlogPostContent({ title, date, content, slug, headerContent, dis
               remarkPlugins={[remarkGfm, remarkMath]}
               rehypePlugins={[rehypeKatex]}
               components={{
-                code({
-                  inline,
-                  className,
-                  children,
-                  ...props
-                }: {
-                  inline?: boolean
-                  className?: string
-                  children?: React.ReactNode
-                } & React.HTMLAttributes<HTMLElement>) {
-                  const match = /language-(\w+)/.exec(className || '')
-                  return !inline && match ? (
-                    <SyntaxHighlighter
-                      style={tomorrow as { [key: string]: React.CSSProperties }}
-                      language={match[1]}
-                      PreTag='div'
-                    >
-                      {String(children).replace(/\n$/, '')}
-                    </SyntaxHighlighter>
-                  ) : (
-                    <code className={className} {...props}>
+                pre: ({ children }) => (
+                  <pre className='code-block-wrapper my-4 overflow-x-auto rounded-lg'>
+                    {children}
+                  </pre>
+                ),
+                code: ({ className, children, ...props }: React.HTMLAttributes<HTMLElement>) => {
+                  const isInline = !className?.includes('language-')
+                  const language = className?.replace('language-', '') || 'text'
+
+                  if (isInline) {
+                    return (
+                      <code className='inline-code bg-muted px-1.5 py-0.5 rounded text-sm font-mono' {...props}>
+                        {children}
+                      </code>
+                    )
+                  }
+
+                  return (
+                    <code className={`code-block language-${language}`} {...props}>
                       {children}
                     </code>
                   )
@@ -167,21 +174,101 @@ export function BlogPostContent({ title, date, content, slug, headerContent, dis
                   </a>
                 ),
                 blockquote: ({ children }) => (
-                  <blockquote className='pl-4 border-l-4 border-border text-muted-foreground'>
+                  <blockquote className='pl-4 border-l-4 border-border text-muted-foreground bg-muted/50 py-2 px-4 rounded-r-lg my-4'>
                     {children}
                   </blockquote>
+                ),
+                ul: ({ children }) => (
+                  <ul className='list-disc list-inside my-4 text-foreground space-y-1'>
+                    {children}
+                  </ul>
+                ),
+                ol: ({ children }) => (
+                  <ol className='list-decimal list-inside my-4 text-foreground space-y-1'>
+                    {children}
+                  </ol>
+                ),
+                li: ({ children }) => (
+                  <li className='text-foreground'>
+                    {children}
+                  </li>
+                ),
+                h1: ({ children }) => (
+                  <h1 className='text-3xl font-bold text-foreground mt-8 mb-4'>
+                    {children}
+                  </h1>
+                ),
+                h2: ({ children }) => (
+                  <h2 className='text-2xl font-bold text-foreground mt-8 mb-4 border-b border-border pb-2'>
+                    {children}
+                  </h2>
+                ),
+                h3: ({ children }) => (
+                  <h3 className='text-xl font-bold text-foreground mt-6 mb-3'>
+                    {children}
+                  </h3>
+                ),
+                h4: ({ children }) => (
+                  <h4 className='text-lg font-bold text-foreground mt-4 mb-2'>
+                    {children}
+                  </h4>
+                ),
+                strong: ({ children }) => (
+                  <strong className='font-bold text-foreground'>
+                    {children}
+                  </strong>
+                ),
+                em: ({ children }) => (
+                  <em className='italic text-foreground'>
+                    {children}
+                  </em>
+                ),
+                hr: () => (
+                  <hr className='my-8 border-border' />
+                ),
+                table: ({ children }) => (
+                  <div className='overflow-x-auto my-4'>
+                    <table className='w-full border-collapse border border-border'>
+                      {children}
+                    </table>
+                  </div>
+                ),
+                thead: ({ children }) => (
+                  <thead className='bg-muted'>
+                    {children}
+                  </thead>
+                ),
+                tbody: ({ children }) => (
+                  <tbody>
+                    {children}
+                  </tbody>
+                ),
+                tr: ({ children }) => (
+                  <tr className='border-b border-border'>
+                    {children}
+                  </tr>
+                ),
+                th: ({ children }) => (
+                  <th className='border border-border px-4 py-2 text-left font-bold text-foreground'>
+                    {children}
+                  </th>
+                ),
+                td: ({ children }) => (
+                  <td className='border border-border px-4 py-2 text-foreground'>
+                    {children}
+                  </td>
                 ),
                 p: ({ children, ...props }) => {
                   // Check if this paragraph contains any images
                   const childrenArray = React.Children.toArray(children)
-                  const hasImage = childrenArray.some(child => 
+                  const hasImage = childrenArray.some(child =>
                     React.isValidElement(child) && child.type === 'img'
                   )
                   // If contains image, render as div to avoid hydration mismatch
                   if (hasImage) {
-                    return <div {...props} className='my-3'>{children}</div>
+                    return <div {...props} className='my-3 text-foreground'>{children}</div>
                   }
-                  return <p {...props}>{children}</p>
+                  return <p {...props} className='text-foreground'>{children}</p>
                 },
                 img: ({ src, alt }) => {
                   if (!src) return null
@@ -245,6 +332,15 @@ export function BlogPostContent({ title, date, content, slug, headerContent, dis
           {discussionsComponent}
         </div>
       )}
+
+      {/* Gitalk 评论区 */}
+      <div className='mt-6 bg-card rounded-lg border border-border p-8'>
+        <h2 className='text-xl font-bold mb-6 text-foreground flex items-center gap-2'>
+          <Icon icon="lucide:message-circle" className="w-5 h-5" />
+          评论
+        </h2>
+        <GitalkComments id={slug} title={title} />
+      </div>
     </div>
   )
 }
