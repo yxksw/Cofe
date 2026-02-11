@@ -106,9 +106,9 @@ export const StatusCard = ({
                   textClassName='text-xs'
                 />
               )}
-              {(links['t.me'] || links['tELEGRAM']) && (
+              {(links['t.me'] || links['Telegram']) && (
                 <SocialLink
-                  href={links['t.me'] || links['tELEGRAM']}
+                  href={links['t.me'] || links['Telegram']}
                   title='Telegram'
                   icon='mdi:telegram'
                   label='Telegram'
