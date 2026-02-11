@@ -156,8 +156,8 @@ export default function LikeButton({ type, id, initialLikes, className = '' }: L
       className={`
         flex items-center gap-1 p-1 transition-all duration-200 ${className}
         ${likes.userLiked 
-          ? 'text-red-600' 
-          : 'text-gray-600 hover:text-gray-800'
+          ? 'text-red-500' 
+          : 'text-muted-foreground hover:text-foreground'
         }
         ${isLoading ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}
         hover:scale-105 active:scale-95
@@ -167,7 +167,7 @@ export default function LikeButton({ type, id, initialLikes, className = '' }: L
       <Heart
         size={16}
         className={`transition-all duration-200 ${
-          likes.userLiked ? 'fill-red-500 text-red-500' : 'text-gray-400'
+          likes.userLiked ? 'fill-red-500 text-red-500' : 'text-muted-foreground'
         }`}
       />
       <span className="text-sm font-medium">

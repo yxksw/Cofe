@@ -4,6 +4,7 @@ import "katex/dist/katex.min.css";
 
 import { useEffect, useState } from "react";
 
+import { FancyboxWrapper } from "./FancyboxWrapper";
 import { Memo } from "@/lib/types";
 import { MemoCard } from "./MemoCard"; // Import MemoCard from MemosList
 import { formatTimestamp } from "@/lib/utils";
@@ -69,27 +70,29 @@ export default function PublicMemosList({
     return (
       <div className='flex flex-col items-center mt-16 space-y-6'>
         <div className='text-center space-y-3'>
-          <h2 className='text-2xl font-semibold text-gray-900'>No memos yet</h2>
-          <p className='text-gray-500 max-w-md'>Capture quick thoughts and moments by creating your first memo.</p>
+          <h2 className='text-2xl font-semibold text-foreground'>No memos yet</h2>
+          <p className='text-muted-foreground max-w-md'>Capture quick thoughts and moments by creating your first memo.</p>
         </div>
       </div>
     )
   }
 
   return (
-    <div className="space-y-4">
-      <div className="columns-1 md:columns-2 gap-4 space-y-4">
-        {formattedMemos.map((memo) => (
-          <div key={memo.id} className="break-inside-avoid mb-4">
-            <MemoCard
-              memo={memo}
-              onDelete={handleDelete}
-              onEdit={() => {}}
-              isDeleting={deletingMemoId === memo.id}
-            />
-          </div>
-        ))}
+    <FancyboxWrapper>
+      <div className="space-y-4">
+        <div className="columns-1 md:columns-2 gap-4 space-y-4">
+          {formattedMemos.map((memo) => (
+            <div key={memo.id} className="break-inside-avoid mb-4">
+              <MemoCard
+                memo={memo}
+                onDelete={handleDelete}
+                onEdit={() => {}}
+                isDeleting={deletingMemoId === memo.id}
+              />
+            </div>
+          ))}
+        </div>
       </div>
-    </div>
+    </FancyboxWrapper>
   );
 }

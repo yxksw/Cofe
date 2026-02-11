@@ -5,8 +5,10 @@ import { getLocale, getMessages } from 'next-intl/server'
 import CreateButton from '@/components/CreateButton'
 import Head from 'next/head'
 import type { Metadata } from 'next'
+import { Navbar } from '@/components/Navbar'
 import { NextIntlClientProvider } from 'next-intl'
 import { SessionProvider } from '../components/SessionProvider'
+import { ThemeProvider } from '@/components/ThemeProvider'
 import { Toaster } from '@/components/ui/toaster'
 import { authOptions } from '@/lib/auth'
 import { getIconUrls } from '@/lib/githubApi'
@@ -59,7 +61,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   const { iconPath } = await getIconPaths(session?.accessToken)
 
   return (
-    <html lang={locale}>
+    <html lang={locale} suppressHydrationWarning>
       <Head>
         <meta name='viewport' content='width=device-width, initial-scale=1, viewport-fit=cover' />
         <meta name='apple-mobile-web-app-capable' content='yes' />
@@ -67,14 +69,17 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         <link rel='apple-touch-icon' href={iconPath} />
       </Head>
       <Analytics />
-      <body className={`${gowun_wodum.className} bg-[#f6f8fa]`}>
-        <NextIntlClientProvider messages={messages}>
-          <SessionProvider>
-            <main className='pb-20 m-auto'>{children}</main>
-            <CreateButton messages={messages} />
-            <Toaster />
-          </SessionProvider>
-        </NextIntlClientProvider>
+      <body className={`${gowun_wodum.className} bg-background`}>
+        <ThemeProvider>
+          <NextIntlClientProvider messages={messages}>
+            <SessionProvider>
+              <Navbar />
+              <main className='pb-20 m-auto'>{children}</main>
+              <CreateButton messages={messages} />
+              <Toaster />
+            </SessionProvider>
+          </NextIntlClientProvider>
+        </ThemeProvider>
       </body>
     </html>
   )

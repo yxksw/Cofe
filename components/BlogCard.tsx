@@ -2,20 +2,26 @@
 
 import { BlogPost } from "@/lib/types";
 import Link from "next/link";
+import Image from "next/image";
 
 export const BlogCard = ({ post }: { post: BlogPost }) => (
-  <div className="group bg-white rounded-lg border border-gray-200 overflow-hidden hover:shadow-lg transition-all duration-200">
+  <div className="group bg-card rounded-lg border border-border overflow-hidden hover:shadow-lg transition-all duration-200">
     {post.imageUrl && (
-      <div 
-        className="h-48 bg-gray-100 relative overflow-hidden"
-        style={{
-          backgroundImage: `url(${post.imageUrl})`,
-          backgroundSize: "cover",
-          backgroundPosition: "center",
-        }}
+      <a
+        href={post.imageUrl}
+        data-fancybox="blog-gallery"
+        data-caption={post.title}
+        className="block h-48 bg-muted relative overflow-hidden cursor-zoom-in"
       >
+        <Image
+          src={post.imageUrl}
+          alt={post.title}
+          fill
+          className="object-cover transition-transform duration-300 group-hover:scale-105"
+          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+        />
         <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-200"></div>
-      </div>
+      </a>
     )}
     <Link
       href={`/blog/${encodeURIComponent(post.id)}`}
@@ -23,10 +29,10 @@ export const BlogCard = ({ post }: { post: BlogPost }) => (
       aria-label={post.title}
     >
       <div className="space-y-4">
-        <h3 className="font-semibold text-xl md:text-2xl text-gray-900 group-hover:text-blue-600 transition-colors duration-200 leading-tight">
+        <h3 className="font-semibold text-xl md:text-2xl text-foreground group-hover:text-primary transition-colors duration-200 leading-tight">
           {post.title}
         </h3>
-        <p className="text-sm text-gray-500">
+        <p className="text-sm text-muted-foreground">
           {formatDate(post.date)}
         </p>
       </div>

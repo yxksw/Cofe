@@ -33,11 +33,11 @@ export const MemoCard = ({ memo, onDelete, onEdit, isDeleting = false }: MemoCar
   return (
     <div
       key={memo.id}
-      className='relative flex flex-col justify-center p-6 rounded-lg leading-5 transition-all duration-200 hover:shadow-md overflow-visible h-fit bg-white border border-gray-200'
+      className='relative flex flex-col justify-center p-6 rounded-lg leading-5 transition-all duration-200 hover:shadow-md overflow-visible h-fit bg-card border border-border'
     >
-      <div className='text-gray-800 mb-2 prose max-w-none'>
+      <div className='text-foreground mb-2 prose dark:prose-invert max-w-none'>
         <div className='flex items-center justify-between mb-3'>
-          <small className='text-gray-500 text-xs flex items-center gap-2'>
+          <small className='text-muted-foreground text-xs flex items-center gap-2'>
             {getRelativeTimeString(memo.timestamp)}
             {memo.city && (
               <span>@ {memo.city}{memo.street ? ` · ${memo.street}` : ''}</span>
@@ -49,7 +49,7 @@ export const MemoCard = ({ memo, onDelete, onEdit, isDeleting = false }: MemoCar
               <DropdownMenuTrigger asChild>
                 <Button
                   variant='ghost'
-                  className='text-gray-600 hover:text-gray-900 bg-transparent h-6 w-6 p-0 rounded-full'
+                  className='text-muted-foreground hover:text-foreground bg-transparent h-6 w-6 p-0 rounded-full'
                 >
                   <AiOutlineEllipsis className='h-4 w-4' />
                 </Button>
@@ -57,13 +57,13 @@ export const MemoCard = ({ memo, onDelete, onEdit, isDeleting = false }: MemoCar
               <DropdownMenuContent 
                 align="end" 
                 side="bottom" 
-                className="z-50 bg-white border border-gray-200 shadow-lg rounded-md min-w-[120px]"
+                className="z-50 bg-popover border border-border shadow-lg rounded-md min-w-[120px]"
                 sideOffset={4}
               >
                 <DropdownMenuItem
                   onSelect={() => onDelete(memo.id)}
                   disabled={isDeleting}
-                  className="px-3 py-2 text-sm cursor-pointer hover:bg-gray-100 focus:bg-gray-100 text-red-600 hover:text-red-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="px-3 py-2 text-sm cursor-pointer hover:bg-accent focus:bg-accent text-destructive hover:text-destructive disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {isDeleting ? (
                     <div className="flex items-center gap-2">
@@ -77,7 +77,7 @@ export const MemoCard = ({ memo, onDelete, onEdit, isDeleting = false }: MemoCar
                 <DropdownMenuItem 
                   onClick={() => onEdit(memo.id)} 
                   disabled={isDeleting}
-                  className="px-3 py-2 text-sm cursor-pointer hover:bg-gray-100 focus:bg-gray-100 text-gray-700 hover:text-gray-900 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="px-3 py-2 text-sm cursor-pointer hover:bg-accent focus:bg-accent text-foreground hover:text-foreground disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {t('edit')}
                 </DropdownMenuItem>
@@ -117,7 +117,7 @@ export const MemoCard = ({ memo, onDelete, onEdit, isDeleting = false }: MemoCar
             a: ({ children, ...props }) => (
               <a
                 {...props}
-                className='text-gray-400 no-underline hover:text-gray-600 hover:underline hover:underline-offset-4 transition-colors duration-200 break-words'
+                className='text-muted-foreground no-underline hover:text-foreground hover:underline hover:underline-offset-4 transition-colors duration-200 break-words'
                 target='_blank'
                 rel='noopener noreferrer'
               >
@@ -125,8 +125,27 @@ export const MemoCard = ({ memo, onDelete, onEdit, isDeleting = false }: MemoCar
               </a>
             ),
             blockquote: ({ children }) => (
-              <div className='pl-4 border-l-4 border-gray-200 text-gray-400'>{children}</div>
+              <div className='pl-4 border-l-4 border-border text-muted-foreground'>{children}</div>
             ),
+            img: ({ src, alt }) => {
+              if (!src) return null
+              
+              return (
+                <a
+                  href={src}
+                  data-fancybox={`memo-${memo.id}`}
+                  data-caption={alt || ''}
+                  className='block cursor-zoom-in my-2'
+                >
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={src}
+                    alt={alt || 'image'}
+                    className='max-w-full h-auto rounded-lg shadow-md hover:opacity-95 transition-opacity'
+                  />
+                </a>
+              )
+            },
           }}
         >
           {memo.content}

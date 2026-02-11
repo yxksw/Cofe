@@ -4,7 +4,7 @@
  * Returns prompt templates for Mile's LLM-based parsing features.
  * Templates contain placeholders (e.g., {{TODAY}}) that the app resolves at runtime.
  *
- * Endpoint: GET https://blog.minghe.me/api/mile/prompts
+ * Endpoint: GET https://cofe.381359.xyz/api/mile/prompts
  */
 
 import { NextResponse } from 'next/server'

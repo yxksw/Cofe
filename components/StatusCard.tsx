@@ -1,5 +1,5 @@
 import { Card, CardContent } from '@/components/ui/card'
-import { FaGithub, FaLinkedin, FaPodcast, FaTwitter } from 'react-icons/fa'
+import { Icon } from '@iconify/react'
 
 import Image from 'next/image'
 import Link from 'next/link'
@@ -9,7 +9,7 @@ import { getRelativeTimeString, processMemoForPreview } from '@/lib/utils'
 const SocialLink = ({ href, title, icon, label, textClassName = '' }: {
   href: string
   title: string
-  icon?: JSX.Element
+  icon?: string
   label: string
   textClassName?: string
 }) => (
@@ -20,7 +20,7 @@ const SocialLink = ({ href, title, icon, label, textClassName = '' }: {
     className={`text-gray-500 hover:text-gray-700 transition-colors p-0.5 m-auto ${textClassName}`}
     title={title}
   >
-    {icon || label}
+    {icon ? <Icon icon={icon} width={16} height={16} /> : label}
     <span className='sr-only'>{label}</span>
   </a>
 )
@@ -62,7 +62,7 @@ export const StatusCard = ({
                 <SocialLink
                   href={links['github.com']}
                   title='GitHub'
-                  icon={<FaGithub size={16} />}
+                  icon='mdi:github'
                   label='GitHub'
                 />
               )}
@@ -70,7 +70,7 @@ export const StatusCard = ({
                 <SocialLink
                   href={links['x.com']}
                   title='X'
-                  icon={<FaTwitter size={16} />}
+                  icon='ri:twitter-x-fill'
                   label='X (Twitter)'
                 />
               )}
@@ -78,7 +78,7 @@ export const StatusCard = ({
                 <SocialLink
                   href={links['linkedin.com']}
                   title='LinkedIn'
-                  icon={<FaLinkedin size={16} />}
+                  icon='mdi:linkedin'
                   label='LinkedIn'
                 />
               )}
@@ -94,7 +94,7 @@ export const StatusCard = ({
                 <SocialLink
                   href={links['podcasts.apple.com']}
                   title='Apple Podcasts'
-                  icon={<FaPodcast size={16} />}
+                  icon='mdi:podcast'
                   label='Apple Podcasts'
                 />
               )}

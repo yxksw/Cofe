@@ -4,7 +4,7 @@
  * Receives subscription events from Apple and sends notifications via Day.app
  * Supports multiple products (Mile, ExpenSee, Wnder)
  *
- * Webhook URL: https://blog.minghe.me/api/webhooks/notification
+ * Webhook URL: https://cofe.381359.xyz/api/webhooks/notification
  * Configure this URL in App Store Connect for each app.
  */
 

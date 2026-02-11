@@ -1,6 +1,5 @@
-import { FaGithub, FaLinkedin, FaPodcast, FaTwitter } from 'react-icons/fa'
-
 import { CardContent } from '@/components/ui/card'
+import { Icon } from '@iconify/react'
 import Image from 'next/image'
 import Link from 'next/link'
 
@@ -28,10 +27,10 @@ export const AvatarCard = ({ name, links }: { name: string; links: Record<string
                 href={links['github.com']}
                 target='_blank'
                 rel='noopener noreferrer'
-                className='text-gray-500 hover:text-gray-700 transition-colors p-1.5 m-auto'
+                className='text-muted-foreground hover:text-foreground transition-colors p-1.5 m-auto'
                 title='GitHub'
               >
-                <FaGithub size={16} />
+                <Icon icon='mdi:github' width={16} height={16} />
                 <span className='sr-only'>GitHub</span>
               </a>
             )}
@@ -41,10 +40,10 @@ export const AvatarCard = ({ name, links }: { name: string; links: Record<string
                 href={links['x.com']}
                 target='_blank'
                 rel='noopener noreferrer'
-                className='text-gray-500 hover:text-gray-700 transition-colors p-1.5 m-auto'
+                className='text-muted-foreground hover:text-foreground transition-colors p-1.5 m-auto'
                 title='X'
               >
-                <FaTwitter size={16} />
+                <Icon icon='ri:twitter-x-fill' width={16} height={16} />
                 <span className='sr-only'>X (Twitter)</span>
               </a>
             )}
@@ -54,10 +53,10 @@ export const AvatarCard = ({ name, links }: { name: string; links: Record<string
                 href={links['linkedin.com']}
                 target='_blank'
                 rel='noopener noreferrer'
-                className='text-gray-500 hover:text-gray-700 transition-colors p-1.5 m-auto'
+                className='text-muted-foreground hover:text-foreground transition-colors p-1.5 m-auto'
                 title='LinkedIn'
               >
-                <FaLinkedin size={16} />
+                <Icon icon='mdi:linkedin' width={16} height={16} />
                 <span className='sr-only'>LinkedIn</span>
               </a>
             )}
@@ -67,7 +66,7 @@ export const AvatarCard = ({ name, links }: { name: string; links: Record<string
                 href={links['xiaohongshu.com']}
                 target='_blank'
                 rel='noopener noreferrer'
-                className='text-gray-500 hover:text-gray-700 transition-colors p-1.5 m-auto text-xs'
+                className='text-muted-foreground hover:text-foreground transition-colors p-1.5 m-auto text-xs'
                 title='小红书'
               >
                 小红书
@@ -80,10 +79,10 @@ export const AvatarCard = ({ name, links }: { name: string; links: Record<string
                 href={links['podcasts.apple.com']}
                 target='_blank'
                 rel='noopener noreferrer'
-                className='text-gray-500 hover:text-gray-700 transition-colors p-1.5 m-auto'
+                className='text-muted-foreground hover:text-foreground transition-colors p-1.5 m-auto'
                 title='Apple Podcasts'
               >
-                <FaPodcast size={16} />
+                <Icon icon='mdi:podcast' width={16} height={16} />
                 <span className='sr-only'>Apple Podcasts</span>
               </a>
             )}
@@ -93,7 +92,7 @@ export const AvatarCard = ({ name, links }: { name: string; links: Record<string
                 href={links['xiaoyuzhoufm.com']}
                 target='_blank'
                 rel='noopener noreferrer'
-                className='text-gray-500 hover:text-gray-700 transition-colors p-1.5 m-auto text-xs'
+                className='text-muted-foreground hover:text-foreground transition-colors p-1.5 m-auto text-xs'
                 title='小宇宙'
               >
                 小宇宙

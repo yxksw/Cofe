@@ -4,7 +4,7 @@
 
 The Cofe app provides a GraphQL API endpoint at `/api/graphql` for managing memos from external applications (e.g., iOS apps).
 
-**Endpoint**: `https://blog.minghe.me/api/graphql`
+**Endpoint**: `https://cofe.381359.xyz/api/graphql`
 
 ## Authentication
 
@@ -17,7 +17,7 @@ NextAuth stores the session as an HTTP-only cookie, not a Bearer token. Here's h
 #### Method 1: Extract from Browser (Development/Testing)
 
 1. **Login to your web app**:
-   - Go to `https://blog.minghe.me/login` (or `http://localhost:3001/login` for local)
+   - Go to `https://cofe.381359.xyz/login` (or `http://localhost:3001/login` for local)
    - Sign in with GitHub
 
 2. **Get the session token**:
@@ -43,7 +43,7 @@ For mobile apps, implement OAuth flow:
 
 1. **Redirect to GitHub OAuth**:
    ```
-   https://blog.minghe.me/api/auth/signin/github
+   https://cofe.381359.xyz/api/auth/signin/github
    ```
 
 2. **Handle callback and extract session cookie**:
@@ -123,7 +123,7 @@ mutation CreateMemo($input: CreateMemoInput!) {
 
 #### Test Query (Get Memos) - No Auth Required
 ```bash
-curl -X POST https://blog.minghe.me/api/graphql \
+curl -X POST https://cofe.381359.xyz/api/graphql \
   -H "Content-Type: application/json" \
   -d '{
     "query": "query GetMemos { memos { id content timestamp image } }"
@@ -136,7 +136,7 @@ curl -X POST https://blog.minghe.me/api/graphql \
 
 **Step 2: Use the token in Cookie header**
 ```bash
-curl -X POST https://blog.minghe.me/api/graphql \
+curl -X POST https://cofe.381359.xyz/api/graphql \
   -H "Content-Type: application/json" \
   -H "Cookie: next-auth.session-token=YOUR_TOKEN_HERE" \
   -d '{
@@ -170,7 +170,7 @@ curl -X POST http://localhost:3001/api/graphql \
 
 #### For Queries (No Auth):
 1. **Method**: POST
-2. **URL**: `https://blog.minghe.me/api/graphql`
+2. **URL**: `https://cofe.381359.xyz/api/graphql`
 3. **Headers**: `Content-Type: application/json`
 4. **Body** (raw JSON):
    ```json
@@ -181,7 +181,7 @@ curl -X POST http://localhost:3001/api/graphql \
 
 #### For Mutations (With Auth):
 1. **Method**: POST
-2. **URL**: `https://blog.minghe.me/api/graphql`
+2. **URL**: `https://cofe.381359.xyz/api/graphql`
 3. **Headers**:
    - `Content-Type: application/json`
    - `Cookie: next-auth.session-token=YOUR_TOKEN_HERE`
@@ -286,7 +286,7 @@ class GraphQLService {
         let store = ApolloStore()
         let client = URLSessionClient()
         let provider = NetworkInterceptorProvider(store: store, client: client)
-        let url = URL(string: "https://blog.minghe.me/api/graphql")!
+        let url = URL(string: "https://cofe.381359.xyz/api/graphql")!
         let transport = RequestChainNetworkTransport(interceptorProvider: provider, endpointURL: url)
         self.apollo = ApolloClient(networkTransport: transport, store: store)
     }
@@ -374,7 +374,7 @@ The API inherits GitHub's rate limits since it uses the GitHub API for data pers
 
 ### Getting YOUR_TOKEN (Step by Step)
 
-1. **Open your web app** → `https://blog.minghe.me/login`
+1. **Open your web app** → `https://cofe.381359.xyz/login`
 2. **Login with GitHub**
 3. **Open Developer Tools** (F12 or Right-click → Inspect)
 4. **Go to Application tab** → **Cookies** → Select your domain
@@ -385,12 +385,12 @@ The API inherits GitHub's rate limits since it uses the GitHub API for data pers
 
 ```bash
 # Test Query (no auth needed)
-curl -X POST https://blog.minghe.me/api/graphql \
+curl -X POST https://cofe.381359.xyz/api/graphql \
   -H "Content-Type: application/json" \
   -d '{"query": "query { memos { id content timestamp } }"}'
 
 # Test Mutation (replace YOUR_TOKEN with actual token)
-curl -X POST https://blog.minghe.me/api/graphql \
+curl -X POST https://cofe.381359.xyz/api/graphql \
   -H "Content-Type: application/json" \
   -H "Cookie: next-auth.session-token=YOUR_TOKEN" \
   -d '{"query": "mutation CreateMemo($input: CreateMemoInput!) { createMemo(input: $input) { id content timestamp } }", "variables": {"input": {"content": "API test memo"}}}'

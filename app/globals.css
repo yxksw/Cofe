@@ -55,17 +55,64 @@
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
   }
 
+  html {
+    @apply scroll-smooth;
+  }
+
   body {
     @apply bg-background text-foreground;
     line-height: 1.62em;
     margin: 0;
     font-size: 18px;
     word-wrap: break-word;
+    /* 平滑过渡所有颜色变化 */
+    transition: background-color 0.3s ease-in-out, color 0.3s ease-in-out;
+  }
+
+  /* 为所有元素添加颜色过渡效果 */
+  *,
+  *::before,
+  *::after {
+    transition-property: background-color, border-color, color, fill, stroke;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    transition-duration: 0ms;
+  }
+
+  /* 当在 html 或 body 上切换主题时，所有子元素都会平滑过渡 */
+  html.dark *,
+  html.dark *::before,
+  html.dark *::after,
+  body[data-theme-transition] *,
+  body[data-theme-transition] *::before,
+  body[data-theme-transition] *::after {
+    transition-duration: 300ms;
   }
 
   a {
     @apply text-primary;
     text-underline-offset: 3px;
     text-decoration-thickness: 0.5px;
+  }
+}
+
+@layer utilities {
+  /* 主题切换时的特殊过渡类 */
+  .theme-transition {
+    transition: background-color 0.3s ease-in-out, 
+                color 0.3s ease-in-out, 
+                border-color 0.3s ease-in-out,
+                fill 0.3s ease-in-out,
+                stroke 0.3s ease-in-out;
+  }
+
+  /* 禁用过渡效果（用于性能关键场景） */
+  .no-theme-transition {
+    transition: none !important;
+  }
+
+  .no-theme-transition *,
+  .no-theme-transition *::before,
+  .no-theme-transition *::after {
+    transition: none !important;
   }
 }

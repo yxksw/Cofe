@@ -2,7 +2,7 @@
 
 A beautifully simple blog and memo app that just works.
 
-Write thoughts. Share ideas. Let GitHub handle the rest. Originally inspired by [tinymind](https://github.com/mazzzystar/tinymind), now see it in action at [blog.minghe.me](https://blog.minghe.me).
+Write thoughts. Share ideas. Let GitHub handle the rest. Originally inspired by [tinymind](https://github.com/mazzzystar/tinymind), now see it in action at [cofe.381359.xyz](https://cofe.381359.xyz).
 
 
 ## What You Get

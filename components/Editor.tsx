@@ -457,9 +457,9 @@ export default function Editor({
   return (
     <div className="max-w-4xl mx-auto px-4 py-8">
       {(isLoading || isImageUploading) && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white p-4 rounded-lg shadow-xl">
-            <Loader2 className="h-8 w-8 animate-spin text-gray-600" />
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="bg-card p-4 rounded-lg shadow-xl">
+            <Loader2 className="h-8 w-8 animate-spin text-foreground" />
           </div>
         </div>
       )}
@@ -469,14 +469,14 @@ export default function Editor({
         <div className="flex justify-between items-center">
           {/* Draft/Published toggle on the left */}
           {type === "blog" && (
-            <div className="flex items-center gap-1 bg-gray-100 rounded-lg p-1">
+            <div className="flex items-center gap-1 bg-secondary rounded-lg p-1">
               <button
                 type="button"
                 onClick={() => setIsPublished(false)}
                 className={`px-3 py-1.5 rounded-md text-sm font-medium transition-all ${
                   !isPublished 
-                    ? "bg-white text-black shadow-sm" 
-                    : "text-gray-600 hover:text-gray-900"
+                    ? "bg-card text-foreground shadow-sm" 
+                    : "text-muted-foreground hover:text-foreground"
                 }`}
                 disabled={isLoading || isImageUploading}
               >
@@ -487,8 +487,8 @@ export default function Editor({
                 onClick={() => setIsPublished(true)}
                 className={`px-3 py-1.5 rounded-md text-sm font-medium transition-all ${
                   isPublished 
-                    ? "bg-white text-black shadow-sm" 
-                    : "text-gray-600 hover:text-gray-900"
+                    ? "bg-card text-foreground shadow-sm" 
+                    : "text-muted-foreground hover:text-foreground"
                 }`}
                 disabled={isLoading || isImageUploading}
               >
@@ -499,14 +499,14 @@ export default function Editor({
           {type === "memo" && <div />} {/* Empty div to maintain justify-between spacing */}
           
           {/* Memo/Blog selector on the right */}
-          <div className="flex items-center gap-1 bg-gray-100 rounded-lg p-1">
+          <div className="flex items-center gap-1 bg-secondary rounded-lg p-1">
             <button
               type="button"
               onClick={() => handleTypeChange("memo")}
               className={`px-3 py-1.5 rounded-md text-sm font-medium transition-all ${
                 type === "memo" 
-                  ? "bg-white text-black shadow-sm" 
-                  : "text-gray-600 hover:text-gray-900"
+                  ? "bg-card text-foreground shadow-sm" 
+                  : "text-muted-foreground hover:text-foreground"
               }`}
             >
               Memo
@@ -516,8 +516,8 @@ export default function Editor({
               onClick={() => handleTypeChange("blog")}
               className={`px-3 py-1.5 rounded-md text-sm font-medium transition-all ${
                 type === "blog" 
-                  ? "bg-white text-black shadow-sm" 
-                  : "text-gray-600 hover:text-gray-900"
+                  ? "bg-card text-foreground shadow-sm" 
+                  : "text-muted-foreground hover:text-foreground"
               }`}
             >
               Blog
@@ -530,10 +530,10 @@ export default function Editor({
 
           {/* Title Section - Clean and minimal */}
           {type === "blog" && (
-            <div className="bg-white rounded-lg border border-gray-200 p-6">
+            <div className="bg-card rounded-lg border border-border p-6">
               <div>
                 <div className="flex items-center justify-between mb-2">
-                  <Label htmlFor="title" className="text-sm font-medium text-gray-700">
+                  <Label htmlFor="title" className="text-sm font-medium text-foreground">
                     Title
                   </Label>
                 </div>
@@ -544,7 +544,7 @@ export default function Editor({
                   onChange={(e) => setTitle(e.target.value)}
                   placeholder="Enter a compelling title..."
                   required
-                  className="text-lg font-medium border-gray-200 focus:border-blue-500 focus:ring-blue-500"
+                  className="text-lg font-medium border-border focus:border-primary focus:ring-primary bg-background"
                   disabled={isLoading || isImageUploading}
                 />
               </div>
@@ -553,9 +553,9 @@ export default function Editor({
           
 
           {/* Content Editor */}
-          <div className="bg-white rounded-lg border border-gray-200 overflow-hidden" {...getRootProps()}>
+          <div className="bg-card rounded-lg border border-border overflow-hidden" {...getRootProps()}>
             <input {...getInputProps()} />
-            <div className="border-b border-gray-200 bg-gray-50">
+            <div className="border-b border-border bg-muted/50">
               <div className="flex items-center justify-between px-4">
                 <div className="flex">
                   <button
@@ -563,8 +563,8 @@ export default function Editor({
                     onClick={() => setIsPreview(false)}
                     className={`px-4 py-3 text-sm font-medium transition-colors ${
                       !isPreview 
-                        ? "text-blue-600 border-b-2 border-blue-600 bg-white" 
-                        : "text-gray-600 hover:text-gray-900"
+                        ? "text-primary border-b-2 border-primary bg-card" 
+                        : "text-muted-foreground hover:text-foreground"
                     }`}
                     disabled={isLoading || isImageUploading}
                   >
@@ -575,8 +575,8 @@ export default function Editor({
                     onClick={() => setIsPreview(true)}
                     className={`px-4 py-3 text-sm font-medium transition-colors ${
                       isPreview 
-                        ? "text-blue-600 border-b-2 border-blue-600 bg-white" 
-                        : "text-gray-600 hover:text-gray-900"
+                        ? "text-primary border-b-2 border-primary bg-card" 
+                        : "text-muted-foreground hover:text-foreground"
                     }`}
                     disabled={isLoading || isImageUploading}
                   >
@@ -585,7 +585,7 @@ export default function Editor({
                 </div>
                 <label
                   htmlFor="image-upload"
-                  className="p-2 text-gray-600 hover:text-gray-900 cursor-pointer transition-colors"
+                  className="p-2 text-muted-foreground hover:text-foreground cursor-pointer transition-colors"
                   title="Upload image"
                 >
                   <CgImage className="h-5 w-5" />
@@ -605,7 +605,7 @@ export default function Editor({
               </div>
             </div>
             {isPreview ? (
-              <div className="p-6 prose prose-gray max-w-none min-h-[400px]">
+              <div className="p-6 prose prose-lg dark:prose-invert max-w-none min-h-[400px]">
                 <ReactMarkdown
                   remarkPlugins={[remarkGfm, remarkMath]}
                   rehypePlugins={[rehypeKatex]}
@@ -640,7 +640,7 @@ export default function Editor({
                     a: ({ children, ...props }) => (
                       <a
                         {...props}
-                        className="text-gray-400 no-underline hover:text-gray-600 hover:underline hover:underline-offset-4 transition-colors duration-200 break-words"
+                        className="text-muted-foreground no-underline hover:text-foreground hover:underline hover:underline-offset-4 transition-colors duration-200 break-words"
                         target="_blank"
                         rel="noopener noreferrer"
                       >
@@ -648,7 +648,7 @@ export default function Editor({
                       </a>
                     ),
                     blockquote: ({ children }) => (
-                      <div className="pl-4 border-l-4 border-gray-200 text-gray-400">
+                      <div className="pl-4 border-l-4 border-border text-muted-foreground">
                         {children}
                       </div>
                     ),
@@ -666,16 +666,16 @@ export default function Editor({
                 }
                 onPaste={handlePaste}
                 placeholder={type === "blog" ? "Write your blog post content... (Markdown supported)" : "What's on your mind?"}
-                className="min-h-[400px] p-6 border-0 focus:ring-0 resize-none"
+                className="min-h-[400px] p-6 border-0 focus:ring-0 resize-none bg-card"
                 required
                 disabled={isLoading || isImageUploading}
               />
             )}
             {isDragActive && (
-              <div className="absolute inset-0 flex items-center justify-center bg-white bg-opacity-90 border-2 border-dashed border-blue-400 rounded-lg">
+              <div className="absolute inset-0 flex items-center justify-center bg-card/90 border-2 border-dashed border-primary rounded-lg">
                 <div className="text-center">
-                  <CgImage className="h-12 w-12 mx-auto text-blue-500 mb-2" />
-                  <p className="text-lg font-medium text-gray-700">Drop image here</p>
+                  <CgImage className="h-12 w-12 mx-auto text-primary mb-2" />
+                  <p className="text-lg font-medium text-foreground">Drop image here</p>
                 </div>
               </div>
             )}
@@ -683,9 +683,9 @@ export default function Editor({
 
           {/* Location Section - Only show when location is attached */}
           {type === "blog" && isLocationAttached && postLocation && (
-            <div className="bg-gray-50 rounded-lg border border-gray-100 p-4">
+            <div className="bg-muted rounded-lg border border-border p-4">
               <div className="flex items-center justify-between">
-                <span className="text-sm text-gray-700 flex items-center gap-2">
+                <span className="text-sm text-foreground flex items-center gap-2">
                   <span>📍</span>
                   <span>{postLocation.city}{postLocation.street ? ` · ${postLocation.street}` : ''}</span>
                 </span>
@@ -707,7 +707,7 @@ export default function Editor({
                       }
                     }}
                     disabled={locationLoading}
-                    className="text-xs text-gray-500 hover:text-gray-700"
+                    className="text-xs text-muted-foreground hover:text-foreground"
                   >
                     {locationLoading ? (
                       <Loader2 className="h-3 w-3 animate-spin" />
@@ -727,7 +727,7 @@ export default function Editor({
                         duration: 2000,
                       });
                     }}
-                    className="text-xs text-red-500 hover:text-red-700"
+                    className="text-xs text-destructive hover:text-destructive"
                   >
                     Remove
                   </Button>
@@ -738,9 +738,9 @@ export default function Editor({
 
           {/* External Discussions - Only show when discussions exist */}
           {type === "blog" && discussions.length > 0 && (
-            <div className="bg-gray-50 rounded-lg border border-gray-100 p-4">
+            <div className="bg-muted rounded-lg border border-border p-4">
               <div className="flex items-center justify-between mb-3">
-                <span className="text-sm font-medium text-gray-700">
+                <span className="text-sm font-medium text-foreground">
                   External Discussions ({discussions.length})
                 </span>
               </div>
@@ -750,7 +750,7 @@ export default function Editor({
                     <select
                       value={discussion.platform}
                       onChange={(e) => updateDiscussion(index, 'platform', e.target.value as ExternalDiscussion['platform'])}
-                      className="px-2 py-1.5 border border-gray-200 rounded text-xs bg-white"
+                      className="px-2 py-1.5 border border-border rounded text-xs bg-card text-foreground"
                       disabled={isLoading || isImageUploading}
                     >
                       <option value="v2ex">V2EX</option>
@@ -762,7 +762,7 @@ export default function Editor({
                       value={discussion.url}
                       onChange={(e) => updateDiscussion(index, 'url', e.target.value)}
                       placeholder="Paste discussion URL..."
-                      className="flex-1 border-gray-200 text-xs h-8"
+                      className="flex-1 border-border text-xs h-8 bg-card"
                       disabled={isLoading || isImageUploading}
                     />
                     <Button
@@ -771,7 +771,7 @@ export default function Editor({
                       size="sm"
                       onClick={() => removeDiscussion(index)}
                       disabled={isLoading || isImageUploading}
-                      className="text-xs text-red-500 hover:text-red-700 h-8 px-2"
+                      className="text-xs text-destructive hover:text-destructive h-8 px-2"
                     >
                       Remove
                     </Button>
@@ -783,9 +783,9 @@ export default function Editor({
 
           {/* Location for Memos - Only show when location is available and not ignored */}
           {type === "memo" && location && !isMemoLocationIgnored && (
-            <div className="bg-gray-50 rounded-lg border border-gray-100 p-4">
+            <div className="bg-muted rounded-lg border border-border p-4">
               <div className="flex items-center justify-between">
-                <span className="text-sm text-gray-700 flex items-center gap-2">
+                <span className="text-sm text-foreground flex items-center gap-2">
                   <span>📍</span>
                   <span>{location.city}{location.street ? ` · ${location.street}` : ''}</span>
                 </span>
@@ -803,7 +803,7 @@ export default function Editor({
                       });
                     }}
                     disabled={locationLoading}
-                    className="text-xs text-gray-500 hover:text-gray-700"
+                    className="text-xs text-muted-foreground hover:text-foreground"
                   >
                     {locationLoading ? (
                       <Loader2 className="h-3 w-3 animate-spin" />
@@ -823,7 +823,7 @@ export default function Editor({
                         duration: 2000,
                       });
                     }}
-                    className="text-xs text-red-500 hover:text-red-700"
+                    className="text-xs text-destructive hover:text-destructive"
                   >
                     Remove
                   </Button>
@@ -926,7 +926,7 @@ export default function Editor({
               <Button
                 type="submit"
                 disabled={isLoading || isImageUploading || (!content || (type === "blog" && !title))}
-                className="px-8 bg-black hover:bg-gray-800 text-white disabled:opacity-50"
+                className="px-8 bg-primary hover:bg-primary/90 text-primary-foreground disabled:opacity-50"
               >
                 {isLoading ? (
                   <>

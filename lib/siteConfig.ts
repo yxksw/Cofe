@@ -12,12 +12,12 @@ export interface SiteConfig {
   keywords: string[]
   social: {
     github: string
-    twitter: string
+    twitter?: string
   }
 }
 
 export function getSiteConfig(): SiteConfig {
-  return siteConfig
+  return siteConfig as SiteConfig
 }
 
 export function getDynamicBaseUrl(): string {
@@ -35,5 +35,5 @@ export function getDynamicBaseUrl(): string {
   }
   
   // Fallback for build time or when headers are not available
-  return 'https://blog.minghe.me'
+  return 'https://cofe.381359.xyz'
 }
