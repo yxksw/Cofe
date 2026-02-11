@@ -99,6 +99,71 @@ export const AvatarCard = ({ name, links }: { name: string; links: Record<string
                 <span className='sr-only'>小宇宙FM</span>
               </a>
             )}
+
+            {(links['t.me'] || links['tELEGRAM']) && (
+              <a
+                href={links['t.me'] || links['tELEGRAM']}
+                target='_blank'
+                rel='noopener noreferrer'
+                className='text-muted-foreground hover:text-foreground transition-colors p-1.5 m-auto'
+                title='Telegram'
+              >
+                <Icon icon='mdi:telegram' width={16} height={16} />
+                <span className='sr-only'>Telegram</span>
+              </a>
+            )}
+
+            {(links['discord.com'] || links['discord']) && (
+              <a
+                href={links['discord.com'] || links['discord']}
+                target='_blank'
+                rel='noopener noreferrer'
+                className='text-muted-foreground hover:text-foreground transition-colors p-1.5 m-auto'
+                title='Discord'
+              >
+                <Icon icon='mdi:discord' width={16} height={16} />
+                <span className='sr-only'>Discord</span>
+              </a>
+            )}
+
+            {(links['qm.qq.com'] || links['qq']) && (
+              <a
+                href={links['qm.qq.com'] || links['qq']}
+                target='_blank'
+                rel='noopener noreferrer'
+                className='text-muted-foreground hover:text-foreground transition-colors p-1.5 m-auto'
+                title='QQ群'
+              >
+                <Icon icon='mdi:qqchat' width={16} height={16} />
+                <span className='sr-only'>QQ群</span>
+              </a>
+            )}
+
+            {(links['mastodon.social'] || links['mastodon']) && (
+              <a
+                href={links['mastodon.social'] || links['mastodon']}
+                target='_blank'
+                rel='noopener noreferrer'
+                className='text-muted-foreground hover:text-foreground transition-colors p-1.5 m-auto'
+                title='Mastodon'
+              >
+                <Icon icon='mdi:mastodon' width={16} height={16} />
+                <span className='sr-only'>Mastodon</span>
+              </a>
+            )}
+
+            {(links['mailto'] || links['mail']) && (
+              <a
+                href={links['mailto'] || links['mail']}
+                target='_blank'
+                rel='noopener noreferrer'
+                className='text-muted-foreground hover:text-foreground transition-colors p-1.5 m-auto'
+                title='Email'
+              >
+                <Icon icon='mdi:email' width={16} height={16} />
+                <span className='sr-only'>Email</span>
+              </a>
+            )}
           </div>
         </div>
       </CardContent>
