@@ -31,19 +31,23 @@ const STORAGE_KEY = 'cofe-blog-theme'
  * 管理全局主题状态并应用到文档根元素
  */
 export function ThemeProvider({ children }: { children: ReactNode }) {
-  const [theme, setTheme] = useState<Theme>('light')
+  // 初始化主题状态，直接从localStorage获取
+  const [theme, setTheme] = useState<Theme>(() => {
+    if (typeof window === 'undefined') {
+      return 'light'
+    }
+    
+    // 从localStorage获取主题
+    const savedTheme = localStorage.getItem(STORAGE_KEY) as Theme | null
+    return savedTheme || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light')
+  })
 
-  // 初始化主题
+  // 初始化主题并应用到文档
   useEffect(() => {
     if (typeof window === 'undefined') return
 
-    // 从localStorage获取主题
-    const savedTheme = localStorage.getItem(STORAGE_KEY) as Theme | null
-    const initialTheme = savedTheme || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light')
-    setTheme(initialTheme)
-
     // 应用主题
-    document.documentElement.classList.toggle('dark', initialTheme === 'dark')
+    document.documentElement.classList.toggle('dark', theme === 'dark')
   }, [])
 
   // 主题变化时更新DOM和localStorage
