@@ -25,25 +25,8 @@ export function FancyboxWrapper({
     const container = containerRef.current
     if (!container) return
 
-    // 初始化 Fancybox - 使用简化配置
+    // 初始化 Fancybox - 使用最简配置
     NativeFancybox.bind(container, delegate, {
-      // 工具栏配置
-      Toolbar: {
-        display: {
-          left: ['infobar'],
-          middle: ['zoomIn', 'zoomOut', 'toggle1to1', 'rotateCCW', 'rotateCW', 'flipX', 'flipY'],
-          right: ['slideshow', 'thumbs', 'close'],
-        },
-      },
-      // 图片配置
-      Image: {
-        click: 'toggleZoom',
-        doubleClick: 'toggleZoom',
-        wheel: 'zoom',
-        fit: 'contain-w',
-        protect: true,
-      },
-      // 自定义配置覆盖
       ...options,
     })
 
