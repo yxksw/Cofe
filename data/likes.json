@@ -44,13 +44,5 @@
       "country": "GB",
       "language": "en-GB"
     }
-  },
-  "memo_1769285340148": {
-    "8cac63c29c03_CN_android_0136c576_2026-02-11T05:02:33.633Z": {
-      "timestamp": "2026-02-11T05:02:33.633Z",
-      "userAgent": "Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Mobile Safari/537.36",
-      "country": "CN",
-      "language": "zh-CN"
-    }
   }
 }
