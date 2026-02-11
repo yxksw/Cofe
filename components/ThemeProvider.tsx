@@ -48,7 +48,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
 
     // 应用主题
     document.documentElement.classList.toggle('dark', theme === 'dark')
-  }, [])
+  }, [theme])
 
   // 主题变化时更新DOM和localStorage
   useEffect(() => {

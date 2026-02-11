@@ -6,7 +6,6 @@
 
 'use client'
 
-import { useState, useEffect } from 'react'
 import { cn } from '@/lib/utils'
 import { useTheme } from './ThemeProvider'
 
