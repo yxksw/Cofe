@@ -48,7 +48,7 @@ export default async function BlogDiscussions({ discussions }: BlogDiscussionsPr
   return (
     <DiscussionServer
       discussions={discussions}
-      className="mt-8 pt-6 border-t border-gray-100"
+      className="mt-8 pt-6 border-t border-border"
       fetchOptions={{ 
         cacheTimeout: 300,
         userAgent

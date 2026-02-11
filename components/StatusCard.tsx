@@ -17,7 +17,7 @@ const SocialLink = ({ href, title, icon, label, textClassName = '' }: {
     href={href}
     target='_blank'
     rel='noopener noreferrer'
-    className={`text-gray-500 hover:text-gray-700 transition-colors p-0.5 m-auto ${textClassName}`}
+    className={`text-muted-foreground hover:text-foreground transition-colors p-0.5 m-auto ${textClassName}`}
     title={title}
   >
     {icon ? <Icon icon={icon} width={16} height={16} /> : label}
@@ -50,7 +50,7 @@ export const StatusCard = ({
 }) => {
   return (
     <div className='max-w-3xl mx-auto px-4 pt-8 pb-4 w-full'>
-      <Card className='w-full overflow-visible border border-gray-200 bg-white rounded-lg shadow-sm'>
+      <Card className='w-full overflow-visible'>
         <CardContent className='p-8'>
           {/* Avatar and Social Links Section */}
           <div className='flex flex-col items-center space-y-3'>
@@ -112,10 +112,10 @@ export const StatusCard = ({
           {/* Memo Content Section */}
           <div className='flex-1 min-w-0 pt-4'>
             <div className='flex justify-between items-center mb-3'>
-              <time className='text-xs text-gray-400' dateTime='2023-05-26T09:12:00Z'>
+              <time className='text-xs text-muted-foreground' dateTime='2023-05-26T09:12:00Z'>
                 {`@${name}` + ' ' + (memo ? getRelativeTimeString(memo.timestamp) : '')}
               </time>
-              <Link href='/memos' className='text-xs text-gray-400 hover:text-gray-600 underline'>
+              <Link href='/memos' className='text-xs text-muted-foreground hover:text-foreground underline'>
                 more
               </Link>
             </div>
@@ -125,7 +125,7 @@ export const StatusCard = ({
                 <div className='text-base leading-relaxed break-words'>
                   <p>{processedContent}</p>
                   {hasImages && (
-                    <p className='text-xs text-gray-400 mt-2 italic'>
+                    <p className='text-xs text-muted-foreground mt-2 italic'>
                       Contains images - view in &quot;more&quot; →
                     </p>
                   )}

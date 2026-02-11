@@ -8,6 +8,7 @@
 
 import { cn } from '@/lib/utils'
 import { useTheme } from './ThemeProvider'
+import { useState, useEffect } from 'react'
 
 interface ThemeToggleProps {
   className?: string
@@ -69,9 +70,18 @@ function MoonIcon({ className }: { className?: string }) {
  */
 export function ThemeToggle({ className }: ThemeToggleProps) {
   const { theme, toggleTheme } = useTheme()
-  const isDark = theme === 'dark'
+  const [isClient, setIsClient] = useState(false)
+  
+  // 只在客户端设置为true
+  useEffect(() => {
+    setIsClient(true)
+  }, [])
+  
+  // 在客户端初始化完成前，使用与服务器端一致的默认值
+  const isDark = isClient ? theme === 'dark' : false
 
   const handleClick = () => {
+    console.log('ThemeToggle clicked, current theme:', theme)
     toggleTheme()
   }
 

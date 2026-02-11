@@ -27,38 +27,100 @@ const ThemeContext = createContext<ThemeContextType | undefined>(undefined)
 const STORAGE_KEY = 'cofe-blog-theme'
 
 /**
+ * 获取初始主题
+ * 在客户端从localStorage获取，在服务器端返回light
+ */
+function getInitialTheme(): Theme {
+  if (typeof window === 'undefined') {
+    return 'light'
+  }
+  
+  try {
+    // 从localStorage获取主题
+    const savedTheme = localStorage.getItem(STORAGE_KEY) as Theme | null
+    if (savedTheme && (savedTheme === 'light' || savedTheme === 'dark')) {
+      return savedTheme
+    }
+    
+    // 根据系统偏好设置主题
+    return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+  } catch {
+    // 如果出错，默认返回light
+    return 'light'
+  }
+}
+
+/**
  * 主题提供者组件
  * 管理全局主题状态并应用到文档根元素
  */
 export function ThemeProvider({ children }: { children: ReactNode }) {
-  // 在服务器端始终使用light主题
-  // 在客户端使用useState的初始值函数来获取主题，这样只会在客户端执行
-  const [theme, setTheme] = useState<Theme>('light')
-
-  // 只在客户端初始化主题
-  useEffect(() => {
-    if (typeof window === 'undefined') return
-
-    // 从localStorage获取主题
-    const savedTheme = localStorage.getItem(STORAGE_KEY) as Theme | null
-    const initialTheme = savedTheme || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light')
-    setTheme(initialTheme)
-  }, [])
+  // 使用函数初始化主题，确保只在客户端执行
+  const [theme, setTheme] = useState<Theme>(() => getInitialTheme())
 
   // 主题变化时更新DOM和localStorage
   useEffect(() => {
     if (typeof window === 'undefined') return
 
-    // 应用主题到DOM
-    document.documentElement.classList.toggle('dark', theme === 'dark')
+    console.log('ThemeProvider: Updating theme to:', theme)
+    console.log('ThemeProvider: Current documentElement.classList:', document.documentElement.classList)
+    
+    // 移除旧的主题类
+    document.documentElement.classList.remove('light', 'dark')
+    // 添加新的主题类
+    document.documentElement.classList.add(theme)
+    
+    // 确保dark类正确设置
+    if (theme === 'dark') {
+      document.documentElement.classList.add('dark')
+      console.log('ThemeProvider: Added dark class')
+    } else {
+      document.documentElement.classList.remove('dark')
+      console.log('ThemeProvider: Removed dark class')
+    }
+    
+    console.log('ThemeProvider: Updated documentElement.classList:', document.documentElement.classList)
 
     // 保存到localStorage
-    localStorage.setItem(STORAGE_KEY, theme)
+    try {
+      localStorage.setItem(STORAGE_KEY, theme)
+      console.log('ThemeProvider: Saved theme to localStorage:', theme)
+    } catch (error) {
+      console.error('ThemeProvider: Error saving theme to localStorage:', error)
+      // 忽略localStorage错误
+    }
   }, [theme])
+
+  // 监听系统主题变化
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+
+    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)')
+    const handleChange = () => {
+      // 只有当用户没有明确设置主题时，才根据系统偏好更新
+      const savedTheme = localStorage.getItem(STORAGE_KEY) as Theme | null
+      if (!savedTheme) {
+        setTheme(mediaQuery.matches ? 'dark' : 'light')
+      }
+    }
+
+    // 添加监听器
+    mediaQuery.addEventListener('change', handleChange)
+    
+    // 清理监听器
+    return () => {
+      mediaQuery.removeEventListener('change', handleChange)
+    }
+  }, [])
 
   // 切换主题
   const toggleTheme = () => {
-    setTheme(prev => prev === 'light' ? 'dark' : 'light')
+    console.log('Current theme before toggle:', theme)
+    setTheme(prev => {
+      const newTheme = prev === 'light' ? 'dark' : 'light'
+      console.log('New theme after toggle:', newTheme)
+      return newTheme
+    })
   }
 
   // 设置主题
