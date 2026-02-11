@@ -8,7 +8,6 @@ import {
   Dialog,
   DialogContent,
   DialogHeader,
-  DialogTitle,
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 
@@ -142,7 +141,7 @@ export default function FCirclePage() {
   }, [allArticles]);
 
   // 处理文章数据
-  const processArticles = useCallback((data: any) => {
+  const processArticles = useCallback((data: { statistical_data?: Stats; article_data?: Article[] }) => {
     // 更新统计数据
     setStats({
       friends_num: data.statistical_data?.friends_num || 0,
@@ -160,7 +159,6 @@ export default function FCirclePage() {
 
     // 更新显示的列表
     setDisplayedArticles(prev => {
-      const currentStart = start;
       const newDisplayed = newArticles.slice(0, UserConfig.page_turning_number);
       return [...prev, ...newDisplayed];
     });
@@ -241,6 +239,7 @@ export default function FCirclePage() {
   // 初始化
   useEffect(() => {
     loadMoreArticles();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // 显示随机文章

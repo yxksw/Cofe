@@ -3,6 +3,7 @@
 import React, { useState, useRef } from 'react';
 import { useSession } from 'next-auth/react';
 import { Icon } from '@iconify/react';
+import Image from 'next/image';
 import { uploadImage } from '@/lib/githubApi';
 import { useToast } from '@/components/ui/use-toast';
 import {
@@ -289,12 +290,16 @@ const FriendLinkModal: React.FC<FriendLinkModalProps> = ({ isOpen, onClose }) =>
                         {/* 头像预览 */}
                         {previewUrl && (
                             <div className="mt-3 flex items-center gap-3 p-3 bg-muted rounded-lg">
-                                <img
-                                    src={previewUrl}
-                                    alt="头像预览"
-                                    className="w-12 h-12 rounded-full object-cover"
-                                    onError={() => setPreviewUrl('')}
-                                />
+                                <div className="relative w-12 h-12">
+                                    <Image
+                                        src={previewUrl}
+                                        alt="头像预览"
+                                        fill
+                                        className="rounded-full object-cover"
+                                        onError={() => setPreviewUrl('')}
+                                        unoptimized
+                                    />
+                                </div>
                                 <span className="text-sm text-muted-foreground">头像预览</span>
                             </div>
                         )}

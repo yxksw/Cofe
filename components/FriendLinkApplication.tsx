@@ -244,8 +244,10 @@ export function FriendLinkApplication() {
           type='submit'
           onClick={(e) => {
             e.preventDefault()
-            // @ts-ignore
-            document.querySelector('form').dispatchEvent(new Event('submit'))
+            const form = document.querySelector('form')
+            if (form) {
+              form.dispatchEvent(new Event('submit', { cancelable: true }))
+            }
           }}
           disabled={isLoading || isImageUploading || !formData.name || !formData.url || !formData.description}
           className='px-8'
