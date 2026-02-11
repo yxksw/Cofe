@@ -68,8 +68,8 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         <meta name='apple-mobile-web-app-status-bar-style' content='default' />
         <link rel='apple-touch-icon' href={iconPath} />
       </Head>
-      <Analytics />
       <body className={`${gowun_wodum.className} bg-background`}>
+        <Analytics />
         <ThemeProvider>
           <NextIntlClientProvider messages={messages}>
             <SessionProvider>

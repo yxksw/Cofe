@@ -27,84 +27,48 @@ const ThemeContext = createContext<ThemeContextType | undefined>(undefined)
 const STORAGE_KEY = 'cofe-blog-theme'
 
 /**
- * 获取初始主题
- * 优先从 localStorage 读取，其次检测系统偏好
- */
-function getInitialTheme(): Theme {
-  if (typeof window === 'undefined') {
-    return 'light'
-  }
-
-  try {
-    const stored = localStorage.getItem(STORAGE_KEY) as Theme | null
-    if (stored && (stored === 'light' || stored === 'dark')) {
-      return stored
-    }
-
-    // 检测系统偏好
-    if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
-      return 'dark'
-    }
-  } catch {
-    // localStorage 不可用时的回退
-  }
-
-  return 'light'
-}
-
-interface ThemeProviderProps {
-  children: ReactNode
-}
-
-/**
  * 主题提供者组件
  * 管理全局主题状态并应用到文档根元素
  */
-export function ThemeProvider({ children }: ThemeProviderProps) {
-  const [theme, setThemeState] = useState<Theme>('light')
+export function ThemeProvider({ children }: { children: ReactNode }) {
+  const [theme, setTheme] = useState<Theme>('light')
 
   // 初始化主题
   useEffect(() => {
-    const initialTheme = getInitialTheme()
-    setThemeState(initialTheme)
+    if (typeof window === 'undefined') return
+
+    // 从localStorage获取主题
+    const savedTheme = localStorage.getItem(STORAGE_KEY) as Theme | null
+    const initialTheme = savedTheme || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light')
+    setTheme(initialTheme)
+
+    // 应用主题
+    document.documentElement.classList.toggle('dark', initialTheme === 'dark')
   }, [])
 
-  // 应用主题到文档
+  // 主题变化时更新DOM和localStorage
   useEffect(() => {
     if (typeof window === 'undefined') return
 
-    const root = document.documentElement
+    // 应用主题到DOM
+    document.documentElement.classList.toggle('dark', theme === 'dark')
 
-    if (theme === 'dark') {
-      root.classList.add('dark')
-    } else {
-      root.classList.remove('dark')
-    }
-
-    // 存储用户偏好
-    try {
-      localStorage.setItem(STORAGE_KEY, theme)
-    } catch {
-      // localStorage 不可用时的静默处理
-    }
+    // 保存到localStorage
+    localStorage.setItem(STORAGE_KEY, theme)
   }, [theme])
 
-  /**
-   * 切换主题
-   */
+  // 切换主题
   const toggleTheme = () => {
-    setThemeState((prev) => (prev === 'light' ? 'dark' : 'light'))
+    setTheme(prev => prev === 'light' ? 'dark' : 'light')
   }
 
-  /**
-   * 设置指定主题
-   */
-  const setTheme = (newTheme: Theme) => {
-    setThemeState(newTheme)
+  // 设置主题
+  const setThemeFunction = (newTheme: Theme) => {
+    setTheme(newTheme)
   }
 
   return (
-    <ThemeContext.Provider value={{ theme, toggleTheme, setTheme }}>
+    <ThemeContext.Provider value={{ theme, toggleTheme, setTheme: setThemeFunction }}>
       {children}
     </ThemeContext.Provider>
   )
@@ -116,7 +80,7 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
  */
 export function useTheme(): ThemeContextType {
   const context = useContext(ThemeContext)
-  if (context === undefined) {
+  if (!context) {
     throw new Error('useTheme must be used within a ThemeProvider')
   }
   return context

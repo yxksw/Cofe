@@ -6,7 +6,7 @@
 
 'use client'
 
-import { useTheme } from './ThemeProvider'
+import { useState, useEffect } from 'react'
 import { cn } from '@/lib/utils'
 
 interface ThemeToggleProps {
@@ -68,14 +68,56 @@ function MoonIcon({ className }: { className?: string }) {
  * 在浅色模式显示太阳图标，深色模式显示月亮图标
  */
 export function ThemeToggle({ className }: ThemeToggleProps) {
-  const { theme, toggleTheme } = useTheme()
+  const [isDark, setIsDark] = useState(false)
 
-  const isDark = theme === 'dark'
+  // 初始化主题状态
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+
+    // 从DOM读取初始主题状态
+    const darkMode = document.documentElement.classList.contains('dark')
+    setIsDark(darkMode)
+
+    // 监听主题变化事件
+    const handleThemeChange = () => {
+      const darkMode = document.documentElement.classList.contains('dark')
+      setIsDark(darkMode)
+    }
+
+    window.addEventListener('themeChange', handleThemeChange)
+    
+    // 清理事件监听器
+    return () => {
+      window.removeEventListener('themeChange', handleThemeChange)
+    }
+  }, [])
+
+  const handleClick = () => {
+    if (typeof window === 'undefined') return
+
+    // 直接操作DOM，切换dark类
+    const root = document.documentElement
+    root.classList.toggle('dark')
+
+    // 保存到localStorage
+    const newTheme = root.classList.contains('dark') ? 'dark' : 'light'
+    try {
+      localStorage.setItem('cofe-blog-theme', newTheme)
+    } catch {
+      // localStorage 不可用时的静默处理
+    }
+
+    // 更新状态
+    setIsDark(root.classList.contains('dark'))
+
+    // 触发主题变化事件
+    window.dispatchEvent(new Event('themeChange'))
+  }
 
   return (
     <button
       type="button"
-      onClick={toggleTheme}
+      onClick={handleClick}
       className={cn(
         'relative inline-flex items-center justify-center',
         'w-10 h-10 rounded-full',
