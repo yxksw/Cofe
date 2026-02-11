@@ -32,7 +32,8 @@ export async function getCurrentLocation(): Promise<LocationData | null> {
       street: locationDetails?.street
     }
   } catch (error) {
-    console.error('Error getting location:', error)
+    // 静默处理位置获取错误，避免控制台报错
+    // 用户可能拒绝了位置权限或浏览器不支持
     return null
   }
 }

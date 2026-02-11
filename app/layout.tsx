@@ -68,6 +68,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         <meta name='apple-mobile-web-app-status-bar-style' content='default' />
         <link rel='apple-touch-icon' href={iconPath} />
         <script defer src="https://um.381359.xyz/script.js" data-website-id="25a1f616-f12e-4441-ad5b-f0c9d5c39b1c"></script>
+        <script src="/js/articletoc.js" defer></script>
       </Head>
       <body className={`${gowun_wodum.className} bg-background`}>
         <Analytics />
@@ -75,7 +76,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
           <NextIntlClientProvider messages={messages}>
             <SessionProvider>
               <Navbar />
-              <main className='pb-20 m-auto'>{children}</main>
+              <main className='pt-16 md:pt-24 pb-20 m-auto'>{children}</main>
               <CreateButton messages={messages} />
               <Toaster />
             </SessionProvider>
