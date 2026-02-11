@@ -13,6 +13,11 @@ export interface SiteConfig {
   social: {
     github: string
     twitter?: string
+    Telegram?: string
+    mail?: string
+    discord?: string
+    qq?: string
+    mastodon?: string
   }
 }
 
