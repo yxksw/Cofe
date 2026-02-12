@@ -93,6 +93,32 @@ export function TableOfContents({ contentRef }: TableOfContentsProps) {
     }
   }, [])
 
+  // 滚动到评论区
+  const scrollToComments = useCallback(() => {
+    const commentsSection = document.querySelector('.gt-container') ||
+                           document.querySelector('[class*="comment"]') ||
+                           document.querySelector('h2:contains("评论")')
+    if (commentsSection) {
+      commentsSection.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    } else {
+      // 如果没有找到评论区，滚动到页面底部
+      window.scrollTo({
+        top: document.documentElement.scrollHeight,
+        behavior: 'smooth',
+      })
+    }
+    setIsOpen(false)
+  }, [])
+
+  // 回到顶部
+  const scrollToTop = useCallback(() => {
+    window.scrollTo({
+      top: 0,
+      behavior: 'smooth',
+    })
+    setIsOpen(false)
+  }, [])
+
   // 点击外部关闭目录
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
@@ -118,10 +144,21 @@ export function TableOfContents({ contentRef }: TableOfContentsProps) {
       {/* 桌面端侧边目录 */}
       <aside className="hidden xl:block fixed left-[max(20px,calc(50%-600px))] top-24 w-56 max-h-[calc(100vh-8rem)] overflow-y-auto z-40">
         <div className="bg-card/80 backdrop-blur-sm rounded-lg border border-border p-4 shadow-sm">
-          <h3 className="text-sm font-semibold text-foreground mb-3 flex items-center gap-2">
-            <Icon icon="lucide:list" className="w-4 h-4" />
-            目录
-          </h3>
+          <div className="flex items-center justify-between mb-3">
+            <h3 className="text-sm font-semibold text-foreground flex items-center gap-2">
+              <Icon icon="lucide:list" className="w-4 h-4" />
+              目录
+            </h3>
+            {/* 直达评论按钮 */}
+            <button
+              onClick={scrollToComments}
+              className="p-1.5 hover:bg-muted rounded-md transition-colors text-muted-foreground hover:text-foreground"
+              title="跳转到评论"
+              aria-label="跳转到评论"
+            >
+              <Icon icon="lucide:message-circle" className="w-4 h-4" />
+            </button>
+          </div>
           <nav className="space-y-1">
             {items.map((item) => (
               <button
@@ -138,6 +175,14 @@ export function TableOfContents({ contentRef }: TableOfContentsProps) {
               </button>
             ))}
           </nav>
+          {/* 回到顶部按钮 */}
+          <button
+            onClick={scrollToTop}
+            className="w-full mt-3 pt-3 border-t border-border flex items-center justify-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors py-2 hover:bg-muted rounded-md"
+          >
+            <Icon icon="lucide:arrow-up" className="w-4 h-4" />
+            <span>Top</span>
+          </button>
         </div>
       </aside>
 
@@ -158,14 +203,25 @@ export function TableOfContents({ contentRef }: TableOfContentsProps) {
                 <Icon icon="lucide:list" className="w-4 h-4" />
                 目录
               </h3>
-              <button
-                onClick={() => setIsOpen(false)}
-                className="p-1 hover:bg-muted rounded-md transition-colors"
-              >
-                <Icon icon="lucide:x" className="w-4 h-4 text-muted-foreground" />
-              </button>
+              <div className="flex items-center gap-1">
+                {/* 直达评论按钮 */}
+                <button
+                  onClick={scrollToComments}
+                  className="p-1.5 hover:bg-muted rounded-md transition-colors text-muted-foreground hover:text-foreground"
+                  title="跳转到评论"
+                  aria-label="跳转到评论"
+                >
+                  <Icon icon="lucide:message-circle" className="w-4 h-4" />
+                </button>
+                <button
+                  onClick={() => setIsOpen(false)}
+                  className="p-1 hover:bg-muted rounded-md transition-colors"
+                >
+                  <Icon icon="lucide:x" className="w-4 h-4 text-muted-foreground" />
+                </button>
+              </div>
             </div>
-            <nav className="space-y-1 max-h-[45vh] overflow-y-auto">
+            <nav className="space-y-1 max-h-[40vh] overflow-y-auto">
               {items.map((item) => (
                 <button
                   key={item.id}
@@ -181,6 +237,14 @@ export function TableOfContents({ contentRef }: TableOfContentsProps) {
                 </button>
               ))}
             </nav>
+            {/* 回到顶部按钮 */}
+            <button
+              onClick={scrollToTop}
+              className="w-full mt-3 pt-3 border-t border-border flex items-center justify-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors py-2 hover:bg-muted rounded-md"
+            >
+              <Icon icon="lucide:arrow-up" className="w-4 h-4" />
+              <span>Top</span>
+            </button>
           </div>
         </div>
 
