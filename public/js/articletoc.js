@@ -496,21 +496,63 @@ function createOverlay() {
     return overlay;
 }
 
-// 初始化
-document.addEventListener("DOMContentLoaded", function() {
+// 初始化 - 使用重试机制确保内容已渲染
+function initTOC() {
     loadStyles();
-    createTOC();
-    createOverlay();
-});
+    
+    // 尝试创建目录，如果内容未加载则重试
+    let attempts = 0;
+    const maxAttempts = 10;
+    const retryInterval = 500;
+    
+    function tryCreateTOC() {
+        if (document.querySelector('.toc-container')) return;
+        
+        const contentContainer = document.querySelector('.markdown-body');
+        if (contentContainer) {
+            const headings = contentContainer.querySelectorAll('h1, h2, h3, h4, h5, h6');
+            if (headings.length > 0) {
+                createTOC();
+                if (!document.querySelector('.toc-overlay')) {
+                    createOverlay();
+                }
+                return;
+            }
+        }
+        
+        attempts++;
+        if (attempts < maxAttempts) {
+            setTimeout(tryCreateTOC, retryInterval);
+        }
+    }
+    
+    tryCreateTOC();
+}
+
+document.addEventListener("DOMContentLoaded", initTOC);
 
 // 支持 SPA 路由切换后重新创建目录
 if (typeof window !== 'undefined') {
     window.addEventListener('load', () => {
-        setTimeout(() => {
-            createTOC();
-            if (!document.querySelector('.toc-overlay')) {
-                createOverlay();
-            }
-        }, 500);
+        setTimeout(initTOC, 1000);
     });
+    
+    // 监听 URL 变化（Next.js 路由切换）
+    let lastUrl = location.href;
+    new MutationObserver(() => {
+        const url = location.href;
+        if (url !== lastUrl) {
+            lastUrl = url;
+            // 延迟等待新页面内容渲染
+            setTimeout(() => {
+                // 清理旧的目录
+                const oldContainer = document.querySelector('.toc-container');
+                const oldOverlay = document.querySelector('.toc-overlay');
+                if (oldContainer) oldContainer.remove();
+                if (oldOverlay) oldOverlay.remove();
+                // 创建新目录
+                initTOC();
+            }, 1000);
+        }
+    }).observe(document, { subtree: true, childList: true });
 }
