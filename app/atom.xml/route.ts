@@ -1,6 +1,7 @@
 import { createOptimizedGitHubClient } from '@/lib/client'
 import { getDynamicBaseUrl } from '@/lib/siteConfig'
 
+export const dynamic = 'force-dynamic'
 export const revalidate = 3600 // Revalidate every hour
 
 export async function GET() {
