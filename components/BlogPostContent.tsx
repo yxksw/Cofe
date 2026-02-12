@@ -13,7 +13,7 @@ import LikeButton from './LikeButton'
 import { FancyboxWrapper } from './FancyboxWrapper'
 import { Icon } from '@iconify/react'
 import dynamic from 'next/dynamic'
-import { TOC } from './TOC'
+import { TableOfContents } from './TableOfContents'
 
 // 动态导入 GitalkComments 组件，避免 SSR 问题
 const GitalkComments = dynamic(() => import('./GitalkComments'), {
@@ -42,14 +42,15 @@ export function BlogPostContent({ title, date, content, slug, headerContent, dis
   const contentRef = useRef<HTMLDivElement>(null)
 
   return (
-    <div className='max-w-3xl mx-auto px-4 py-8'>
-      <TOC contentRef={contentRef} />
-      {headerContent && (
-        <div className='flex justify-end mb-6'>
-          {headerContent}
-        </div>
-      )}
-      <main className='bg-card rounded-lg border border-border p-8'>
+    <>
+      <TableOfContents contentRef={contentRef} />
+      <div className='max-w-3xl mx-auto px-4 py-8 lg:ml-[calc(50%-384px+16rem)] xl:mx-auto'>
+        {headerContent && (
+          <div className='flex justify-end mb-6'>
+            {headerContent}
+          </div>
+        )}
+        <main className='bg-card rounded-lg border border-border p-8'>
         <header className='mb-8'>
           <h1 className='text-3xl font-bold leading-tight mb-3 text-foreground'>{title}</h1>
           <div className='text-sm text-muted-foreground flex items-center gap-3 flex-wrap'>
@@ -250,5 +251,6 @@ export function BlogPostContent({ title, date, content, slug, headerContent, dis
         <GitalkComments id={slug} title={title} />
       </div>
     </div>
+    </>
   )
 }
