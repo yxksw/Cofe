@@ -2,6 +2,18 @@
 
 import { Icon } from '@iconify/react'
 import Image from 'next/image'
+import dynamic from 'next/dynamic'
+import FancyboxWrapper from '@/components/FancyboxWrapper'
+
+// 动态导入 GitalkComments 组件，避免 SSR 问题
+const GitalkComments = dynamic(() => import('@/components/GitalkComments'), {
+  ssr: false,
+  loading: () => (
+    <div className="mt-8 p-8 bg-card rounded-lg border border-border text-center text-muted-foreground">
+      评论加载中...
+    </div>
+  ),
+})
 
 interface Sponsor {
   name: string
@@ -36,45 +48,47 @@ export default function SponsorsPage({ sponsors }: SponsorsPageProps) {
       </div>
 
       {/* 支付方式卡片 */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-        {/* 支付宝 */}
-        <div className="donate-card group">
-          <div className="flex items-center gap-3 mb-4">
-            <div className="h-10 w-10 rounded-lg bg-blue-500 flex items-center justify-center">
-              <Icon icon="simple-icons:alipay" className="text-xl text-white" />
+      <FancyboxWrapper>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+          {/* 支付宝 */}
+          <div className="donate-card group">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="h-10 w-10 rounded-lg bg-blue-500 flex items-center justify-center">
+                <Icon icon="simple-icons:alipay" className="text-xl text-white" />
+              </div>
+              <div>
+                <h3 className="text-lg font-bold text-foreground">支付宝</h3>
+                <p className="text-sm text-muted-foreground">扫码支付</p>
+              </div>
             </div>
-            <div>
-              <h3 className="text-lg font-bold text-foreground">支付宝</h3>
-              <p className="text-sm text-muted-foreground">扫码支付</p>
+            <div className="qr-code-container">
+              <QRCodeImage 
+                src="https://cdn.jsdmirror.com/gh/zsxcoder/github-img@main/img/alipay.avif"
+                alt="支付宝二维码"
+              />
             </div>
           </div>
-          <div className="qr-code-container">
-            <QRCodeImage 
-              src="https://cdn.jsdmirror.com/gh/zsxcoder/github-img@main/img/alipay.avif"
-              alt="支付宝二维码"
-            />
-          </div>
-        </div>
 
-        {/* 微信支付 */}
-        <div className="donate-card group">
-          <div className="flex items-center gap-3 mb-4">
-            <div className="h-10 w-10 rounded-lg bg-green-500 flex items-center justify-center">
-              <Icon icon="simple-icons:wechat" className="text-xl text-white" />
+          {/* 微信支付 */}
+          <div className="donate-card group">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="h-10 w-10 rounded-lg bg-green-500 flex items-center justify-center">
+                <Icon icon="simple-icons:wechat" className="text-xl text-white" />
+              </div>
+              <div>
+                <h3 className="text-lg font-bold text-foreground">微信支付</h3>
+                <p className="text-sm text-muted-foreground">扫码支付</p>
+              </div>
             </div>
-            <div>
-              <h3 className="text-lg font-bold text-foreground">微信支付</h3>
-              <p className="text-sm text-muted-foreground">扫码支付</p>
+            <div className="qr-code-container">
+              <QRCodeImage 
+                src="https://cdn.jsdmirror.com/gh/zsxcoder/github-img@main/img/wechat.avif"
+                alt="微信支付二维码"
+              />
             </div>
-          </div>
-          <div className="qr-code-container">
-            <QRCodeImage 
-              src="https://cdn.jsdmirror.com/gh/zsxcoder/github-img@main/img/wechat.avif"
-              alt="微信支付二维码"
-            />
           </div>
         </div>
-      </div>
+      </FancyboxWrapper>
 
       {/* 其他支持方式 */}
       <div className="bg-card rounded-xl border border-border p-6 mb-8">
@@ -167,6 +181,14 @@ export default function SponsorsPage({ sponsors }: SponsorsPageProps) {
         )}
       </div>
 
+      {/* 评论区 */}
+      <div className="mt-8">
+        <GitalkComments 
+          id="sponsors-page" 
+          title="赞助支持" 
+        />
+      </div>
+
       {/* 样式 */}
       <style jsx>{`
         .donate-card {
@@ -220,7 +242,12 @@ function QRCodeImage({
   alt: string
 }) {
   return (
-    <div className="relative w-48 h-48 mx-auto rounded-lg overflow-hidden bg-muted border border-border group/img">
+    <a
+      href={src}
+      data-fancybox="sponsors-qr"
+      data-caption={alt}
+      className="block relative w-48 h-48 mx-auto rounded-lg overflow-hidden bg-muted border border-border cursor-zoom-in group/img"
+    >
       <Image
         src={src}
         alt={alt}
@@ -229,6 +256,6 @@ function QRCodeImage({
         sizes="192px"
         unoptimized
       />
-    </div>
+    </a>
   )
 }

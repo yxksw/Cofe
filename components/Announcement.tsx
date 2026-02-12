@@ -81,7 +81,7 @@ export function Announcement() {
           // Happy level with rainbow effect
           <div className="announcement-happy flex items-start gap-4 p-4 rounded-xl bg-card relative overflow-hidden">
             <div className="icon-wrapper flex items-center justify-center shrink-0 mt-0.5">
-              <span className="text-2xl" aria-hidden="true">🎉</span>
+              <span className="notice-emoji" aria-hidden="true">🎉</span>
             </div>
             <div className="text-wrapper grow relative min-w-0">
               <div className="announcement-text text-sm md:text-base announcement-rainbow-text">
@@ -216,13 +216,15 @@ export function Announcement() {
           --card-bg: hsl(var(--card));
           --notice-gradient: linear-gradient(
             90deg,
-            #ff6b6b,
-            #ffa500,
-            #ffd93d,
-            #6bcb77,
-            #4d96ff,
-            #9b59b6,
-            #ff6b6b
+            oklch(0.78 0.18 calc(var(--hue) + 0)),
+            oklch(0.78 0.18 calc(var(--hue) + 45)),
+            oklch(0.78 0.18 calc(var(--hue) + 90)),
+            oklch(0.78 0.18 calc(var(--hue) + 135)),
+            oklch(0.78 0.18 calc(var(--hue) + 180)),
+            oklch(0.78 0.18 calc(var(--hue) + 225)),
+            oklch(0.78 0.18 calc(var(--hue) + 270)),
+            oklch(0.78 0.18 calc(var(--hue) + 315)),
+            oklch(0.78 0.18 calc(var(--hue) + 360))
           );
           border: 2px solid transparent;
           background: linear-gradient(var(--card-bg), var(--card-bg)) padding-box, 
@@ -234,13 +236,15 @@ export function Announcement() {
         .announcement-rainbow-text {
           background: linear-gradient(
             90deg,
-            #ff6b6b,
-            #ffa500,
-            #ffd93d,
-            #6bcb77,
-            #4d96ff,
-            #9b59b6,
-            #ff6b6b
+            oklch(0.78 0.18 calc(var(--hue) + 0)),
+            oklch(0.78 0.18 calc(var(--hue) + 45)),
+            oklch(0.78 0.18 calc(var(--hue) + 90)),
+            oklch(0.78 0.18 calc(var(--hue) + 135)),
+            oklch(0.78 0.18 calc(var(--hue) + 180)),
+            oklch(0.78 0.18 calc(var(--hue) + 225)),
+            oklch(0.78 0.18 calc(var(--hue) + 270)),
+            oklch(0.78 0.18 calc(var(--hue) + 315)),
+            oklch(0.78 0.18 calc(var(--hue) + 360))
           );
           background-size: 200% 100%;
           -webkit-background-clip: text;
@@ -259,19 +263,26 @@ export function Announcement() {
         .announcement-happy :global(h6) {
           background: linear-gradient(
             90deg,
-            #ff6b6b,
-            #ffa500,
-            #ffd93d,
-            #6bcb77,
-            #4d96ff,
-            #9b59b6,
-            #ff6b6b
+            oklch(0.78 0.18 calc(var(--hue) + 0)),
+            oklch(0.78 0.18 calc(var(--hue) + 45)),
+            oklch(0.78 0.18 calc(var(--hue) + 90)),
+            oklch(0.78 0.18 calc(var(--hue) + 135)),
+            oklch(0.78 0.18 calc(var(--hue) + 180)),
+            oklch(0.78 0.18 calc(var(--hue) + 225)),
+            oklch(0.78 0.18 calc(var(--hue) + 270)),
+            oklch(0.78 0.18 calc(var(--hue) + 315)),
+            oklch(0.78 0.18 calc(var(--hue) + 360))
           );
           background-size: 200% 100%;
           -webkit-background-clip: text;
           background-clip: text;
           color: transparent;
           animation: rainbow-flow 3s linear infinite;
+        }
+
+        .announcement-happy .notice-emoji {
+          font-size: 1.5rem;
+          line-height: 1;
         }
       `}</style>
     </div>
