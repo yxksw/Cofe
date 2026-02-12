@@ -1,13 +1,16 @@
 ---
-title: Hello-cofe
-tags: [测试]
-categories: [测试]
+title: "Hello-cofe"
 date: 2026-02-11T08:01:50.350Z
 latitude: 31.586806103595656
 longitude: 120.7075056389742
 city: 常熟市
 street: 西南路
+tags:
+  - 测试
+categories:
+  - 测试
 ---
+
 
 # 标题1
 ## 标题2
@@ -21,6 +24,8 @@ street: 西南路
 ```
 Hello,World!
 ```
+- [ ] 测试
+- [x] 待办列表
 测试[链接](https://bing.kemeow.top/picture/2026-02-08.webp)
 
 测试图片
