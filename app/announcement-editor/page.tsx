@@ -19,7 +19,6 @@ import {
 import { Switch } from '@/components/ui/switch'
 import announcementConfig from '@/data/announcement.json'
 import announcementContent from '@/data/announcement.md'
-import { commitFilesToGitHub } from '@/lib/githubApi'
 
 type AnnouncementLevel = 'info' | 'note' | 'tip' | 'important' | 'warning' | 'caution' | 'happy'
 
@@ -73,34 +72,46 @@ export default function AnnouncementEditorPage() {
     setMessage('')
 
     try {
-      // 准备提交的文件
-      const files = [
-        {
-          path: 'data/announcement.json',
-          content: JSON.stringify(
-            {
+      // 使用 GraphQL API 提交
+      const query = `
+        mutation SaveAnnouncement($input: SaveAnnouncementInput!) {
+          saveAnnouncement(input: $input) {
+            success
+            message
+          }
+        }
+      `
+
+      const response = await fetch('/api/graphql', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          query,
+          variables: {
+            input: {
               enable: formData.enable,
               level: formData.level,
               title: formData.title,
+              content: formData.content,
             },
-            null,
-            2
-          ),
-        },
-        {
-          path: 'data/announcement.md',
-          content: formData.content,
-        },
-      ]
+          },
+        }),
+      })
 
-      // 提交到 GitHub
-      const result = await commitFilesToGitHub(
-        files,
-        session,
-        '更新网站公告'
-      )
+      const result = await response.json()
 
-      if (result.success) {
+      if (result.errors) {
+        throw new Error(result.errors[0].message)
+      }
+
+      if (!response.ok) {
+        throw new Error('保存失败')
+      }
+
+      const saveResult = result.data?.saveAnnouncement
+      if (saveResult?.success) {
         setMessage('公告更新成功！')
         // 延迟跳转
         setTimeout(() => {
@@ -108,7 +119,7 @@ export default function AnnouncementEditorPage() {
           router.refresh()
         }, 1500)
       } else {
-        setMessage(`更新失败: ${result.error}`)
+        throw new Error(saveResult?.message || '保存失败')
       }
     } catch (error) {
       setMessage(`发生错误: ${error instanceof Error ? error.message : '未知错误'}`)

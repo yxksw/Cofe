@@ -4,7 +4,7 @@ import { NextRequest } from 'next/server'
 import { getToken } from 'next-auth/jwt'
 import { createSmartClient } from '@/lib/smartClient'
 import { Memo, BlogPost, Link, ExternalDiscussion } from '@/lib/types'
-import { createBlogPost, updateBlogPost, deleteBlogPost, updateMemo, deleteMemo } from '@/lib/githubApi'
+import { createBlogPost, updateBlogPost, deleteBlogPost, updateMemo, deleteMemo, saveAnnouncement } from '@/lib/githubApi'
 import { 
   getClientIP, 
   getLocationFromHeaders, 
@@ -67,6 +67,11 @@ type MutationResolvers = {
     args: { id: string },
     context: GraphQLContext
   ) => Promise<boolean>
+  saveAnnouncement: (
+    parent: unknown,
+    args: { input: { enable: boolean; level: string; title: string; content: string } },
+    context: GraphQLContext
+  ) => Promise<{ success: boolean; message: string }>
 }
 
 type LikeInfo = {
@@ -155,6 +160,18 @@ const typeDefs = `
     count: Int
   }
 
+  input SaveAnnouncementInput {
+    enable: Boolean!
+    level: String!
+    title: String!
+    content: String!
+  }
+
+  type SaveAnnouncementResult {
+    success: Boolean!
+    message: String!
+  }
+
   type LikeInfo {
     count: Int!
     countries: [String!]!
@@ -182,6 +199,7 @@ const typeDefs = `
     toggleLike(itemType: String!, id: String!): LikeResult!
     saveBlogPost(id: String, input: SaveBlogPostInput!): BlogPost!
     deleteBlogPost(id: String!): Boolean!
+    saveAnnouncement(input: SaveAnnouncementInput!): SaveAnnouncementResult!
   }
 `
 
@@ -441,6 +459,23 @@ const resolvers: { Query: QueryResolvers; Mutation: MutationResolvers } = {
       } catch (error) {
         console.error('Error deleting blog post:', error)
         throw new Error('Failed to delete blog post')
+      }
+    },
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    saveAnnouncement: async (_parent, { input }, context) => {
+      if (!context.token?.accessToken) {
+        throw new Error('Authentication required')
+      }
+
+      try {
+        await saveAnnouncement(input, context.token.accessToken)
+        return {
+          success: true,
+          message: 'Announcement saved successfully',
+        }
+      } catch (error) {
+        console.error('Error saving announcement:', error)
+        throw new Error('Failed to save announcement')
       }
     },
   },

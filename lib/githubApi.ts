@@ -638,3 +638,102 @@ async function getIconUrl(
     return defaultPath
   }
 }
+
+export interface AnnouncementData {
+  enable: boolean
+  level: string
+  title: string
+  content: string
+}
+
+export async function saveAnnouncement(
+  data: AnnouncementData,
+  accessToken: string
+): Promise<void> {
+  console.log('Saving announcement...')
+  if (!accessToken) {
+    throw new Error('Access token is required')
+  }
+  const octokit = getOctokit(accessToken)
+
+  try {
+    const { owner, repo } = await getRepoInfo(accessToken)
+    console.log('Repo info:', { owner, repo })
+
+    await initializeGitHubStructure(octokit, owner, repo)
+    console.log('GitHub structure initialized')
+
+    // Save announcement.json
+    const jsonContent = JSON.stringify({
+      enable: data.enable,
+      level: data.level,
+      title: data.title,
+    }, null, 2)
+
+    let jsonSha: string | undefined
+    try {
+      const jsonResponse = await octokit.repos.getContent({
+        owner,
+        repo,
+        path: 'data/announcement.json',
+      })
+      if (!Array.isArray(jsonResponse.data) && 'sha' in jsonResponse.data) {
+        jsonSha = jsonResponse.data.sha
+      }
+    } catch (error) {
+      if (!isNotFoundError(error)) {
+        throw error
+      }
+      console.log('announcement.json does not exist, creating a new file')
+    }
+
+    const jsonParams: UpdateFileParams = {
+      owner,
+      repo,
+      path: 'data/announcement.json',
+      message: 'Update announcement config',
+      content: Buffer.from(jsonContent).toString('base64'),
+    }
+    if (jsonSha) {
+      jsonParams.sha = jsonSha
+    }
+    await octokit.repos.createOrUpdateFileContents(jsonParams)
+    console.log('announcement.json saved successfully')
+
+    // Save announcement.md
+    let mdSha: string | undefined
+    try {
+      const mdResponse = await octokit.repos.getContent({
+        owner,
+        repo,
+        path: 'data/announcement.md',
+      })
+      if (!Array.isArray(mdResponse.data) && 'sha' in mdResponse.data) {
+        mdSha = mdResponse.data.sha
+      }
+    } catch (error) {
+      if (!isNotFoundError(error)) {
+        throw error
+      }
+      console.log('announcement.md does not exist, creating a new file')
+    }
+
+    const mdParams: UpdateFileParams = {
+      owner,
+      repo,
+      path: 'data/announcement.md',
+      message: 'Update announcement content',
+      content: Buffer.from(data.content).toString('base64'),
+    }
+    if (mdSha) {
+      mdParams.sha = mdSha
+    }
+    await octokit.repos.createOrUpdateFileContents(mdParams)
+    console.log('announcement.md saved successfully')
+
+    console.log('Announcement saved successfully')
+  } catch (error) {
+    console.error('Error saving announcement:', error)
+    throw error
+  }
+}
