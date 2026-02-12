@@ -16,6 +16,8 @@ import { getServerSession } from 'next-auth/next'
 import { gowun_wodum } from '@/components/ui/font'
 import { getSiteConfig } from '@/lib/siteConfig'
 import Analytics from '@/components/Analytics'
+import NewPostNotification from '@/components/NewPostNotification'
+import PostContentHighlighter from '@/components/PostContentHighlighter'
 
 export async function generateMetadata(): Promise<Metadata> {
   const session = await getServerSession(authOptions)
@@ -78,6 +80,8 @@ export default async function RootLayout({ children }: { children: React.ReactNo
               <Navbar />
               <main className='pt-16 md:pt-24 pb-20 m-auto'>{children}</main>
               <CreateButton messages={messages} />
+              <NewPostNotification />
+              <PostContentHighlighter />
               <Toaster />
             </SessionProvider>
           </NextIntlClientProvider>
