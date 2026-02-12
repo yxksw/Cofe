@@ -136,7 +136,7 @@ export function Announcement() {
         {session && (
           <div className="absolute top-2 right-2">
             <Link
-              href="/editor?type=announcement"
+              href="/announcement-editor"
               className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-primary bg-background/80 backdrop-blur-sm border border-primary/30 rounded-lg hover:bg-primary/10 transition-colors"
             >
               <Icon icon="lucide:edit-3" width={14} height={14} />
