@@ -2,7 +2,6 @@
 
 import { Icon } from '@iconify/react'
 import Image from 'next/image'
-import { cn } from '@/lib/utils'
 
 interface Sponsor {
   name: string
@@ -50,9 +49,9 @@ export default function SponsorsPage({ sponsors }: SponsorsPageProps) {
             </div>
           </div>
           <div className="qr-code-container">
-            <QRCodePlaceholder 
-              icon="simple-icons:alipay"
-              color="bg-blue-500"
+            <QRCodeImage 
+              src="https://cdn.jsdmirror.com/gh/zsxcoder/github-img@main/img/alipay.avif"
+              alt="支付宝二维码"
             />
           </div>
         </div>
@@ -69,9 +68,9 @@ export default function SponsorsPage({ sponsors }: SponsorsPageProps) {
             </div>
           </div>
           <div className="qr-code-container">
-            <QRCodePlaceholder 
-              icon="simple-icons:wechat"
-              color="bg-green-500"
+            <QRCodeImage 
+              src="https://cdn.jsdmirror.com/gh/zsxcoder/github-img@main/img/wechat.avif"
+              alt="微信支付二维码"
             />
           </div>
         </div>
@@ -212,34 +211,24 @@ export default function SponsorsPage({ sponsors }: SponsorsPageProps) {
   )
 }
 
-// 二维码占位符组件
-function QRCodePlaceholder({ 
-  icon, 
-  color 
+// 二维码图片组件
+function QRCodeImage({ 
+  src,
+  alt
 }: { 
-  icon: string
-  color: string
+  src: string
+  alt: string
 }) {
   return (
-    <div className="relative w-48 h-48 mx-auto rounded-lg overflow-hidden bg-muted border border-border">
-      {/* 占位符内容 */}
-      <div className="absolute inset-0 flex flex-col items-center justify-center gap-3">
-        <div className={cn("w-12 h-12 rounded-lg flex items-center justify-center", color)}>
-          <Icon icon={icon} className="text-2xl text-white" />
-        </div>
-        <div className="text-center">
-          <p className="text-sm font-medium text-foreground">扫码赞助</p>
-          <p className="text-xs text-muted-foreground mt-1">请添加收款二维码</p>
-        </div>
-        <div className="grid grid-cols-3 gap-1 mt-2">
-          {Array.from({ length: 9 }).map((_, i) => (
-            <div 
-              key={i} 
-              className="w-3 h-3 bg-foreground/20 rounded-sm"
-            />
-          ))}
-        </div>
-      </div>
+    <div className="relative w-48 h-48 mx-auto rounded-lg overflow-hidden bg-muted border border-border group/img">
+      <Image
+        src={src}
+        alt={alt}
+        fill
+        className="object-cover transition-transform duration-500 group-hover/img:scale-105"
+        sizes="192px"
+        unoptimized
+      />
     </div>
   )
 }
