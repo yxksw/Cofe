@@ -112,7 +112,7 @@ export default function TagsPage({ tags, categories, allPosts }: TagsPageProps) 
       {/* 页面标题 */}
       <div className="text-center mb-10">
         <h1 className="text-3xl md:text-4xl font-bold text-foreground mb-3">
-          标签云
+          标签+分类
         </h1>
         <p className="text-muted-foreground max-w-2xl mx-auto">
           通过标签和分类浏览文章，快速找到你感兴趣的内容

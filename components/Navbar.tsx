@@ -17,8 +17,16 @@ interface NavItem {
 
 const navItems: NavItem[] = [
   { id: 'home', label: '首页', href: '/', icon: 'material-symbols:home-outline' },
-  { id: 'blog', label: '博客', href: '/blog', icon: 'material-symbols:article-outline' },
-  { id: 'tags', label: '标签', href: '/tags', icon: 'material-symbols:label-outline' },
+  {
+    id: 'blog',
+    label: '文章',
+    href: '#',
+    icon: 'material-symbols:article-outline',
+    children: [
+      { id: 'list', label: '所有文章', href: '/blog', icon: 'tabler:books' },
+      { id: 'tags', label: '标签', href: '/tags', icon: 'tabler:tags' },
+    ]
+  },
   { id: 'memos', label: '动态', href: '/memos', icon: 'material-symbols:chat-bubble-outline' },
   {
     id: 'friends',
@@ -31,7 +39,7 @@ const navItems: NavItem[] = [
     ]
   },
   { id: 'about', label: '关于', href: '/about', icon: 'material-symbols:person-outline' },
-  { id: 'editor', label: '编辑器', href: '/editor', icon: 'material-symbols:edit-note' },
+//   { id: 'editor', label: '编辑器', href: '/editor', icon: 'material-symbols:edit-note' },
 ]
 
 // Iconify 图标组件

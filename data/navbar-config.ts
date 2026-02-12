@@ -25,7 +25,7 @@ export const navbarConfig: NavbarConfig = {
     {
       id: 'blog',
       label: '博客',
-      href: '/blog',
+      href: '#',
       children: [
         {
           id: 'all-posts',
