@@ -18,6 +18,7 @@ import { getSiteConfig } from '@/lib/siteConfig'
 import Analytics from '@/components/Analytics'
 import NewPostNotification from '@/components/NewPostNotification'
 import PostContentHighlighter from '@/components/PostContentHighlighter'
+import BackgroundImage from '@/components/BackgroundImage'
 
 export async function generateMetadata(): Promise<Metadata> {
   const session = await getServerSession(authOptions)
@@ -73,6 +74,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         <script src="/js/articletoc.js" defer></script>
       </Head>
       <body className={`${gowun_wodum.className} bg-background`}>
+        <BackgroundImage />
         <Analytics />
         <ThemeProvider>
           <NextIntlClientProvider messages={messages}>
