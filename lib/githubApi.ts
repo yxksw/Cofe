@@ -18,12 +18,33 @@ const REPO = 'Cofe';
 
 function formatDiscussions(discussions: ExternalDiscussion[]): string {
   if (!discussions.length) return '';
-  
-  const formatted = discussions.map(d => 
+
+  const formatted = discussions.map(d =>
     `  - platform: ${d.platform}\n    url: ${d.url}`
   ).join('\n');
-  
+
   return `external_discussions:\n${formatted}\n`;
+}
+
+function formatArrayField(items: string[] | undefined, fieldName: string): string {
+  if (!items || items.length === 0) return '';
+
+  const formatted = items.map(item => `  - ${escapeYamlString(item)}`).join('\n');
+  return `${fieldName}:\n${formatted}\n`;
+}
+
+function escapeYamlString(str: string): string {
+  if (!str) return '';
+  // Escape special YAML characters
+  if (str.includes(':') || str.includes('#') || str.includes('{') || str.includes('}') ||
+      str.includes('[') || str.includes(']') || str.includes(',') || str.includes('&') ||
+      str.includes('*') || str.includes('?') || str.includes('|') || str.includes('-') ||
+      str.includes('<') || str.includes('>') || str.includes('=') || str.includes('!') ||
+      str.includes('%') || str.includes('@') || str.includes('`') || str.includes('"') ||
+      str.includes('\'') || str.startsWith(' ') || str.endsWith(' ')) {
+    return `"${str.replace(/"/g, '\\"')}"`;
+  }
+  return str;
 }
 
 async function ensureRepoExists(octokit: Octokit, owner: string, repo: string) {
@@ -145,7 +166,9 @@ export async function createBlogPost(
   accessToken: string,
   discussions: ExternalDiscussion[] = [],
   location?: { latitude?: number; longitude?: number; city?: string; street?: string },
-  status: string = 'published'
+  status: string = 'published',
+  tags?: string[],
+  categories?: string[]
 ): Promise<void> {
   const octokit = getOctokit(accessToken)
   const { owner, repo } = await getRepoInfo(accessToken)
@@ -161,10 +184,12 @@ city: ${location.city || ''}
 street: ${location.street || ''}
 ` : ''
   const statusYaml = status !== 'published' ? `status: ${status}\n` : ''
+  const tagsYaml = formatArrayField(tags, 'tags')
+  const categoriesYaml = formatArrayField(categories, 'categories')
   const fullContent = `---
-title: ${title}
+title: ${escapeYamlString(title)}
 date: ${date}
-${statusYaml}${locationYaml}${discussionsYaml}---
+${statusYaml}${locationYaml}${tagsYaml}${categoriesYaml}${discussionsYaml}---
 
 ${content}`
 
@@ -445,7 +470,9 @@ export async function updateBlogPost(
   accessToken: string,
   discussions: ExternalDiscussion[] = [],
   location?: { latitude?: number; longitude?: number; city?: string; street?: string },
-  status?: string
+  status?: string,
+  tags?: string[],
+  categories?: string[]
 ): Promise<void> {
   console.log('Updating blog post...')
   if (!accessToken) {
@@ -477,11 +504,18 @@ street: ${location.street || ''}
     const currentStatus = statusMatch ? statusMatch[1].trim() : 'published'
     const finalStatus = status !== undefined ? status : currentStatus
     const statusYaml = finalStatus !== 'published' ? `status: ${finalStatus}\n` : ''
-    
+
+    // Extract existing tags and categories if not provided
+    const existingTags = tags === undefined ? extractArrayField(existingContent, 'tags') : tags
+    const existingCategories = categories === undefined ? extractArrayField(existingContent, 'categories') : categories
+
+    const tagsYaml = formatArrayField(existingTags, 'tags')
+    const categoriesYaml = formatArrayField(existingCategories, 'categories')
+
     const updatedContent = `---
-title: ${title}
+title: ${escapeYamlString(title)}
 date: ${date}
-${statusYaml}${locationYaml}${discussionsYaml}---
+${statusYaml}${locationYaml}${tagsYaml}${categoriesYaml}${discussionsYaml}---
 
 ${content}`
 
@@ -505,6 +539,33 @@ ${content}`
     console.error('Error updating blog post:', error)
     throw error
   }
+}
+
+function extractArrayField(content: string, fieldName: string): string[] | undefined {
+  const fieldRegex = new RegExp(`${fieldName}:\\s*\\n([\\s\\S]*?)(?=\\n\\w|$)`, 'i')
+  const fieldMatch = content.match(fieldRegex)
+
+  if (!fieldMatch) {
+    // Try single line format
+    const singleLineRegex = new RegExp(`${fieldName}:\\s*\\[?([^\\n\\]]+)\\]?`, 'i')
+    const singleLineMatch = content.match(singleLineRegex)
+    if (singleLineMatch) {
+      return singleLineMatch[1].split(',').map(t => t.trim()).filter(Boolean)
+    }
+    return undefined
+  }
+
+  const items: string[] = []
+  const lines = fieldMatch[1].split('\n').filter(line => line.trim())
+
+  for (const line of lines) {
+    const itemMatch = line.match(/^\s*-\s*(.+)$/)
+    if (itemMatch) {
+      items.push(itemMatch[1].trim())
+    }
+  }
+
+  return items.length > 0 ? items : undefined
 }
 
 export async function uploadImage(file: File, accessToken: string): Promise<string> {

@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button";
 import { CgImage } from "react-icons/cg";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Loader2 } from "lucide-react";
+import { Loader2, X } from "lucide-react";
 import React from "react";
 import ReactMarkdown from "react-markdown";
 import SyntaxHighlighter from "react-syntax-highlighter";
@@ -26,10 +26,231 @@ import { useSession } from "next-auth/react";
 import { useToast } from "@/components/ui/use-toast";
 import { useTranslations } from "next-intl";
 import { useGeolocation } from "@/hooks/useGeolocation";
+import { Badge } from "@/components/ui/badge";
 
 function removeFrontmatter(content: string): string {
   const frontmatterRegex = /^---\n([\s\S]*?)\n---\n/;
   return content.replace(frontmatterRegex, "");
+}
+
+// Tag input component
+function TagInput({
+  tags,
+  onChange,
+  placeholder,
+  disabled,
+  suggestions = []
+}: {
+  tags: string[];
+  onChange: (tags: string[]) => void;
+  placeholder?: string;
+  disabled?: boolean;
+  suggestions?: string[];
+}) {
+  const [inputValue, setInputValue] = React.useState("");
+  const [showSuggestions, setShowSuggestions] = React.useState(false);
+  const inputRef = React.useRef<HTMLInputElement>(null);
+
+  const filteredSuggestions = suggestions.filter(
+    s => s.toLowerCase().includes(inputValue.toLowerCase()) && !tags.includes(s)
+  );
+
+  const addTag = (tag: string) => {
+    const trimmedTag = tag.trim();
+    if (trimmedTag && !tags.includes(trimmedTag)) {
+      onChange([...tags, trimmedTag]);
+    }
+    setInputValue("");
+    setShowSuggestions(false);
+    inputRef.current?.focus();
+  };
+
+  const removeTag = (tagToRemove: string) => {
+    onChange(tags.filter(tag => tag !== tagToRemove));
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter" || e.key === ",") {
+      e.preventDefault();
+      if (inputValue.trim()) {
+        addTag(inputValue);
+      }
+    } else if (e.key === "Backspace" && !inputValue && tags.length > 0) {
+      removeTag(tags[tags.length - 1]);
+    }
+  };
+
+  return (
+    <div className="w-full">
+      <div
+        className={`flex flex-wrap gap-2 p-2 border border-border rounded-md bg-background min-h-[42px] ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
+        onClick={() => inputRef.current?.focus()}
+      >
+        {tags.map((tag, index) => (
+          <Badge
+            key={index}
+            className="flex items-center gap-1 px-2 py-1 text-sm bg-secondary text-secondary-foreground hover:bg-secondary/80"
+          >
+            {tag}
+            {!disabled && (
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  removeTag(tag);
+                }}
+                className="ml-1 hover:text-destructive focus:outline-none"
+              >
+                <X className="h-3 w-3" />
+              </button>
+            )}
+          </Badge>
+        ))}
+        <input
+          ref={inputRef}
+          type="text"
+          value={inputValue}
+          onChange={(e) => {
+            setInputValue(e.target.value);
+            setShowSuggestions(e.target.value.length > 0 && filteredSuggestions.length > 0);
+          }}
+          onKeyDown={handleKeyDown}
+          onFocus={() => setShowSuggestions(inputValue.length > 0 && filteredSuggestions.length > 0)}
+          onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
+          placeholder={tags.length === 0 ? placeholder : ""}
+          disabled={disabled}
+          className="flex-1 min-w-[80px] bg-transparent border-none outline-none text-sm placeholder:text-muted-foreground disabled:cursor-not-allowed"
+        />
+      </div>
+      {showSuggestions && filteredSuggestions.length > 0 && (
+        <div className="absolute z-10 mt-1 w-full max-w-md bg-popover border border-border rounded-md shadow-lg">
+          {filteredSuggestions.slice(0, 5).map((suggestion, index) => (
+            <button
+              key={index}
+              type="button"
+              onClick={() => addTag(suggestion)}
+              className="w-full px-3 py-2 text-left text-sm hover:bg-accent hover:text-accent-foreground first:rounded-t-md last:rounded-b-md"
+            >
+              {suggestion}
+            </button>
+          ))}
+        </div>
+      )}
+      <p className="text-xs text-muted-foreground mt-1">
+        Press Enter or comma to add a tag
+      </p>
+    </div>
+  );
+}
+
+// Category input component
+function CategoryInput({
+  categories,
+  onChange,
+  placeholder,
+  disabled,
+  suggestions = []
+}: {
+  categories: string[];
+  onChange: (categories: string[]) => void;
+  placeholder?: string;
+  disabled?: boolean;
+  suggestions?: string[];
+}) {
+  const [inputValue, setInputValue] = React.useState("");
+  const [showSuggestions, setShowSuggestions] = React.useState(false);
+  const inputRef = React.useRef<HTMLInputElement>(null);
+
+  const filteredSuggestions = suggestions.filter(
+    s => s.toLowerCase().includes(inputValue.toLowerCase()) && !categories.includes(s)
+  );
+
+  const addCategory = (category: string) => {
+    const trimmedCategory = category.trim();
+    if (trimmedCategory && !categories.includes(trimmedCategory)) {
+      onChange([...categories, trimmedCategory]);
+    }
+    setInputValue("");
+    setShowSuggestions(false);
+    inputRef.current?.focus();
+  };
+
+  const removeCategory = (categoryToRemove: string) => {
+    onChange(categories.filter(cat => cat !== categoryToRemove));
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter" || e.key === ",") {
+      e.preventDefault();
+      if (inputValue.trim()) {
+        addCategory(inputValue);
+      }
+    } else if (e.key === "Backspace" && !inputValue && categories.length > 0) {
+      removeCategory(categories[categories.length - 1]);
+    }
+  };
+
+  return (
+    <div className="w-full relative">
+      <div
+        className={`flex flex-wrap gap-2 p-2 border border-border rounded-md bg-background min-h-[42px] ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
+        onClick={() => inputRef.current?.focus()}
+      >
+        {categories.map((category, index) => (
+          <Badge
+            key={index}
+            className="flex items-center gap-1 px-2 py-1 text-sm bg-primary text-primary-foreground hover:bg-primary/90"
+          >
+            {category}
+            {!disabled && (
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  removeCategory(category);
+                }}
+                className="ml-1 hover:text-destructive focus:outline-none"
+              >
+                <X className="h-3 w-3" />
+              </button>
+            )}
+          </Badge>
+        ))}
+        <input
+          ref={inputRef}
+          type="text"
+          value={inputValue}
+          onChange={(e) => {
+            setInputValue(e.target.value);
+            setShowSuggestions(e.target.value.length > 0 && filteredSuggestions.length > 0);
+          }}
+          onKeyDown={handleKeyDown}
+          onFocus={() => setShowSuggestions(inputValue.length > 0 && filteredSuggestions.length > 0)}
+          onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
+          placeholder={categories.length === 0 ? placeholder : ""}
+          disabled={disabled}
+          className="flex-1 min-w-[80px] bg-transparent border-none outline-none text-sm placeholder:text-muted-foreground disabled:cursor-not-allowed"
+        />
+      </div>
+      {showSuggestions && filteredSuggestions.length > 0 && (
+        <div className="absolute z-10 mt-1 w-full bg-popover border border-border rounded-md shadow-lg">
+          {filteredSuggestions.slice(0, 5).map((suggestion, index) => (
+            <button
+              key={index}
+              type="button"
+              onClick={() => addCategory(suggestion)}
+              className="w-full px-3 py-2 text-left text-sm hover:bg-accent hover:text-accent-foreground first:rounded-t-md last:rounded-b-md"
+            >
+              {suggestion}
+            </button>
+          ))}
+        </div>
+      )}
+      <p className="text-xs text-muted-foreground mt-1">
+        Press Enter or comma to add a category
+      </p>
+    </div>
+  );
 }
 
 export default function Editor({
@@ -64,6 +285,10 @@ export default function Editor({
   const [isLocationAttached, setIsLocationAttached] = useState(false);
   const [isPublished, setIsPublished] = useState(true);
   const [isMemoLocationIgnored, setIsMemoLocationIgnored] = useState(false);
+  const [tags, setTags] = useState<string[]>([]);
+  const [categories, setCategories] = useState<string[]>([]);
+  const [availableTags, setAvailableTags] = useState<string[]>([]);
+  const [availableCategories, setAvailableCategories] = useState<string[]>([]);
 
   const fetchMemo = useCallback(
     async (id: string) => {
@@ -102,6 +327,8 @@ export default function Editor({
                   longitude
                   city
                   street
+                  tags
+                  categories
                   discussions {
                     platform
                     url
@@ -114,12 +341,12 @@ export default function Editor({
             variables: { id },
           }),
         });
-        
+
         const result = await response.json();
         if (result.errors) {
           throw new Error(result.errors[0].message);
         }
-        
+
         const blogPost = result.data.blogPost;
         if (blogPost) {
           setTitle(blogPost.title);
@@ -127,7 +354,9 @@ export default function Editor({
           setDiscussions(blogPost.discussions || []);
           setEditingMemoId(id);
           setIsPublished(blogPost.status === 'published');
-          
+          setTags(blogPost.tags || []);
+          setCategories(blogPost.categories || []);
+
           // Set existing location if available
           if (blogPost.latitude || blogPost.city) {
             setPostLocation({
@@ -146,6 +375,48 @@ export default function Editor({
     [session?.accessToken]
   );
 
+  // Fetch available tags and categories from existing posts
+  const fetchAvailableTagsAndCategories = useCallback(async () => {
+    if (!session?.accessToken) return;
+    try {
+      const response = await fetch('/api/graphql', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          query: `
+            query GetBlogPosts {
+              blogPosts {
+                tags
+                categories
+              }
+            }
+          `,
+        }),
+      });
+
+      const result = await response.json();
+      if (result.errors) {
+        throw new Error(result.errors[0].message);
+      }
+
+      const posts = result.data.blogPosts || [];
+      const allTags = new Set<string>();
+      const allCategories = new Set<string>();
+
+      posts.forEach((post: { tags?: string[]; categories?: string[] }) => {
+        post.tags?.forEach(tag => allTags.add(tag));
+        post.categories?.forEach(cat => allCategories.add(cat));
+      });
+
+      setAvailableTags(Array.from(allTags).sort());
+      setAvailableCategories(Array.from(allCategories).sort());
+    } catch (error) {
+      console.error("Error fetching available tags and categories:", error);
+    }
+  }, [session?.accessToken]);
+
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     params.set("type", type);
@@ -161,7 +432,12 @@ export default function Editor({
         fetchMemo(id);
       }
     }
-  }, [type, router, searchParams, fetchMemo, fetchBlogPost]);
+
+    // Fetch available tags and categories when in blog mode
+    if (type === "blog") {
+      fetchAvailableTagsAndCategories();
+    }
+  }, [type, router, searchParams, fetchMemo, fetchBlogPost, fetchAvailableTagsAndCategories]);
 
   const handleTypeChange = (value: "blog" | "memo") => {
     setType(value);
@@ -174,9 +450,16 @@ export default function Editor({
     setIsLocationAttached(false);
     setIsMemoLocationIgnored(false);
     setIsPublished(true);
-    
+    setTags([]);
+    setCategories([]);
+
     // Navigate to clean URL without ID parameter
     router.push(`/editor?type=${value}`);
+
+    // Fetch available tags and categories when switching to blog mode
+    if (value === "blog") {
+      fetchAvailableTagsAndCategories();
+    }
   };
 
 
@@ -197,6 +480,8 @@ export default function Editor({
               title
               content
               status
+              tags
+              categories
             }
           }
         `;
@@ -207,6 +492,8 @@ export default function Editor({
             content,
             status: isPublished ? 'published' : 'draft',
             discussions,
+            tags,
+            categories,
             ...(isLocationAttached && postLocation && {
               latitude: postLocation.latitude,
               longitude: postLocation.longitude,
@@ -530,7 +817,7 @@ export default function Editor({
 
           {/* Title Section - Clean and minimal */}
           {type === "blog" && (
-            <div className="bg-card rounded-lg border border-border p-6">
+            <div className="bg-card rounded-lg border border-border p-6 space-y-4">
               <div>
                 <div className="flex items-center justify-between mb-2">
                   <Label htmlFor="title" className="text-sm font-medium text-foreground">
@@ -546,6 +833,38 @@ export default function Editor({
                   required
                   className="text-lg font-medium border-border focus:border-primary focus:ring-primary bg-background"
                   disabled={isLoading || isImageUploading}
+                />
+              </div>
+
+              {/* Tags Input */}
+              <div>
+                <div className="flex items-center justify-between mb-2">
+                  <Label className="text-sm font-medium text-foreground">
+                    Tags
+                  </Label>
+                </div>
+                <TagInput
+                  tags={tags}
+                  onChange={setTags}
+                  placeholder="Add tags..."
+                  disabled={isLoading || isImageUploading}
+                  suggestions={availableTags}
+                />
+              </div>
+
+              {/* Categories Input */}
+              <div>
+                <div className="flex items-center justify-between mb-2">
+                  <Label className="text-sm font-medium text-foreground">
+                    Categories
+                  </Label>
+                </div>
+                <CategoryInput
+                  categories={categories}
+                  onChange={setCategories}
+                  placeholder="Add categories..."
+                  disabled={isLoading || isImageUploading}
+                  suggestions={availableCategories}
                 />
               </div>
             </div>

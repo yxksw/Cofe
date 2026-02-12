@@ -18,6 +18,7 @@ interface NavItem {
 const navItems: NavItem[] = [
   { id: 'home', label: '首页', href: '/', icon: 'material-symbols:home-outline' },
   { id: 'blog', label: '博客', href: '/blog', icon: 'material-symbols:article-outline' },
+  { id: 'tags', label: '标签', href: '/tags', icon: 'material-symbols:label-outline' },
   { id: 'memos', label: '动态', href: '/memos', icon: 'material-symbols:chat-bubble-outline' },
   {
     id: 'friends',

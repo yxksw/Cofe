@@ -11,6 +11,8 @@ export interface BlogPostMetadata {
   status?: 'draft' | 'published'
   publishedAt?: string
   lastModified?: string
+  tags?: string[]
+  categories?: string[]
 }
 
 /**
@@ -70,6 +72,36 @@ export function parseExternalDiscussions(frontmatter: string): ExternalDiscussio
 }
 
 /**
+ * Parse array field from frontmatter (tags, categories)
+ */
+function parseArrayField(frontmatter: string, fieldName: string): string[] | undefined {
+  const fieldRegex = new RegExp(`${fieldName}:\\s*\\n([\\s\\S]*?)(?=\\n\\w|$)`, 'i')
+  const fieldMatch = frontmatter.match(fieldRegex)
+  
+  if (!fieldMatch) {
+    // Try single line format: tags: [tag1, tag2] or tags: tag1, tag2
+    const singleLineRegex = new RegExp(`${fieldName}:\\s*\\[?([^\\n\\]]+)\\]?`, 'i')
+    const singleLineMatch = frontmatter.match(singleLineRegex)
+    if (singleLineMatch) {
+      return singleLineMatch[1].split(',').map(t => t.trim()).filter(Boolean)
+    }
+    return undefined
+  }
+  
+  const items: string[] = []
+  const lines = fieldMatch[1].split('\n').filter(line => line.trim())
+  
+  for (const line of lines) {
+    const itemMatch = line.match(/^\s*-\s*(.+)$/)
+    if (itemMatch) {
+      items.push(itemMatch[1].trim())
+    }
+  }
+  
+  return items.length > 0 ? items : undefined
+}
+
+/**
  * Parse blog post metadata from markdown content
  */
 export function parseBlogPostMetadata(content: string): BlogPostMetadata {
@@ -100,7 +132,9 @@ export function parseBlogPostMetadata(content: string): BlogPostMetadata {
     ...(streetMatch && streetMatch[1].trim() && { street: streetMatch[1].trim() }),
     ...(statusMatch && { status: statusMatch[1].trim() as 'draft' | 'published' }),
     ...(publishedAtMatch && { publishedAt: publishedAtMatch[1].trim() }),
-    ...(lastModifiedMatch && { lastModified: lastModifiedMatch[1].trim() })
+    ...(lastModifiedMatch && { lastModified: lastModifiedMatch[1].trim() }),
+    tags: parseArrayField(frontmatter, 'tags'),
+    categories: parseArrayField(frontmatter, 'categories')
   }
 }
 

@@ -17,6 +17,8 @@ export interface BlogPost {
     status: 'draft' | 'published'
     publishedAt?: string
     lastModified: string
+    tags?: string[]
+    categories?: string[]
   }
   
   export type Memo = {

@@ -121,7 +121,9 @@ class GitHubAPIClient {
         street: metadata.street,
         status: metadata.status || 'published', // Default to published for existing posts
         publishedAt: metadata.publishedAt || metadata.date,
-        lastModified: metadata.lastModified || metadata.date || new Date().toISOString()
+        lastModified: metadata.lastModified || metadata.date || new Date().toISOString(),
+        tags: metadata.tags,
+        categories: metadata.categories
       }
     }
   }

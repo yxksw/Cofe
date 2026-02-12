@@ -1,5 +1,7 @@
 ---
 title: Hello-cofe
+tags: [测试]
+categories: [测试]
 date: 2026-02-11T08:01:50.350Z
 latitude: 31.586806103595656
 longitude: 120.7075056389742
