@@ -146,7 +146,7 @@ export function TableOfContents({ contentRef }: TableOfContentsProps) {
         {/* 目录面板 */}
         <div
           className={`
-            fixed bottom-20 right-4 w-64 max-h-[60vh] z-40
+            fixed bottom-36 right-4 w-64 max-h-[60vh] z-40
             bg-card/95 backdrop-blur-md rounded-xl border border-border shadow-lg
             transition-all duration-300 ease-out
             ${isOpen ? 'opacity-100 translate-y-0 pointer-events-auto' : 'opacity-0 translate-y-4 pointer-events-none'}
@@ -191,7 +191,7 @@ export function TableOfContents({ contentRef }: TableOfContentsProps) {
             setIsOpen(!isOpen)
           }}
           className={`
-            fixed bottom-20 right-4 z-50
+            fixed bottom-36 right-4 z-50
             w-12 h-12 rounded-full
             flex items-center justify-center
             shadow-lg border-2
