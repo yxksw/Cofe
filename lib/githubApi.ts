@@ -168,7 +168,8 @@ export async function createBlogPost(
   location?: { latitude?: number; longitude?: number; city?: string; street?: string },
   status: string = 'published',
   tags?: string[],
-  categories?: string[]
+  categories?: string[],
+  cover?: string
 ): Promise<void> {
   const octokit = getOctokit(accessToken)
   const { owner, repo } = await getRepoInfo(accessToken)
@@ -186,10 +187,11 @@ street: ${location.street || ''}
   const statusYaml = status !== 'published' ? `status: ${status}\n` : ''
   const tagsYaml = formatArrayField(tags, 'tags')
   const categoriesYaml = formatArrayField(categories, 'categories')
+  const coverYaml = cover ? `cover: ${escapeYamlString(cover)}\n` : ''
   const fullContent = `---
 title: ${escapeYamlString(title)}
 date: ${date}
-${statusYaml}${locationYaml}${tagsYaml}${categoriesYaml}${discussionsYaml}---
+${statusYaml}${locationYaml}${tagsYaml}${categoriesYaml}${coverYaml}${discussionsYaml}---
 
 ${content}`
 
@@ -472,7 +474,8 @@ export async function updateBlogPost(
   location?: { latitude?: number; longitude?: number; city?: string; street?: string },
   status?: string,
   tags?: string[],
-  categories?: string[]
+  categories?: string[],
+  cover?: string
 ): Promise<void> {
   console.log('Updating blog post...')
   if (!accessToken) {
@@ -509,13 +512,19 @@ street: ${location.street || ''}
     const existingTags = tags === undefined ? extractArrayField(existingContent, 'tags') : tags
     const existingCategories = categories === undefined ? extractArrayField(existingContent, 'categories') : categories
 
+    // Extract existing cover if not provided
+    const existingCoverMatch = existingContent.match(/cover:\s*(.+)/)
+    const existingCover = existingCoverMatch ? existingCoverMatch[1].trim() : undefined
+    const finalCover = cover !== undefined ? cover : existingCover
+    const coverYaml = finalCover ? `cover: ${escapeYamlString(finalCover)}\n` : ''
+
     const tagsYaml = formatArrayField(existingTags, 'tags')
     const categoriesYaml = formatArrayField(existingCategories, 'categories')
 
     const updatedContent = `---
 title: ${escapeYamlString(title)}
 date: ${date}
-${statusYaml}${locationYaml}${tagsYaml}${categoriesYaml}${discussionsYaml}---
+${statusYaml}${locationYaml}${tagsYaml}${categoriesYaml}${coverYaml}${discussionsYaml}---
 
 ${content}`
 

@@ -13,6 +13,7 @@ export interface BlogPostMetadata {
   lastModified?: string
   tags?: string[]
   categories?: string[]
+  cover?: string
 }
 
 /**
@@ -102,6 +103,23 @@ function parseArrayField(frontmatter: string, fieldName: string): string[] | und
 }
 
 /**
+ * Parse cover field from frontmatter
+ */
+function parseCoverField(frontmatter: string): string | undefined {
+  const coverMatch = frontmatter.match(/cover:[ \t]*(.+)/)
+  if (!coverMatch) return undefined
+  
+  let cover = coverMatch[1].trim()
+  // Remove quotes if present
+  if ((cover.startsWith('"') && cover.endsWith('"')) || 
+      (cover.startsWith("'") && cover.endsWith("'"))) {
+    cover = cover.slice(1, -1)
+  }
+  
+  return cover || undefined
+}
+
+/**
  * Parse blog post metadata from markdown content
  */
 export function parseBlogPostMetadata(content: string): BlogPostMetadata {
@@ -134,7 +152,8 @@ export function parseBlogPostMetadata(content: string): BlogPostMetadata {
     ...(publishedAtMatch && { publishedAt: publishedAtMatch[1].trim() }),
     ...(lastModifiedMatch && { lastModified: lastModifiedMatch[1].trim() }),
     tags: parseArrayField(frontmatter, 'tags'),
-    categories: parseArrayField(frontmatter, 'categories')
+    categories: parseArrayField(frontmatter, 'categories'),
+    cover: parseCoverField(frontmatter)
   }
 }
 

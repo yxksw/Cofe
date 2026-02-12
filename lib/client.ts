@@ -123,7 +123,8 @@ class GitHubAPIClient {
         publishedAt: metadata.publishedAt || metadata.date,
         lastModified: metadata.lastModified || metadata.date || new Date().toISOString(),
         tags: metadata.tags,
-        categories: metadata.categories
+        categories: metadata.categories,
+        cover: metadata.cover
       }
     }
   }

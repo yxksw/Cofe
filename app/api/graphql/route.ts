@@ -59,7 +59,7 @@ type MutationResolvers = {
   ) => Promise<LikeResult>
   saveBlogPost: (
     parent: unknown,
-    args: { id?: string; input: { title: string; content: string; status?: string; discussions?: ExternalDiscussion[]; latitude?: number; longitude?: number; city?: string; street?: string; tags?: string[]; categories?: string[] } },
+    args: { id?: string; input: { title: string; content: string; status?: string; discussions?: ExternalDiscussion[]; latitude?: number; longitude?: number; city?: string; street?: string; tags?: string[]; categories?: string[]; cover?: string } },
     context: GraphQLContext
   ) => Promise<BlogPost>
   deleteBlogPost: (
@@ -120,6 +120,7 @@ const typeDefs = `
     lastModified: String!
     tags: [String]
     categories: [String]
+    cover: String
   }
 
   type Link {
@@ -155,6 +156,7 @@ const typeDefs = `
     street: String
     tags: [String]
     categories: [String]
+    cover: String
   }
 
   input DiscussionInput {
@@ -428,7 +430,7 @@ const resolvers: { Query: QueryResolvers; Mutation: MutationResolvers } = {
 
         if (id) {
           // Update existing blog post
-          await updateBlogPost(id, input.title, input.content, context.token.accessToken, input.discussions, location, status, input.tags, input.categories)
+          await updateBlogPost(id, input.title, input.content, context.token.accessToken, input.discussions, location, status, input.tags, input.categories, input.cover)
           const client = createSmartClient(context.token.accessToken)
           const post = await client.getBlogPost(`${id}.md`)
           if (!post) {
@@ -437,7 +439,7 @@ const resolvers: { Query: QueryResolvers; Mutation: MutationResolvers } = {
           return post
         } else {
           // Create new blog post
-          await createBlogPost(input.title, input.content, context.token.accessToken, input.discussions, location, status, input.tags, input.categories)
+          await createBlogPost(input.title, input.content, context.token.accessToken, input.discussions, location, status, input.tags, input.categories, input.cover)
           const client = createSmartClient(context.token.accessToken)
           const posts = await client.getBlogPosts()
           const createdPost = Array.isArray(posts) ? posts.find(p => p.title === input.title) : null

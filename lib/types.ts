@@ -19,6 +19,7 @@ export interface BlogPost {
     lastModified: string
     tags?: string[]
     categories?: string[]
+    cover?: string
   }
   
   export type Memo = {

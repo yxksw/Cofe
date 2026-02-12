@@ -289,6 +289,8 @@ export default function Editor({
   const [categories, setCategories] = useState<string[]>([]);
   const [availableTags, setAvailableTags] = useState<string[]>([]);
   const [availableCategories, setAvailableCategories] = useState<string[]>([]);
+  const [cover, setCover] = useState<string>("");
+  const [isCoverUploading, setIsCoverUploading] = useState(false);
 
   const fetchMemo = useCallback(
     async (id: string) => {
@@ -329,6 +331,7 @@ export default function Editor({
                   street
                   tags
                   categories
+                  cover
                   discussions {
                     platform
                     url
@@ -356,6 +359,7 @@ export default function Editor({
           setIsPublished(blogPost.status === 'published');
           setTags(blogPost.tags || []);
           setCategories(blogPost.categories || []);
+          setCover(blogPost.cover || "");
 
           // Set existing location if available
           if (blogPost.latitude || blogPost.city) {
@@ -452,6 +456,7 @@ export default function Editor({
     setIsPublished(true);
     setTags([]);
     setCategories([]);
+    setCover("");
 
     // Navigate to clean URL without ID parameter
     router.push(`/editor?type=${value}`);
@@ -494,6 +499,7 @@ export default function Editor({
             discussions,
             tags,
             categories,
+            cover: cover || undefined,
             ...(isLocationAttached && postLocation && {
               latitude: postLocation.latitude,
               longitude: postLocation.longitude,
@@ -743,7 +749,7 @@ export default function Editor({
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-8">
-      {(isLoading || isImageUploading) && (
+      {(isLoading || isImageUploading || isCoverUploading) && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
           <div className="bg-card p-4 rounded-lg shadow-xl">
             <Loader2 className="h-8 w-8 animate-spin text-foreground" />
@@ -866,6 +872,96 @@ export default function Editor({
                   disabled={isLoading || isImageUploading}
                   suggestions={availableCategories}
                 />
+              </div>
+
+              {/* Cover Image */}
+              <div>
+                <div className="flex items-center justify-between mb-2">
+                  <Label className="text-sm font-medium text-foreground">
+                    Cover Image
+                  </Label>
+                </div>
+                <div className="space-y-3">
+                  {/* Cover Preview */}
+                  {cover && (
+                    <div className="relative group">
+                      <img
+                        src={cover}
+                        alt="Cover preview"
+                        className="w-full h-40 object-cover rounded-lg border border-border"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setCover("")}
+                        className="absolute top-2 right-2 p-1.5 bg-destructive text-destructive-foreground rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                        disabled={isLoading || isImageUploading}
+                      >
+                        <X className="h-4 w-4" />
+                      </button>
+                    </div>
+                  )}
+                  
+                  {/* Cover URL Input */}
+                  <div className="flex gap-2">
+                    <Input
+                      type="url"
+                      value={cover}
+                      onChange={(e) => setCover(e.target.value)}
+                      placeholder="Paste image URL or upload..."
+                      className="flex-1"
+                      disabled={isLoading || isImageUploading || isCoverUploading}
+                    />
+                    <label
+                      htmlFor="cover-upload"
+                      className={`px-4 py-2 rounded-md text-sm font-medium cursor-pointer transition-colors flex items-center gap-2 ${
+                        isLoading || isImageUploading || isCoverUploading
+                          ? 'bg-muted text-muted-foreground cursor-not-allowed'
+                          : 'bg-secondary text-secondary-foreground hover:bg-secondary/80'
+                      }`}
+                    >
+                      {isCoverUploading ? (
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                      ) : (
+                        <CgImage className="h-4 w-4" />
+                      )}
+                      Upload
+                      <input
+                        id="cover-upload"
+                        type="file"
+                        accept="image/*"
+                        className="hidden"
+                        onChange={async (e) => {
+                          if (e.target.files && e.target.files[0] && session?.accessToken) {
+                            setIsCoverUploading(true);
+                            try {
+                              const imageUrl = await uploadImage(e.target.files[0], session.accessToken);
+                              setCover(imageUrl);
+                              toast({
+                                title: t("success"),
+                                description: "Cover image uploaded",
+                                duration: 3000,
+                              });
+                            } catch (error) {
+                              console.error("Error uploading cover:", error);
+                              toast({
+                                title: t("error"),
+                                description: t("imageUploadFailed"),
+                                variant: "destructive",
+                                duration: 3000,
+                              });
+                            } finally {
+                              setIsCoverUploading(false);
+                            }
+                          }
+                        }}
+                        disabled={isLoading || isImageUploading || isCoverUploading}
+                      />
+                    </label>
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    Upload an image or paste a URL for the post cover
+                  </p>
+                </div>
               </div>
             </div>
           )}
