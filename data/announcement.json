@@ -1,6 +1,5 @@
 {
   "enable": true,
   "level": "info",
-  "title": "网站公告",
-  "content": "欢迎来到我的博客！"
+  "title": "网站公告"
 }
