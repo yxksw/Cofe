@@ -38,6 +38,7 @@ const navItems: NavItem[] = [
       { id: 'circle', label: '朋友圈', href: '/fcircle', icon: 'material-symbols:hub' },
     ]
   },
+  { id: 'sponsors', label: '赞助', href: '/sponsors', icon: 'material-symbols:volunteer-activism-outline' },
   { id: 'about', label: '关于', href: '/about', icon: 'material-symbols:person-outline' },
 //   { id: 'editor', label: '编辑器', href: '/editor', icon: 'material-symbols:edit-note' },
 ]
