@@ -6,7 +6,6 @@ import { Button } from '@/components/ui/button'
 import { useRouter } from 'next/navigation'
 import { useTranslations } from 'next-intl'
 import { FancyboxWrapper } from './FancyboxWrapper'
-import Link from 'next/link'
 
 export default function BlogList({ posts }: { posts: BlogPost[] }) {
   const router = useRouter()
@@ -35,12 +34,6 @@ export default function BlogList({ posts }: { posts: BlogPost[] }) {
 
   return (
     <div className='max-w-3xl mx-auto px-4 py-8'>
-      <div className='flex items-center justify-between mb-6'>
-        <h2 className='text-xl font-semibold text-foreground'>Blog Posts</h2>
-        <Link href='/blog' className='text-xs text-muted-foreground hover:text-foreground underline'>
-          more
-        </Link>
-      </div>
       <FancyboxWrapper>
         <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
           {sorted.map((post) => (
