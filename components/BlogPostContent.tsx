@@ -13,6 +13,7 @@ import LikeButton from './LikeButton'
 import { FancyboxWrapper } from './FancyboxWrapper'
 import { Icon } from '@iconify/react'
 import dynamic from 'next/dynamic'
+import { TOC } from './TOC'
 
 // 动态导入 GitalkComments 组件，避免 SSR 问题
 const GitalkComments = dynamic(() => import('./GitalkComments'), {
@@ -42,6 +43,7 @@ export function BlogPostContent({ title, date, content, slug, headerContent, dis
 
   return (
     <div className='max-w-3xl mx-auto px-4 py-8'>
+      <TOC contentRef={contentRef} />
       {headerContent && (
         <div className='flex justify-end mb-6'>
           {headerContent}
