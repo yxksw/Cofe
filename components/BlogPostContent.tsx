@@ -44,13 +44,13 @@ export function BlogPostContent({ title, date, content, slug, headerContent, dis
   return (
     <>
       <TableOfContents contentRef={contentRef} />
-      <div className='max-w-3xl mx-auto px-4 py-8 lg:ml-[calc(50%-384px+16rem)] xl:mx-auto'>
-        {headerContent && (
-          <div className='flex justify-end mb-6'>
-            {headerContent}
-          </div>
-        )}
-        <main className='bg-card rounded-lg border border-border p-8'>
+      <div className='max-w-3xl mx-auto px-4 py-8'>
+      {headerContent && (
+        <div className='flex justify-end mb-6'>
+          {headerContent}
+        </div>
+      )}
+      <main className='bg-card rounded-lg border border-border p-8'>
         <header className='mb-8'>
           <h1 className='text-3xl font-bold leading-tight mb-3 text-foreground'>{title}</h1>
           <div className='text-sm text-muted-foreground flex items-center gap-3 flex-wrap'>
