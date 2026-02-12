@@ -2,6 +2,7 @@ import BlogPage from './blog/page'
 import { Memo } from '@/lib/types'
 import React from 'react'
 import { StatusCard } from '@/components/StatusCard'
+import { Announcement } from '@/components/Announcement'
 import { createDevelopmentOptimizedClient } from '@/lib/client'
 
 export default async function Home() {
@@ -25,7 +26,8 @@ export default async function Home() {
         avatar={`https://github.com/${username}.png`}
         links={links}
       />
-      <main className='lex-grow w-full'>
+      <main className='flex-grow w-full py-6'>
+        <Announcement />
         <BlogPage />
       </main>
     </div>
