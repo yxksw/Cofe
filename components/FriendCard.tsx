@@ -61,11 +61,11 @@ const FriendCard: React.FC<FriendCardProps> = ({ link }) => {
             href={link.url}
             target="_blank"
             rel="noopener noreferrer"
-            className={`group relative flex items-center gap-4 p-4 rounded-xl border transition-all duration-300 
+            className={`group relative flex items-center gap-3 sm:gap-4 p-3 sm:p-4 rounded-xl border transition-all duration-300 
                 bg-white dark:bg-white/5 
                 hover:-translate-y-1 hover:shadow-lg
                 ${levelInfo ? levelInfo.border.replace('border-', 'border-opacity-50 hover:border-opacity-100 ') : 'border-gray-200 dark:border-white/10'}
-                overflow-hidden h-[90px]
+                overflow-hidden min-h-[90px]
             `}
         >
             {/* Background Decoration Pattern */}
@@ -74,7 +74,7 @@ const FriendCard: React.FC<FriendCardProps> = ({ link }) => {
             </div>
 
             {/* Avatar Section */}
-            <div ref={imgRef} className="relative w-14 h-14 flex-shrink-0">
+            <div ref={imgRef} className="relative w-12 h-12 sm:w-14 sm:h-14 flex-shrink-0">
                 <div className={`absolute inset-0 rounded-full border-2 ${levelInfo ? `${levelInfo.border} opacity-20` : 'border-gray-200'} scale-110`} />
 
                 {!imageLoaded && !imageError && (
@@ -92,42 +92,42 @@ const FriendCard: React.FC<FriendCardProps> = ({ link }) => {
                             setImageError(true);
                             setImageLoaded(true);
                         }}
-                        className={`w-14 h-14 rounded-full object-cover relative z-10 transition-transform duration-500 group-hover:rotate-12 ${imageLoaded ? 'opacity-100' : 'opacity-0'
+                        className={`w-12 h-12 sm:w-14 sm:h-14 rounded-full object-cover relative z-10 transition-transform duration-500 group-hover:rotate-12 ${imageLoaded ? 'opacity-100' : 'opacity-0'
                             }`}
                     />
                 ) : imageError && (
-                    <div className="w-14 h-14 rounded-full bg-gray-300 dark:bg-gray-600 flex items-center justify-center text-gray-500 z-10 relative">
+                    <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-gray-300 dark:bg-gray-600 flex items-center justify-center text-gray-500 z-10 relative">
                         {link.name.charAt(0)}
                     </div>
                 )}
             </div>
 
             {/* Content Section */}
-            <div className="flex-grow min-w-0 z-10 h-full flex flex-col justify-center">
-                <div className="flex items-center gap-2 mb-1">
-                    <h3 className="font-bold text-gray-900 dark:text-white truncate">
+            <div className="flex-1 min-w-0 z-10 flex flex-col justify-center py-1">
+                <div className="flex items-center gap-1.5 sm:gap-2 mb-1">
+                    <h3 className="font-bold text-gray-900 dark:text-white text-sm sm:text-base truncate">
                         {link.name}
                     </h3>
                     {link.recommended && (
-                        <div className="relative group/rec" title="推荐">
-                            <Icon icon="lucide:thumbs-up" className="w-3.5 h-3.5 text-amber-500" />
+                        <div className="relative group/rec flex-shrink-0" title="推荐">
+                            <Icon icon="lucide:thumbs-up" className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-amber-500" />
                         </div>
                     )}
                 </div>
-                <p className="text-xs text-gray-500 dark:text-gray-400 leading-normal truncate">
+                <p className="text-xs text-gray-500 dark:text-gray-400 leading-relaxed line-clamp-2">
                     {link.description}
                 </p>
             </div>
 
-            {/* Genshin Style Stamp (Bottom Right) */}
+            {/* Genshin Style Stamp (Right Side) */}
             {levelInfo && (
-                <div className="absolute bottom-[-5px] right-[-5px] opacity-25 group-hover:opacity-40 transition-all duration-300 group-hover:scale-110 group-hover:rotate-[-12deg] pointer-events-none">
-                    <div className={`relative w-24 h-24 flex items-center justify-center ${levelInfo.color}`}>
-                        <div className="absolute top-5 font-black tracking-widest uppercase text-[10px] opacity-100 font-serif">
+                <div className="flex-shrink-0 w-14 h-14 sm:w-16 sm:h-16 opacity-20 group-hover:opacity-35 transition-all duration-300 group-hover:scale-105 group-hover:rotate-[-8deg] pointer-events-none">
+                    <div className={`relative w-full h-full flex flex-col items-center justify-center ${levelInfo.color}`}>
+                        <div className="font-black tracking-wider uppercase text-[8px] sm:text-[10px] opacity-100 font-serif leading-tight">
                             {levelInfo.title}
                         </div>
-                        <Icon icon={levelInfo.icon} className="w-10 h-10 opacity-60" />
-                        <div className="absolute bottom-5 font-mono text-[9px] opacity-100 font-bold">
+                        <Icon icon={levelInfo.icon} className="w-6 h-6 sm:w-8 sm:h-8 opacity-60 my-0.5" />
+                        <div className="font-mono text-[8px] sm:text-[9px] opacity-100 font-bold leading-tight">
                             {days} DAYS
                         </div>
                     </div>
