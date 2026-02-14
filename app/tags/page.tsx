@@ -22,7 +22,7 @@ async function getPostsFromLocal() {
 
 async function getTagsData() {
   // 优先从本地文件系统读取
-  let posts = await getPostsFromLocal()
+  const posts = await getPostsFromLocal()
   
   // 如果本地没有文章，返回错误
   if (posts.length === 0) {

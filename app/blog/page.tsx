@@ -2,11 +2,12 @@ import BlogList from "@/components/BlogList";
 import { createSmartClient } from '@/lib/smartClient'
 import { getServerSession } from 'next-auth/next'
 import { authOptions } from '@/lib/auth'
+import type { BlogPost } from '@/lib/types'
 
 export const revalidate = 0;
 
 // 直接使用本地文件系统获取文章数据
-async function getPostsFromLocal() {
+async function getPostsFromLocal(): Promise<BlogPost[]> {
   try {
     const { createLocalFileSystemClient } = await import('@/lib/localClient.server')
     const client = createLocalFileSystemClient()
@@ -18,10 +19,8 @@ async function getPostsFromLocal() {
 }
 
 export default async function BlogPage() {
-  let posts: any[] = []
-  
   // 优先从本地文件系统读取（无论是否登录）
-  posts = await getPostsFromLocal()
+  let posts = await getPostsFromLocal()
   
   // 如果本地没有文章，尝试使用 GitHub API
   if (posts.length === 0) {
