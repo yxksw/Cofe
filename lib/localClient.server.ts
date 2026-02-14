@@ -84,7 +84,10 @@ export class LocalFileSystemClient {
         street: metadata.street,
         status: metadata.status || 'published',
         publishedAt: metadata.publishedAt || metadata.date,
-        lastModified: metadata.lastModified || metadata.date || new Date().toISOString()
+        lastModified: metadata.lastModified || metadata.date || new Date().toISOString(),
+        tags: metadata.tags,
+        categories: metadata.categories,
+        cover: metadata.cover
       }
     } catch (error) {
       console.error(`Error reading blog post ${filename}:`, error)
