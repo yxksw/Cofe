@@ -60,7 +60,8 @@ export default function BangumiPage() {
   };
 
   // 滚动到评论区
-  const scrollToComments = (_content: string) => {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const scrollToComments = (content: string) => {
     const commentsSection = document.querySelector('.gt-container');
     if (commentsSection) {
       commentsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
