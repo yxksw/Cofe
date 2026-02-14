@@ -11,9 +11,20 @@ import {
 } from "@/components/ui/toast";
 import { BsCheckCircleFill } from "react-icons/bs";
 import { MdError } from "react-icons/md";
+import { useEffect, useState } from "react";
 
 export function Toaster() {
   const { toasts } = useToast();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  // 避免 SSR 水合错误，客户端挂载后再渲染
+  if (!mounted) {
+    return null;
+  }
 
   return (
     <ToastProvider>

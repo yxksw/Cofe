@@ -27,7 +27,7 @@ const navItems: NavItem[] = [
       { id: 'tags', label: '标签', href: '/tags', icon: 'tabler:tags' },
     ]
   },
-  { id: 'memos', label: '动态', href: '/memos', icon: 'material-symbols:chat-bubble-outline' },
+//   { id: 'memos', label: '动态', href: '/memos', icon: 'material-symbols:chat-bubble-outline' },
   {
     id: 'friends',
     label: '友链',
@@ -37,8 +37,18 @@ const navItems: NavItem[] = [
       { id: 'links', label: '友情链接', href: '/link', icon: 'material-symbols:link' },
       { id: 'circle', label: '朋友圈', href: '/fcircle', icon: 'material-symbols:hub' },
     ]
+    },
+  {
+    id: 'pages',
+    label: '页面',
+    href: '#',
+    icon: 'iconoir:page-flip',
+    children: [
+      { id: 'sponsors', label: '赞助', href: '/sponsors', icon: 'octicon:sponsor-tiers-16' },
+        { id: 'devices', label: '设备', href: '/devices', icon: 'material-symbols:devices' },
+      { id: 'bangumi', label: '追番', href: '/bangumi', icon: 'meteor-icons:bilibili' },
+    ]
   },
-  { id: 'sponsors', label: '赞助', href: '/sponsors', icon: 'material-symbols:volunteer-activism-outline' },
   { id: 'about', label: '关于', href: '/about', icon: 'material-symbols:person-outline' },
 //   { id: 'editor', label: '编辑器', href: '/editor', icon: 'material-symbols:edit-note' },
 ]

@@ -18,11 +18,12 @@ interface TagsPageProps {
   tags: TagItem[]
   categories: TagItem[]
   allPosts: BlogPost[]
+  error?: string | null
 }
 
 type ViewMode = 'cloud' | 'list'
 
-export default function TagsPage({ tags, categories, allPosts }: TagsPageProps) {
+export default function TagsPage({ tags, categories, allPosts, error }: TagsPageProps) {
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedTag, setSelectedTag] = useState<string | null>(null)
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
@@ -124,7 +125,15 @@ export default function TagsPage({ tags, categories, allPosts }: TagsPageProps) 
           <div className="text-muted-foreground">
             <Tag className="w-16 h-16 mx-auto mb-4 opacity-50" />
             <p className="text-lg">暂无标签数据</p>
-            <p className="text-sm mt-2">创建博客文章并添加标签后即可查看</p>
+            {error ? (
+              <div className="mt-4 p-4 bg-red-50 dark:bg-red-950/20 rounded-lg max-w-md mx-auto">
+                <p className="text-sm text-red-600 dark:text-red-400">
+                  <span className="font-semibold">错误信息：</span>{error}
+                </p>
+              </div>
+            ) : (
+              <p className="text-sm mt-2">创建博客文章并添加标签后即可查看</p>
+            )}
           </div>
         </div>
       ) : (
