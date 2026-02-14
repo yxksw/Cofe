@@ -5,24 +5,48 @@ import { LikesDatabase } from './likeUtils'
 import { parseBlogPostMetadata } from './markdown'
 
 /**
+ * Get the project root directory
+ * Works in both development and production (Vercel)
+ */
+function getProjectRoot(): string {
+  // Try multiple methods to find the project root
+  if (process.env.INIT_CWD) {
+    return process.env.INIT_CWD
+  }
+  if (process.env.VERCEL) {
+    // In Vercel, the project root is where the package.json is
+    return process.cwd()
+  }
+  return process.cwd()
+}
+
+/**
  * Local file system client for development (server-side only)
  * Reads data from local data/ directory instead of GitHub
  */
 export class LocalFileSystemClient {
   private get dataDir() {
-    return path.join(process.cwd(), 'data')
+    return path.join(getProjectRoot(), 'data')
   }
 
   private get blogDir() {
     return path.join(this.dataDir, 'blog')
   }
+  
+  constructor() {
+    console.log('LocalFileSystemClient initialized')
+    console.log('Project root:', getProjectRoot())
+    console.log('Data dir:', this.dataDir)
+    console.log('Blog dir:', this.blogDir)
+  }
+  
   /**
    * Get all blog posts from local data/blog directory
    */
   async getBlogPosts(includeAuthenticatedDrafts = false): Promise<BlogPost[]> {
     try {
       if (!fs.existsSync(this.blogDir)) {
-        console.log('Blog directory does not exist, returning empty array')
+        console.log('Blog directory does not exist:', this.blogDir)
         return []
       }
 
@@ -30,6 +54,8 @@ export class LocalFileSystemClient {
       const blogFiles = files.filter(file => 
         file.endsWith('.md') && file !== '.gitkeep'
       )
+
+      console.log('Found blog files:', blogFiles)
 
       const posts: BlogPost[] = []
       

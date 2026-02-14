@@ -90,6 +90,7 @@ export class PublicGitHubClient {
           : decodeURIComponent(filename.replace('.md', '')),
         content,
         imageUrl: getFirstImageURLFrom(content),
+        cover: metadata.cover,
         date: metadata.date ? new Date(metadata.date.trim()).toISOString() : new Date().toISOString(),
         discussions: metadata.discussions.length > 0 ? metadata.discussions : undefined,
         latitude: metadata.latitude,
@@ -98,7 +99,9 @@ export class PublicGitHubClient {
         street: metadata.street,
         status: metadata.status || 'published',
         publishedAt: metadata.publishedAt || metadata.date,
-        lastModified: metadata.lastModified || metadata.date || new Date().toISOString()
+        lastModified: metadata.lastModified || metadata.date || new Date().toISOString(),
+        tags: metadata.tags,
+        categories: metadata.categories,
       }
     } catch (error) {
       console.error(`Error fetching blog post ${filename}:`, error)
