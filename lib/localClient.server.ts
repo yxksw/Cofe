@@ -76,6 +76,7 @@ export class LocalFileSystemClient {
         title: metadata.title || filename.replace('.md', ''),
         content,
         imageUrl,
+        cover: metadata.cover,
         date: metadata.date ? new Date(metadata.date).toISOString() : new Date().toISOString(),
         discussions: metadata.discussions.length > 0 ? metadata.discussions : undefined,
         latitude: metadata.latitude,
@@ -87,7 +88,6 @@ export class LocalFileSystemClient {
         lastModified: metadata.lastModified || metadata.date || new Date().toISOString(),
         tags: metadata.tags,
         categories: metadata.categories,
-        cover: metadata.cover
       }
     } catch (error) {
       console.error(`Error reading blog post ${filename}:`, error)
