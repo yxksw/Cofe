@@ -18,24 +18,23 @@ async function getPostsFromLocal() {
 }
 
 export default async function BlogPage() {
-  const session = await getServerSession(authOptions);
+  let posts: any[] = []
   
-  let posts = []
+  // 优先从本地文件系统读取（无论是否登录）
+  posts = await getPostsFromLocal()
   
-  // 如果有登录，尝试使用 SmartClient（GitHub API）
-  if (session?.accessToken) {
+  // 如果本地没有文章，尝试使用 GitHub API
+  if (posts.length === 0) {
+    console.log('No local posts, trying GitHub API...')
     try {
-      const client = createSmartClient(session.accessToken)
+      const session = await getServerSession(authOptions)
+      const client = createSmartClient(session?.accessToken)
       posts = await client.getBlogPosts()
       console.log(`Fetched ${posts.length} posts from GitHub API`)
     } catch (error) {
-      console.error('Error fetching from GitHub API, falling back to local:', error)
-      posts = await getPostsFromLocal()
+      console.error('Error fetching from GitHub API:', error)
     }
   } else {
-    // 未登录时，直接从本地文件系统读取
-    console.log('No session, reading posts from local filesystem')
-    posts = await getPostsFromLocal()
     console.log(`Fetched ${posts.length} posts from local filesystem`)
   }
 
