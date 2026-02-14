@@ -1,5 +1,7 @@
 import { Metadata } from 'next'
 import TagsPage from './TagsPage'
+import { createSmartClient } from '@/lib/smartClient'
+import type { BlogPost } from '@/lib/types'
 
 export const metadata: Metadata = {
   title: '标签 - YXK BLOG',
@@ -20,13 +22,35 @@ async function getPostsFromLocal() {
   }
 }
 
+// 从 GitHub 获取文章数据
+async function getPostsFromGitHub(): Promise<BlogPost[]> {
+  try {
+    const client = createSmartClient()
+    return await client.getBlogPosts()
+  } catch (error) {
+    console.error('Error reading from GitHub:', error)
+    return []
+  }
+}
+
 async function getTagsData() {
-  // 优先从本地文件系统读取
-  const posts = await getPostsFromLocal()
+  let posts: BlogPost[] = []
   
-  // 如果本地没有文章，返回错误
+  // 开发环境优先使用本地文件系统
+  if (process.env.NODE_ENV === 'development') {
+    posts = await getPostsFromLocal()
+  }
+  
+  // 如果本地没有文章或不在开发环境，尝试从 GitHub 获取
   if (posts.length === 0) {
-    console.log('No local posts found')
+    console.log('Fetching posts from GitHub...')
+    posts = await getPostsFromGitHub()
+    console.log(`Fetched ${posts.length} posts from GitHub`)
+  }
+
+  // 如果仍然没有文章，返回错误
+  if (posts.length === 0) {
+    console.log('No posts found')
     return { 
       tags: [], 
       categories: [], 
@@ -35,7 +59,7 @@ async function getTagsData() {
     }
   }
 
-  console.log(`Fetched ${posts.length} posts from local filesystem`)
+  console.log(`Processing ${posts.length} posts for tags`)
 
   try {
     // 统计标签和分类
