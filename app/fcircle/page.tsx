@@ -254,7 +254,7 @@ export default function FCirclePage() {
       <FCircleHeader
         background="https://img.314926.xyz/h"
         title="友链朋友圈"
-        desc="Cofe Blog的友链朋友圈页面。"
+        desc="异飨客的友链朋友圈页面。"
       />
 
       <div className="max-w-3xl mx-auto px-4 mt-4 animate-in fade-in slide-in-from-bottom-4 duration-500">

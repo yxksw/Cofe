@@ -91,17 +91,17 @@ export const about: aboutConnect[] = [
         author: [
             {
                 left: [{
-                    tag1: "💻 热爱技术",
+                    tag1: "💻 博客魔改",
                     tag2: "📝 记录生活",
-                    tag3: "🕊 追求自由",
-                    tag4: "🧱 持续学习"
+                    tag3: "🕊 资源分享",
+                    tag4: "🧱 踩坑经历"
                 }],
                 logo: "https://cn.cravatar.com/avatar/eb7277a11fa4dc00606e73afda41aeeb?=256",
                 right: [{
-                    tag1: "吃饭不如碎觉 💤",
-                    tag2: "乐观 积极 向上 🤝",
-                    tag3: "专攻各种困难 🔨",
-                    tag4: "人不狠话超多 💢"
+                    tag1: "社恐内向不说话 💤",
+                    tag2: "活到老学到老 🤝",
+                    tag3: "小说狂热爱好者 🔨",
+                    tag4: "只会CTRL CV 💢"
                 }]
             }
         ],
@@ -110,7 +110,7 @@ export const about: aboutConnect[] = [
             title1: "你好，很高兴认识你👋",
             title2: "我叫",
             inlineword1: "异飨客",
-            title3: "是一名 前端开发者、学生、",
+            title3: "是一名 博客写作者者、学生、",
             inlineword2: "博主",
             card: [{
                 tips: "追求",
@@ -132,13 +132,13 @@ export const about: aboutConnect[] = [
         ],
         maxim: [{
             tip: "座右铭",
-            title1: "生活明朗，",
-            title2: "万物可爱。",
+            title1: "每一段旅行，",
+            title2: "都有终点。",
         }],
         technology: [{
             tip: "关注偏好",
-            title: "数码科技",
-            bottomTip: "手机、电脑软硬件"
+            title: "单机游戏",
+            bottomTip: "博客写作、小说阅读"
         }],
         game: [{
             tip: "爱好游戏",
@@ -147,10 +147,10 @@ export const about: aboutConnect[] = [
             image: ""
         }],
         single: [{
-            tip: "心路历程",
-            title: "为何而建站",
-            lishi: "『YXK BLOG』历史进程",
-            content: "『YXK BLOG』是一个记录技术与生活的个人博客，集成了文章、动态、友链等功能。"
+            tip: "建站历程",
+            title: "怎么魔改",
+            lishi: "『塔罗会』历史进程",
+            content: "『塔罗会』是一个记录技术与生活的个人博客，集成了文章、动态、友链等功能。"
         }]
     }
 ]

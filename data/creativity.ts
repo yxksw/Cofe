@@ -21,7 +21,7 @@ export const creativityData: CreativityData[] = [
             {
                 name: "React",
                 color: "#61dafb",
-                icon: "logos:react"
+                icon: "mdi:react"
             },
             {
                 name: "Next.js",
@@ -36,16 +36,16 @@ export const creativityData: CreativityData[] = [
             {
                 name: "Tailwind",
                 color: "#06b6d4",
-                icon: "logos:tailwindcss-icon"
+                icon: "mdi:tailwind"
             },
             {
                 name: "Node.js",
                 color: "#339933",
-                icon: "logos:nodejs-icon"
+                icon: "mdi:nodejs"
             },
             {
                 name: "Git",
-                color: "#f05032",
+                color: "#ffffff",
                 icon: "logos:git-icon"
             },
             {
@@ -54,9 +54,9 @@ export const creativityData: CreativityData[] = [
                 icon: "logos:visual-studio-code"
             },
             {
-                name: "Linux",
-                color: "#fcc624",
-                icon: "logos:linux-tux"
+                name: "Markdown",
+                color: "#61dafb",
+                icon: "material-symbols:markdown"
             }
         ],
     },

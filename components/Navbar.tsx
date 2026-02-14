@@ -165,12 +165,12 @@ export function Navbar() {
             >
               <Image
                 src="https://cn.cravatar.com/avatar/eb7277a11fa4dc00606e73afda41aeeb?=256"
-                alt="YXK BLOG"
+                alt="塔罗会"
                 width={36}
                 height={36}
                 className="rounded-full"
               />
-              <span>YXK BLOG</span>
+              <span>塔罗会</span>
             </Link>
 
             {/* 桌面端水平菜单 */}
@@ -278,12 +278,12 @@ export function Navbar() {
             <Link href="/" className="flex items-center gap-2 text-foreground font-bold text-lg">
               <Image
                 src="https://cn.cravatar.com/avatar/eb7277a11fa4dc00606e73afda41aeeb?=256"
-                alt="YXK BLOG"
+                alt="塔罗会"
                 width={32}
                 height={32}
                 className="rounded-full"
               />
-              <span>YXK BLOG</span>
+              <span>塔罗会</span>
             </Link>
 
             {/* 右侧按钮 */}

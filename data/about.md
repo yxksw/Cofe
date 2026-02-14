@@ -1,14 +1,2 @@
-- V5 2025  
-V5基础架构采用的是纸鹿的Nuxt主题，并将原来的主题中许多魔改内容进行适配，目前较为满意。后面考虑是否把其他架构给独立出每个单独域名。
-
-- V4 2025  
-V4基础架构重新换回Hexo，魔改了butterfly主题，仿照了许多内容。导致了后面基础维护难，现在只能作为范本给后面的进行参考。
-
-- V3 2023  
-V3基础架构使用Wordpress，且采用子比主题、子主题和零零总总的插件。后面使用的过程中，感觉运行速度、加载速度和优化问题，所以决定更换轻量化的建站方式。
-
-- V2 2021  
-V2基础架构使用Hexo云端源码进行操作，并使用Volantis主题。
-
-- V1 2019  
-V1基础架构使用Gridea 建站，为第一个网站，对于我这种小白来说极为简单，只需写好内容Push上去即可。但是后面带来了一个问题，无法通过使用代理访问Github，为以后带来了隐患。
+- 欢迎来到「塔罗会」，你可以称呼我<img src="https://cn.cravatar.com/avatar/eb7277a11fa4dc00606e73afda41aeeb?=256" alt="异飨(xiang)客">**异飨(xiang)客**，或者钟神秀、或者克喵~。我在这个博客记录我的生活日常、踩坑记录和资源分享。
+- 本站点做出来自<img src="https://tinymind.me/_next/image?url=%2Ficon.jpg&w=64&q=75" alt="tinymind">[tinymind](https://github.com/mazzzystar/tinymind)，然后再使用<img src="https://blog.minghe.me/_next/image?url=https%3A%2F%2Fgithub.com%2Fmetrue.png&w=96&q=75" alt="Cofe">[Cofe](https://github.com/metrue/Cofe)，基于其项目进行魔改，感谢<img src="https://q2.qlogo.cn/headimg_dl?dst_uin=2726730791&spec=0" alt="二叉树树">[二叉树树](https://github.com/afoim/fuwari)的新文章通知、赞助页面，<img src="https://cdn.atao.cyou/Web/Avatar.png" alt="Atao-blog">[Atao-blog](https://github.com/HoshiSaneko/ATao-Blog)博客的友链页面，<img src="https://www.qixz.cn/avatar.avif" alt="青序栈">[青序栈](https://www.qixz.cn/)的标签页面和装备页面、<img src="https://blog.liushen.fun/info/avatar.ico" alt="柳神">[柳神](https://github.com/willow-god/hexo-safego)的外站安全页面、<img src="https://www.myxz.top/_ipx/_/avatar.avif" alt="源境录">[源境录](https://www.myxz.top/)的朋友圈、关于页面、追番页面，感谢以上大佬的开源项目的帮助~

@@ -23,10 +23,10 @@ const GitalkComments = dynamic(() => import('@/components/GitalkComments'), {
 
 // 本站信息配置
 const SITE_INFO = {
-    name: "Cofe Blog",
+    name: "塔罗会",
     url: "https://cofe.381359.xyz",
-    description: "一个记录技术与生活的个人博客",
-    avatar: "https://cofe.381359.xyz/avatar.png"
+    description: "每一段旅行，都有终点。",
+    avatar: "https://cn.cravatar.com/avatar/eb7277a11fa4dc00606e73afda41aeeb?=256"
 };
 
 // 友链联系邮箱

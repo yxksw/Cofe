@@ -91,16 +91,53 @@ export function BlogPostContent({ title, date, content, slug, headerContent, dis
                     </code>
                   )
                 },
-                a: ({ children, ...props }) => (
-                  <a
-                    {...props}
-                    className='text-muted-foreground no-underline hover:text-foreground hover:underline hover:underline-offset-4 transition-colors duration-200 break-words'
-                    target='_blank'
-                    rel='noopener noreferrer'
-                  >
-                    {children}
-                  </a>
-                ),
+                a: ({ children, href, ...props }) => {
+                   const handleClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
+                     if (!href) return;
+                     
+                     // 检查是否为外部链接
+                     try {
+                       const url = new URL(href, window.location.origin);
+                       const currentHost = window.location.hostname;
+                       
+                       // 同源链接不处理
+                       if (url.hostname === currentHost) {
+                         return;
+                       }
+                       
+                       // 检查是否在白名单中
+                       const { isWhitelisted, isBlacklisted, processExternalLink } = require('@/lib/externalLink');
+                       const processedUrl = processExternalLink(href);
+                       
+                       if (processedUrl === null) {
+                         // 黑名单链接，阻止访问
+                         e.preventDefault();
+                         alert('该链接已被拦截，无法访问');
+                         return;
+                       }
+                       
+                       if (processedUrl !== href) {
+                         // 需要中转的链接，在新标签页打开
+                         e.preventDefault();
+                         window.open(processedUrl, '_blank');
+                       }
+                     } catch {
+                       // 非有效 URL，不处理
+                     }
+                   };
+                  
+                  return (
+                    <a
+                      href={href}
+                      onClick={handleClick}
+                      className='text-muted-foreground no-underline hover:text-foreground hover:underline hover:underline-offset-4 transition-colors duration-200 break-words'
+                      target='_blank'
+                      rel='noopener noreferrer'
+                    >
+                      {children}
+                    </a>
+                  );
+                },
                 blockquote: ({ children }) => (
                   <blockquote className='pl-4 border-l-4 border-border text-muted-foreground bg-muted/50 py-2 px-4 rounded-r-lg my-4'>
                     {children}

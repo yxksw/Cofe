@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, ReactNode } from 'react'
 import { Icon } from '@iconify/react'
 import { useSession } from 'next-auth/react'
 import Link from 'next/link'
@@ -9,6 +9,49 @@ import announcementContent from '@/data/announcement.md'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import rehypeRaw from 'rehype-raw'
+import { processExternalLink } from '@/lib/externalLink'
+
+function LinkComponent({ href, children }: { href?: string; children?: ReactNode }) {
+  const handleClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    if (!href) return
+    
+    try {
+      const url = new URL(href, window.location.origin)
+      const currentHost = window.location.hostname
+      
+      if (url.hostname === currentHost) {
+        return
+      }
+      
+      const processedUrl = processExternalLink(href)
+      
+      if (processedUrl === null) {
+        e.preventDefault()
+        alert('该链接已被拦截，无法访问')
+        return
+      }
+      
+      if (processedUrl !== href) {
+        e.preventDefault()
+        window.open(processedUrl, '_blank')
+      }
+    } catch {
+      // 非有效 URL，不处理
+    }
+  }
+  
+  return (
+    <a
+      href={href}
+      onClick={handleClick}
+      className="text-primary hover:underline"
+      target="_blank"
+      rel="noopener noreferrer"
+    >
+      {children}
+    </a>
+  )
+}
 
 type AnnouncementLevel = 'info' | 'note' | 'tip' | 'important' | 'warning' | 'caution' | 'happy'
 
@@ -89,6 +132,7 @@ export function Announcement() {
                   remarkPlugins={[remarkGfm]}
                   rehypePlugins={[rehypeRaw]}
                   components={{
+                    a: LinkComponent,
                     p: ({ children }) => <span className="block mb-2 last:mb-0">{children}</span>,
                     img: ({ src, alt }) => (
                       <span className="block my-3">
@@ -152,6 +196,7 @@ export function Announcement() {
                   remarkPlugins={[remarkGfm]}
                   rehypePlugins={[rehypeRaw]}
                   components={{
+                    a: LinkComponent,
                     p: ({ children }) => <span className="block mb-2 last:mb-0">{children}</span>,
                     img: ({ src, alt }) => (
                       <span className="block my-3">

@@ -4,7 +4,7 @@ import { createSmartClient } from '@/lib/smartClient'
 import type { BlogPost } from '@/lib/types'
 
 export const metadata: Metadata = {
-  title: '标签 - YXK BLOG',
+  title: '标签 - 塔罗会',
   description: '浏览博客文章标签，按标签查找相关内容',
 }
 
