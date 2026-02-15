@@ -1,0 +1,91 @@
+name: Convert Friends Data
+
+on:
+  schedule:
+    # 每天早上8点运行 (UTC 时间 00:00)
+    - cron: '0 0 * * *'
+  workflow_dispatch: # 允许手动触发
+
+jobs:
+  convert:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        
+    - name: Install TypeScript
+      run: npm install -g typescript ts-node
+      
+    - name: Convert friends.ts to friends.json
+      run: |
+        cat > convert-friends.ts << 'EOF'
+        import { FRIEND_LINKS } from './data/friends';
+        import * as fs from 'fs';
+        import * as path from 'path';
+
+        // 转换数据格式
+        const friends = FRIEND_LINKS.map(link => [
+          link.name,
+          link.url,
+          link.avatar
+        ]);
+
+        const output = {
+          friends
+        };
+
+        // 写入 JSON 文件
+        const outputPath = path.join(__dirname, 'data', 'friends.json');
+        fs.writeFileSync(outputPath, JSON.stringify(output, null, 2) + '\n', 'utf-8');
+
+        console.log(`✅ 成功转换 ${friends.length} 个友链`);
+        console.log('📄 输出文件: data/friends.json');
+        EOF
+        
+        # 创建临时的 package.json 用于导入
+        cat > tsconfig.json << 'EOF'
+        {
+          "compilerOptions": {
+            "target": "ES2020",
+            "module": "commonjs",
+            "esModuleInterop": true,
+            "strict": true,
+            "skipLibCheck": true,
+            "resolveJsonModule": true
+          },
+          "include": ["convert-friends.ts", "data/friends.ts"]
+        }
+        EOF
+        
+        # 运行转换脚本
+        npx ts-node convert-friends.ts
+        
+    - name: Check for changes
+      id: check_changes
+      run: |
+        if git diff --quiet data/friends.json; then
+          echo "changed=false" >> $GITHUB_OUTPUT
+          echo "✅ 没有检测到变化"
+        else
+          echo "changed=true" >> $GITHUB_OUTPUT
+          echo "📝 检测到变化，准备提交"
+        fi
+        
+    - name: Commit and push changes
+      if: steps.check_changes.outputs.changed == 'true'
+      run: |
+        git config --local user.email "github-actions[bot]@users.noreply.github.com"
+        git config --local user.name "github-actions[bot]"
+        git add data/friends.json
+        git commit -m "🤖 自动转换 friends.ts 到 friends.json [$(date +'%Y-%m-%d %H:%M:%S')]"
+        git push
+        
+    - name: Cleanup
+      run: |
+        rm -f convert-friends.ts tsconfig.json

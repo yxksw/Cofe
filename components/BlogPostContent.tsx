@@ -14,6 +14,7 @@ import { FancyboxWrapper } from './FancyboxWrapper'
 import { Icon } from '@iconify/react'
 import dynamic from 'next/dynamic'
 import { TableOfContents } from './TableOfContents'
+import { processExternalLink } from '@/lib/externalLink'
 
 // 动态导入 GitalkComments 组件，避免 SSR 问题
 const GitalkComments = dynamic(() => import('./GitalkComments'), {
@@ -106,7 +107,6 @@ export function BlogPostContent({ title, date, content, slug, headerContent, dis
                        }
                        
                        // 检查是否在白名单中
-                       const { processExternalLink } = require('@/lib/externalLink');
                        const processedUrl = processExternalLink(href);
                        
                        if (processedUrl === null) {
