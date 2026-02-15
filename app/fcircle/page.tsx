@@ -13,7 +13,7 @@ import { Button } from '@/components/ui/button';
 
 // 配置选项
 const UserConfig = {
-  private_api_url: 'https://fc.mcyzsx.top/',
+  private_api_url: 'https://fc.381359.xyz/',
   page_turning_number: 20,
   error_img: "https://fastly.jsdelivr.net/gh/willow-god/Friend-Circle-Lite@latest/static/favicon.ico"
 };
