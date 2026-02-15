@@ -118,10 +118,10 @@ const FriendCard: React.FC<FriendCardProps> = ({ link }) => {
                 {levelInfo && <Icon icon={levelInfo.icon} className="w-32 h-32" />}
             </div>
 
-            {/* Status Badge - Top Left Corner */}
+            {/* Status Badge - Top Right Corner */}
             {statusInfo && (
                 <div 
-                    className={`absolute top-2 left-2 z-20 flex items-center gap-1 text-[10px] px-2 py-1 rounded-md font-medium shadow-sm ${statusInfo.className}`}
+                    className={`absolute top-2 right-2 z-20 flex items-center gap-1 text-[10px] px-2 py-1 rounded-md font-medium shadow-sm ${statusInfo.className}`}
                     title={`最后检测: ${link.lastChecked || '未知'}`}
                 >
                     <Icon icon={statusInfo.icon} className="w-3 h-3" />
