@@ -107,7 +107,7 @@ const fetchMessages = async () => {
   }
   
   // 3. 请求 API 获取最新数据
-  const response = await fetch('http://tg-api.381359.xyz/');
+  const response = await fetch('https://tg-api.381359.xyz/');
   const data = await response.json();
   
   // 4. 更新缓存
@@ -365,7 +365,7 @@ curl -I -X OPTIONS https://api-emaction.381359.xyz/reactions
 #### 安装步骤
 ```bash
 # 1. 克隆项目
-git clone https://github.com/yxksw/Cofe-Blog.git
+git clone https://github.com/yxksw/Cofe.git
 cd Cofe-Blog
 
 # 2. 安装依赖
@@ -501,7 +501,7 @@ npx wrangler deploy
 ## 7. 附录
 
 ### 7.1 相关链接
-- **项目仓库**: https://github.com/yxksw/Cofe-Blog
+- **项目仓库**: https://github.com/yxksw/Cofe
 - **Emaction Backend**: https://github.com/yxksw/emaction-backend
 - **Emaction Frontend**: https://github.com/yxksw/emaction.frontend
 - **Telegram API Gist**: https://gist.github.com/yxksw/d708d7cf2abf1b90cecc078897852e25
