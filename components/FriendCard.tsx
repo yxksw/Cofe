@@ -118,6 +118,17 @@ const FriendCard: React.FC<FriendCardProps> = ({ link }) => {
                 {levelInfo && <Icon icon={levelInfo.icon} className="w-32 h-32" />}
             </div>
 
+            {/* Status Badge - Top Left Corner */}
+            {statusInfo && (
+                <div 
+                    className={`absolute top-2 left-2 z-20 flex items-center gap-1 text-[10px] px-2 py-1 rounded-md font-medium shadow-sm ${statusInfo.className}`}
+                    title={`最后检测: ${link.lastChecked || '未知'}`}
+                >
+                    <Icon icon={statusInfo.icon} className="w-3 h-3" />
+                    <span>{statusInfo.label}</span>
+                </div>
+            )}
+
             {/* Avatar Section */}
             <div ref={imgRef} className="relative w-12 h-12 sm:w-14 sm:h-14 flex-shrink-0">
                 <div className={`absolute inset-0 rounded-full border-2 ${levelInfo ? `${levelInfo.border} opacity-20` : 'border-gray-200'} scale-110`} />
@@ -156,12 +167,6 @@ const FriendCard: React.FC<FriendCardProps> = ({ link }) => {
                     {link.recommended && (
                         <div className="relative group/rec flex-shrink-0" title="推荐">
                             <Icon icon="lucide:thumbs-up" className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-amber-500" />
-                        </div>
-                    )}
-                    {statusInfo && (
-                        <div className={`flex-shrink-0 ${statusInfo.className}`} title={`最后检测: ${link.lastChecked || '未知'}`}>
-                            <Icon icon={statusInfo.icon} className="w-3 h-3" />
-                            <span>{statusInfo.label}</span>
                         </div>
                     )}
                 </div>
