@@ -1,101 +1,101 @@
-# GraphQL API 文档
+# GraphQL API Documentation
 
-## 概述
+## Overview
 
-Cofe 博客系统提供 GraphQL API 接口，用于外部应用（如 iOS/Android App）管理便签数据。
+The Cofe blog system provides GraphQL API endpoints for external applications (such as iOS/Android apps) to manage memo data.
 
-**接口地址**: `https://cofe.381359.xyz/api/graphql`
-
----
-
-## 认证方式
-
-API 使用 NextAuth 进行身份认证。
-
-### 查询操作（Query）
-- **无需认证** - 获取便签列表等公开数据
-
-### 变更操作（Mutation）
-- **需要认证** - 创建、更新、删除等操作需要有效的会话令牌
+**Endpoint**: `https://cofe.381359.xyz/api/graphql`
 
 ---
 
-## 获取认证令牌
+## Authentication
 
-NextAuth 将会话存储为 HTTP-only Cookie，而非 Bearer Token。
+The API uses NextAuth for authentication.
 
-### 方法 1：从浏览器提取（开发/测试）
+### Query Operations
+- **No authentication required** - For public data like fetching memo lists
 
-1. **登录 Web 应用**
-   - 访问 `https://cofe.381359.xyz/login`
-   - 使用 GitHub 账号登录
+### Mutation Operations
+- **Authentication required** - For create, update, delete operations
 
-2. **获取会话令牌**
-   - 打开 **开发者工具** (F12)
-   - 进入 **Application** → **Cookies** → 选择域名
-   - 查找名为 `next-auth.session-token` 或 `__Secure-next-auth.session-token` 的 Cookie
-   - **复制 Value** - 这就是你的 `YOUR_TOKEN`
+---
 
-3. **使用 JavaScript 控制台获取**
+## Getting Authentication Token
+
+NextAuth stores sessions as HTTP-only cookies, not Bearer tokens.
+
+### Method 1: Extract from Browser (Development/Testing)
+
+1. **Login to Web App**
+   - Visit `https://cofe.381359.xyz/login`
+   - Sign in with GitHub
+
+2. **Get Session Token**
+   - Open **Developer Tools** (F12)
+   - Go to **Application** → **Cookies** → Select your domain
+   - Find cookie named `next-auth.session-token` or `__Secure-next-auth.session-token`
+   - **Copy the Value** - this is your `YOUR_TOKEN`
+
+3. **Using JavaScript Console**
    ```javascript
-   // 登录后在浏览器控制台执行
+   // Execute in browser console after login
    document.cookie
      .split('; ')
      .find(row => row.startsWith('next-auth.session-token='))
      ?.split('=')[1]
    ```
 
-### 方法 2：生产环境应用（iOS/Android）
+### Method 2: Production Apps (iOS/Android)
 
-对于移动应用，需要实现 OAuth 流程：
+For mobile apps, implement OAuth flow:
 
-1. **重定向到 GitHub OAuth**
+1. **Redirect to GitHub OAuth**
    ```
    https://cofe.381359.xyz/api/auth/signin/github
    ```
 
-2. **处理回调并提取会话 Cookie**
+2. **Handle callback and extract session cookie**
    ```swift
-   // iOS 示例
+   // iOS Example
    let session = ASWebAuthenticationSession(
        url: authURL,
        callbackURLScheme: "your-app"
    ) { callbackURL, error in
-       // 从响应头中提取会话 Cookie
+       // Extract session cookie from response headers
    }
    ```
 
-3. **安全存储会话令牌** 用于后续 API 调用
+3. **Store session token securely** for future API calls
 
 ---
 
-## 数据类型
+## Data Types
 
-### Memo（便签）
+### Memo
 
 ```graphql
 type Memo {
-  id: String!           # 唯一标识符
-  content: String!      # 便签内容
-  timestamp: String!    # 创建时间戳
-  image: String         # 图片 URL（可选）
+  id: String!           # Unique identifier
+  content: String!      # Memo content
+  timestamp: String!    # Creation timestamp
+  image: String         # Image URL (optional)
 }
 ```
 
-### CreateMemoInput（创建便签输入）
+### CreateMemoInput
 
 ```graphql
 input CreateMemoInput {
-  content: String!      # 便签内容（必填）
-  image: String         # 图片 URL（可选）
+  content: String!      # Memo content (required)
+  image: String         # Image URL (optional)
 }
 ```
 
 ---
 
-## 查询操作
+## Query Operations
 
-### 获取所有便签
+### Get All Memos
 
 ```graphql
 query GetMemos {
@@ -108,14 +108,14 @@ query GetMemos {
 }
 ```
 
-**返回示例**:
+**Response Example**:
 ```json
 {
   "data": {
     "memos": [
       {
         "id": "memo-001",
-        "content": "这是一条测试便签",
+        "content": "This is a test memo",
         "timestamp": "2024-01-15T10:30:00.000Z",
         "image": "https://example.com/image.jpg"
       }
@@ -126,9 +126,9 @@ query GetMemos {
 
 ---
 
-## 变更操作
+## Mutation Operations
 
-### 创建新便签
+### Create New Memo
 
 ```graphql
 mutation CreateMemo($input: CreateMemoInput!) {
@@ -141,23 +141,23 @@ mutation CreateMemo($input: CreateMemoInput!) {
 }
 ```
 
-**变量**:
+**Variables**:
 ```json
 {
   "input": {
-    "content": "你的便签内容",
+    "content": "Your memo content",
     "image": "https://example.com/image.jpg"
   }
 }
 ```
 
-**返回示例**:
+**Response Example**:
 ```json
 {
   "data": {
     "createMemo": {
       "id": "memo-002",
-      "content": "你的便签内容",
+      "content": "Your memo content",
       "timestamp": "2024-01-15T12:00:00.000Z",
       "image": "https://example.com/image.jpg"
     }
@@ -167,11 +167,11 @@ mutation CreateMemo($input: CreateMemoInput!) {
 
 ---
 
-## 测试 API
+## Testing the API
 
-### 1. 使用 cURL
+### 1. Using cURL
 
-#### 查询操作（无需认证）
+#### Query (No Auth)
 ```bash
 curl -X POST https://cofe.381359.xyz/api/graphql \
   -H "Content-Type: application/json" \
@@ -180,11 +180,11 @@ curl -X POST https://cofe.381359.xyz/api/graphql \
   }'
 ```
 
-#### 变更操作（需要认证）
+#### Mutation (With Auth)
 
-**步骤 1**: 从浏览器获取会话令牌
+**Step 1**: Get session token from browser
 
-**步骤 2**: 在 Cookie 头中使用令牌
+**Step 2**: Use token in Cookie header
 ```bash
 curl -X POST https://cofe.381359.xyz/api/graphql \
   -H "Content-Type: application/json" \
@@ -193,51 +193,51 @@ curl -X POST https://cofe.381359.xyz/api/graphql \
     "query": "mutation CreateMemo($input: CreateMemoInput!) { createMemo(input: $input) { id content timestamp image } }",
     "variables": {
       "input": {
-        "content": "API 测试便签",
+        "content": "API test memo",
         "image": "https://example.com/test.jpg"
       }
     }
   }'
 ```
 
-### 2. 使用 Postman
+### 2. Using Postman
 
-#### 查询操作（无需认证）
-1. **方法**: POST
+#### Query (No Auth)
+1. **Method**: POST
 2. **URL**: `https://cofe.381359.xyz/api/graphql`
-3. **请求头**: `Content-Type: application/json`
-4. **请求体** (raw JSON):
+3. **Headers**: `Content-Type: application/json`
+4. **Body** (raw JSON):
    ```json
    {
      "query": "query GetMemos { memos { id content timestamp image } }"
    }
    ```
 
-#### 变更操作（需要认证）
-1. **方法**: POST
+#### Mutation (With Auth)
+1. **Method**: POST
 2. **URL**: `https://cofe.381359.xyz/api/graphql`
-3. **请求头**:
+3. **Headers**:
    - `Content-Type: application/json`
    - `Cookie: next-auth.session-token=YOUR_TOKEN_HERE`
-4. **请求体** (raw JSON):
+4. **Body** (raw JSON):
    ```json
    {
      "query": "mutation CreateMemo($input: CreateMemoInput!) { createMemo(input: $input) { id content timestamp image } }",
      "variables": {
        "input": {
-         "content": "Postman 测试便签",
+         "content": "Postman test memo",
          "image": "https://example.com/image.jpg"
        }
      }
    }
    ```
 
-### 3. 使用浏览器控制台（最简单）
+### 3. Using Browser Console (Easiest)
 
-登录 Web 应用后，在浏览器开发者控制台执行：
+After logging into the web app, open browser Developer Console and run:
 
 ```javascript
-// 查询操作（无需认证）
+// Query (no auth needed)
 fetch('/api/graphql', {
   method: 'POST',
   headers: { 'Content-Type': 'application/json' },
@@ -248,17 +248,17 @@ fetch('/api/graphql', {
 .then(res => res.json())
 .then(console.log)
 
-// 变更操作（自动使用现有会话）
+// Mutation (uses existing session automatically)
 fetch('/api/graphql', {
   method: 'POST',
   headers: { 'Content-Type': 'application/json' },
-  credentials: 'include', // 包含会话 Cookie
+  credentials: 'include', // Include session cookies
   body: JSON.stringify({
     query: `mutation CreateMemo($input: CreateMemoInput!) { 
       createMemo(input: $input) { id content timestamp } 
     }`,
     variables: {
-      input: { content: "浏览器控制台测试!" }
+      input: { content: "Browser console test!" }
     }
   })
 })
@@ -268,25 +268,25 @@ fetch('/api/graphql', {
 
 ---
 
-## iOS 应用集成
+## iOS App Integration
 
-### 使用 Apollo iOS 客户端
+### Using Apollo iOS Client
 
-1. **安装 Apollo iOS**:
+1. **Install Apollo iOS**:
 ```swift
 dependencies: [
     .package(url: "https://github.com/apollographql/apollo-ios.git", from: "1.0.0")
 ]
 ```
 
-2. **生成 GraphQL 类型**:
+2. **Generate GraphQL types**:
 ```bash
-# 将 schema.graphql 添加到项目
-# 运行代码生成
+# Add schema.graphql to your project
+# Run codegen
 apollo-ios-cli generate
 ```
 
-3. **Swift 代码示例**:
+3. **Swift Code Example**:
 ```swift
 import Apollo
 
@@ -315,7 +315,7 @@ class GraphQLService {
             input: CreateMemoInput(content: content, image: image)
         )
         
-        // 添加会话 Cookie 到请求
+        // Add session cookie to request
         var headers: [String: String] = [:]
         if let token = sessionToken {
             headers["Cookie"] = "next-auth.session-token=\(token)"
@@ -325,18 +325,18 @@ class GraphQLService {
             switch result {
             case .success(let graphQLResult):
                 if let memo = graphQLResult.data?.createMemo {
-                    print("创建便签成功: \(memo.id)")
+                    print("Created memo: \(memo.id)")
                 }
                 if let errors = graphQLResult.errors {
-                    print("GraphQL 错误: \(errors)")
+                    print("GraphQL errors: \(errors)")
                 }
             case .failure(let error):
-                print("网络错误: \(error)")
+                print("Network error: \(error)")
             }
         }
     }
     
-    // 获取便签列表（无需认证）
+    // Fetch memos (no auth required)
     func fetchMemos() {
         let query = GetMemosQuery()
         
@@ -344,93 +344,93 @@ class GraphQLService {
             switch result {
             case .success(let graphQLResult):
                 if let memos = graphQLResult.data?.memos {
-                    print("获取到 \(memos.count) 条便签")
+                    print("Fetched \(memos.count) memos")
                 }
             case .failure(let error):
-                print("错误: \(error)")
+                print("Error: \(error)")
             }
         }
     }
 }
 
-// 使用示例
+// Usage
 let graphQL = GraphQLService()
 
-// 首先通过 OAuth 认证并获取会话令牌
-// 然后设置令牌
+// First, authenticate and get session token through OAuth
+// Then set it:
 graphQL.setSessionToken("eyJ0eXAiOiJKV1QiLCJhbGc...")
 
-// 现在可以创建便签了
-graphQL.createMemo(content: "来自 iOS 的便签!")
+// Now you can create memos
+graphQL.createMemo(content: "Hello from iOS!")
 ```
 
 ---
 
-## 错误处理
+## Error Handling
 
-API 返回标准 GraphQL 错误格式：
+The API returns standard GraphQL errors:
 
 ```json
 {
   "errors": [
     {
-      "message": "需要认证",
+      "message": "Authentication required",
       "locations": [{"line": 1, "column": 1}]
     }
   ]
 }
 ```
 
-### 常见错误
+### Common Errors
 
-| 错误信息 | 原因 | 解决方案 |
-|---------|------|---------|
-| `需要认证` | 缺少或无效的 JWT 令牌 | 检查 Cookie 中的会话令牌 |
-| `创建便签失败` | GitHub API 错误或文件更新失败 | 检查 GitHub 权限和仓库状态 |
-| `POST body sent invalid JSON` | JSON 格式错误 | 检查请求体格式和转义字符 |
-| `Cannot return null for non-nullable field` | 服务器错误 | 查看服务器日志 |
-
----
-
-## 速率限制
-
-API 继承了 GitHub 的速率限制，因为它使用 GitHub API 进行数据持久化。
-
-- **已认证请求**: 5000 次/小时
-- **未认证请求**: 60 次/小时
+| Error Message | Cause | Solution |
+|--------------|-------|----------|
+| `Authentication required` | Missing or invalid JWT token | Check session token in Cookie |
+| `Failed to create memo` | GitHub API error or file update failure | Check GitHub permissions and repo status |
+| `POST body sent invalid JSON` | JSON format error | Check request body format and escaping |
+| `Cannot return null for non-nullable field` | Server error | Check server logs |
 
 ---
 
-## 快速参考
+## Rate Limits
 
-### 获取 YOUR_TOKEN 步骤
+The API inherits GitHub's rate limits since it uses the GitHub API for data persistence.
 
-1. **打开 Web 应用** → `https://cofe.381359.xyz/login`
-2. **使用 GitHub 登录**
-3. **打开开发者工具** (F12 或右键 → 检查)
-4. **进入 Application 标签** → **Cookies** → 选择域名
-5. **查找 Cookie**: `next-auth.session-token` 或 `__Secure-next-auth.session-token`
-6. **复制 Value** - 这就是你的令牌！
+- **Authenticated requests**: 5000/hour
+- **Unauthenticated requests**: 60/hour
 
-### 快速测试命令
+---
+
+## Quick Reference
+
+### Getting YOUR_TOKEN (Step by Step)
+
+1. **Open Web App** → `https://cofe.381359.xyz/login`
+2. **Login with GitHub**
+3. **Open Developer Tools** (F12 or Right-click → Inspect)
+4. **Go to Application tab** → **Cookies** → Select your domain
+5. **Find Cookie**: `next-auth.session-token` or `__Secure-next-auth.session-token`
+6. **Copy Value** - that's your token!
+
+### Quick Test Commands
 
 ```bash
-# 查询操作（无需认证）
+# Query (no auth needed)
 curl -X POST https://cofe.381359.xyz/api/graphql \
   -H "Content-Type: application/json" \
   -d '{"query": "query { memos { id content timestamp } }"}'
 
-# 变更操作（替换 YOUR_TOKEN 为实际令牌）
+# Mutation (replace YOUR_TOKEN with actual token)
 curl -X POST https://cofe.381359.xyz/api/graphql \
   -H "Content-Type: application/json" \
   -H "Cookie: next-auth.session-token=YOUR_TOKEN" \
-  -d '{"query": "mutation CreateMemo($input: CreateMemoInput!) { createMemo(input: $input) { id content timestamp } }", "variables": {"input": {"content": "API 测试便签"}}}'
+  -d '{"query": "mutation CreateMemo($input: CreateMemoInput!) { createMemo(input: $input) { id content timestamp } }", "variables": {"input": {"content": "API test memo"}}}'
 ```
 
 ---
 
-## 相关链接
+## Related Links
 
-- [API 文档（英文）](./API_UK.md)
-- [项目主页](../README.md)
-- [GitHub Issues](https://github.com/yxksw/Cofe/issues)
+- [API Documentation (Chinese)](./API.md)
+- [Project Homepage](../README.md)
+- [GitHub Issues](https://github.com/yxksw/Cofe-Blog/issues)

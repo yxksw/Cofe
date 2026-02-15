@@ -8,6 +8,7 @@ import { MyInfoAndSayHello } from '@/components/about/MyInfoAndSayHello'
 import { SkillInfo } from '@/components/about/SkillInfo'
 import { SiteStats } from '@/components/about/SiteStats'
 import { Single } from '@/components/about/Single'
+import { Deepwiki } from '@/components/about/Deepwiki'
 import './about.css'
 
 export default function AboutPage() {
@@ -39,6 +40,9 @@ export default function AboutPage() {
         </div>
         <div className="author-content">
           <SiteStats />
+        </div>
+        <div className="author-content">
+          <Deepwiki />
         </div>
         <div className="author-content">
           <Single />
