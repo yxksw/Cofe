@@ -27,7 +27,7 @@ const navItems: NavItem[] = [
       { id: 'tags', label: '标签', href: '/tags', icon: 'tabler:tags' },
     ]
   },
-//   { id: 'memos', label: '动态', href: '/memos', icon: 'material-symbols:chat-bubble-outline' },
+  { id: 'daily', label: '日常', href: '/daily', icon: 'material-symbols:calendar-today-outline' },
   {
     id: 'friends',
     label: '友链',
