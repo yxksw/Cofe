@@ -8,7 +8,7 @@ import { parseBlogPostMetadata } from './markdown'
  * Get the project root directory
  * Works in both development and production (Vercel)
  */
-function getProjectRoot(): string {
+export function getProjectRoot(): string {
   // Try multiple methods to find the project root
   if (process.env.INIT_CWD) {
     return process.env.INIT_CWD
