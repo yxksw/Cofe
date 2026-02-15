@@ -91,7 +91,7 @@ export function BlogPostContent({ title, date, content, slug, headerContent, dis
                     </code>
                   )
                 },
-                a: ({ children, href, ...props }) => {
+                a: ({ children, href }) => {
                    const handleClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
                      if (!href) return;
                      
@@ -106,7 +106,7 @@ export function BlogPostContent({ title, date, content, slug, headerContent, dis
                        }
                        
                        // 检查是否在白名单中
-                       const { isWhitelisted, isBlacklisted, processExternalLink } = require('@/lib/externalLink');
+                       const { processExternalLink } = require('@/lib/externalLink');
                        const processedUrl = processExternalLink(href);
                        
                        if (processedUrl === null) {
