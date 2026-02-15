@@ -2,6 +2,7 @@
   "files": [
     "hello-cofe.md",
     "基于cloudflare-worker的文章浏览量.md",
+    "基于tg的memos.md",
     "新文章通知功能实现详解.md"
   ]
 }
