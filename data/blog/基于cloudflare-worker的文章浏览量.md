@@ -9,8 +9,11 @@ tags:
   - 博客
   - 浏览量
   - cloudflare
+categories:
+  - 技术分享
 cover: "https://cdn.jsdmirror.com/gh/zsxcoder/github-img@main/img/wenzlll.avif"
 ---
+
 
 # 从零开始搭建网站浏览量统计系统
 
