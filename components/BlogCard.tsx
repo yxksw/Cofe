@@ -3,11 +3,66 @@
 import { BlogPost } from "@/lib/types";
 import Link from "next/link";
 import Image from "next/image";
+import { Icon } from "@iconify/react";
+import { useEffect, useState } from "react";
+
+// 计算字数（中文按字符，英文按单词）
+function countWords(content: string): number {
+  const cleanContent = content
+    .replace(/!\[.*?\]\(.*?\)/g, "")
+    .replace(/\[.*?\]\(.*?\)/g, "$1")
+    .replace(/[#*`~\-_>]/g, "")
+    .replace(/\s+/g, " ")
+    .trim();
+
+  const chineseChars = (cleanContent.match(/[\u4e00-\u9fa5]/g) || []).length;
+  const englishWords = (cleanContent.match(/[a-zA-Z]+/g) || []).length;
+
+  return chineseChars + englishWords;
+}
+
+// 计算阅读时间
+function calculateReadingTime(wordCount: number): number {
+  const wordsPerMinute = 300;
+  return Math.max(1, Math.ceil(wordCount / wordsPerMinute));
+}
+
+// 格式化数字
+function formatNumber(num: number): string {
+  if (num >= 10000) {
+    return (num / 10000).toFixed(1) + "w";
+  }
+  if (num >= 1000) {
+    return (num / 1000).toFixed(1) + "k";
+  }
+  return num.toString();
+}
 
 export const BlogCard = ({ post }: { post: BlogPost }) => {
-  // 优先使用 cover 字段，如果没有则使用 imageUrl（从内容提取的第一张图片）
   const displayImage = post.cover || post.imageUrl;
-  
+  const [views, setViews] = useState<number | null>(null);
+
+  const wordCount = countWords(post.content);
+  const readingTime = calculateReadingTime(wordCount);
+
+  useEffect(() => {
+    const fetchViews = async () => {
+      try {
+        const pathname = `/blog/${post.id}`;
+        const response = await fetch(
+          `https://cf-umami-cofe.381359.xyz/share?pathname=${encodeURIComponent(pathname)}`
+        );
+        const data = await response.json();
+        setViews(data.views || 0);
+      } catch (error) {
+        console.error("Failed to fetch views:", error);
+        setViews(0);
+      }
+    };
+
+    fetchViews();
+  }, [post.id]);
+
   return (
     <div className="group bg-card rounded-lg border border-border overflow-hidden hover:shadow-lg transition-all duration-200">
       {displayImage && (
@@ -36,9 +91,36 @@ export const BlogCard = ({ post }: { post: BlogPost }) => {
           <h3 className="font-semibold text-xl md:text-2xl text-foreground group-hover:text-primary transition-colors duration-200 leading-tight">
             {post.title}
           </h3>
-          <p className="text-sm text-muted-foreground">
-            {formatDate(post.date)}
-          </p>
+          {/* Meta info: date, word count, reading time, views */}
+          <div className="flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
+            {/* Date */}
+            <div className="flex items-center gap-1">
+              <Icon icon="lucide:calendar" className="w-3.5 h-3.5" />
+              <span>{formatDate(post.date)}</span>
+            </div>
+
+            {/* Word count */}
+            <div className="flex items-center gap-1" title="文章字数">
+              <Icon icon="lucide:file-text" className="w-3.5 h-3.5" />
+              <span>{formatNumber(wordCount)} 字</span>
+            </div>
+
+            {/* Reading time */}
+            <div className="flex items-center gap-1" title="预计阅读时间">
+              <Icon icon="lucide:clock" className="w-3.5 h-3.5" />
+              <span>{readingTime} 分钟</span>
+            </div>
+
+            {/* Views */}
+            <div className="flex items-center gap-1" title="浏览量">
+              <Icon icon="lucide:eye" className="w-3.5 h-3.5" />
+              {views === null ? (
+                <span className="animate-pulse">--</span>
+              ) : (
+                <span>{formatNumber(views)} 次</span>
+              )}
+            </div>
+          </div>
         </div>
       </Link>
     </div>
@@ -47,5 +129,5 @@ export const BlogCard = ({ post }: { post: BlogPost }) => {
 
 function formatDate(dateString: string): string {
   const date = new Date(dateString);
-  return date.toISOString().split("T")[0]; // Returns YYYY-MM-DD format
+  return date.toISOString().split("T")[0];
 }

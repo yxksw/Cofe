@@ -4,7 +4,6 @@ import 'katex/dist/katex.min.css'
 
 import React, { useRef } from 'react'
 import ReactMarkdown from 'react-markdown'
-import { format } from 'date-fns'
 import rehypeKatex from 'rehype-katex'
 import remarkGfm from 'remark-gfm'
 import remarkMath from 'remark-math'
@@ -15,6 +14,7 @@ import { Icon } from '@iconify/react'
 import dynamic from 'next/dynamic'
 import { TableOfContents } from './TableOfContents'
 import { processExternalLink } from '@/lib/externalLink'
+import { PostMeta } from './PostMeta'
 
 // 动态导入 GitalkComments 组件，避免 SSR 问题
 const GitalkComments = dynamic(() => import('./GitalkComments'), {
@@ -53,15 +53,14 @@ export function BlogPostContent({ title, date, content, slug, headerContent, dis
       )}
       <main className='bg-card rounded-lg border border-border p-8'>
         <header className='mb-8'>
-          <h1 className='text-3xl font-bold leading-tight mb-3 text-foreground'>{title}</h1>
-          <div className='text-sm text-muted-foreground flex items-center gap-3 flex-wrap'>
-            <time dateTime={date}>
-              {format(new Date(date), 'MMM d, yyyy')}
-            </time>
-            {location?.city && (
-              <span className='flex items-center gap-1'>🖊 {location.city}{location.street ? ` · ${location.street}` : ''}</span>
-            )}
-          </div>
+          <h1 className='text-3xl font-bold leading-tight mb-4 text-foreground'>{title}</h1>
+          <PostMeta date={date} content={content} slug={slug} />
+          {location?.city && (
+            <div className='mt-2 text-sm text-muted-foreground flex items-center gap-1'>
+              <Icon icon="lucide:map-pin" className="w-4 h-4" />
+              <span>{location.city}{location.street ? ` · ${location.street}` : ''}</span>
+            </div>
+          )}
         </header>
         <FancyboxWrapper>
           <div className='prose prose-lg dark:prose-invert max-w-none text-foreground leading-relaxed prose-p:my-3 prose-img:my-0 markdown-body' ref={contentRef}>
