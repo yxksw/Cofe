@@ -23,8 +23,8 @@ export const FRIEND_LINKS: FriendLink[] = [
       avatar: "https://www.zhilu.site/api/avatar.png",
       addDate: "2026-02-15",
       recommended: true,
-      responseTime: 903,
-      lastChecked: "2026-02-15T08:30:25.159Z",
+      responseTime: 936,
+      lastChecked: "2026-02-16T05:24:27.491Z",
       status: "ok"
     },
     {
@@ -33,8 +33,8 @@ export const FRIEND_LINKS: FriendLink[] = [
       url: "https://blog.atao.cyou/",
       avatar: "https://cdn.atao.cyou/Web/Avatar.png",
       addDate: "2026-02-15",
-      responseTime: 1247,
-      lastChecked: "2026-02-15T08:30:25.554Z",
+      responseTime: 964,
+      lastChecked: "2026-02-16T05:24:27.568Z",
       status: "ok"
     },
     {
@@ -44,8 +44,8 @@ export const FRIEND_LINKS: FriendLink[] = [
       avatar: "https://blog.liushen.fun/info/avatar.ico",
       addDate: "2026-02-15",
       recommended: true,
-      responseTime: 1174,
-      lastChecked: "2026-02-15T08:30:25.481Z",
+      responseTime: 528,
+      lastChecked: "2026-02-16T05:24:27.133Z",
       status: "ok"
     },
     {
@@ -55,8 +55,8 @@ export const FRIEND_LINKS: FriendLink[] = [
       avatar: "https://img.zhheo.com/i/67d8fa75943e4.webp",
       addDate: "2026-02-15",
       recommended: true,
-      responseTime: 1291,
-      lastChecked: "2026-02-15T08:30:25.600Z",
+      responseTime: 1011,
+      lastChecked: "2026-02-16T05:24:27.618Z",
       status: "ok"
     },
     {
@@ -66,8 +66,8 @@ export const FRIEND_LINKS: FriendLink[] = [
       avatar: "https://npm.elemecdn.com/anzhiyu-blog-static@1.0.4/img/avatar.jpg",
       addDate: "2026-02-15",
       recommended: true,
-      responseTime: 2362,
-      lastChecked: "2026-02-15T08:30:26.672Z",
+      responseTime: 1924,
+      lastChecked: "2026-02-16T05:24:28.532Z",
       status: "ok"
     },
     {
@@ -76,8 +76,8 @@ export const FRIEND_LINKS: FriendLink[] = [
       url: "https://www.yjluo.top",
       avatar: "https://www.myxz.top/_ipx/_/avatar.avif",
       addDate: "2026-02-15",
-      responseTime: 1155,
-      lastChecked: "2026-02-15T08:30:26.315Z",
+      responseTime: 1053,
+      lastChecked: "2026-02-16T05:24:28.186Z",
       status: "ok"
     },
     {
@@ -87,8 +87,8 @@ export const FRIEND_LINKS: FriendLink[] = [
       avatar: "https://q2.qlogo.cn/headimg_dl?dst_uin=2726730791&spec=0",
       addDate: "2026-02-15",
       recommended: true,
-      responseTime: 703,
-      lastChecked: "2026-02-15T08:30:26.184Z",
+      responseTime: 853,
+      lastChecked: "2026-02-16T05:24:28.344Z",
       status: "ok"
     },
     {
@@ -97,8 +97,8 @@ export const FRIEND_LINKS: FriendLink[] = [
       url: "https://www.qixz.cn/",
       avatar: "https://www.qixz.cn/avatar.avif",
       addDate: "2026-02-15",
-      responseTime: 1072,
-      lastChecked: "2026-02-15T08:30:26.626Z",
+      responseTime: 993,
+      lastChecked: "2026-02-16T05:24:28.561Z",
       status: "ok"
     }
 ];

@@ -123,7 +123,7 @@ const fetchMessages = async () => {
   }
   
   // 3. 请求 API 获取最新数据
-  const response = await fetch('http://tg-api.381359.xyz/');
+  const response = await fetch('https://tg-api.381359.xyz/');
   const data = await response.json();
   
   // 4. 更新缓存
