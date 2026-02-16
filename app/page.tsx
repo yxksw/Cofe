@@ -2,6 +2,7 @@ import BlogPage from './blog/page'
 import { Memo } from '@/lib/types'
 import React from 'react'
 import { StatusCard } from '@/components/StatusCard'
+import { RewardSidebar } from '@/components/RewardSidebar'
 import { Announcement } from '@/components/Announcement'
 import { createDevelopmentOptimizedClient } from '@/lib/client'
 
@@ -26,6 +27,9 @@ export default async function Home() {
         avatar={`https://github.com/${username}.png`}
         links={links}
       />
+      <div className='max-w-3xl mx-auto px-4 w-full mb-6'>
+        <RewardSidebar />
+      </div>
       <main className='flex-grow w-full py-6'>
         <Announcement />
         <BlogPage />

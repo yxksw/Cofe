@@ -44,7 +44,7 @@ const navItems: NavItem[] = [
     href: '#',
     icon: 'iconoir:page-flip',
     children: [
-      { id: 'sponsors', label: '赞助', href: '/sponsors', icon: 'octicon:sponsor-tiers-16' },
+      { id: 'sponsors', label: '赞助', href: '/rewards', icon: 'octicon:sponsor-tiers-16' },
         { id: 'devices', label: '设备', href: '/devices', icon: 'material-symbols:devices' },
       { id: 'bangumi', label: '追番', href: '/bangumi', icon: 'meteor-icons:bilibili' },
     ]
