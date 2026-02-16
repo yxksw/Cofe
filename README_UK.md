@@ -240,4 +240,4 @@ Thanks to these open-source projects:
 For questions or suggestions:
 
 - GitHub Issues: [Submit Issue](https://github.com/yxksw/Cofe/issues)
-- Email: 3813596020@qq.com
+- Email: me@381359.xyz
