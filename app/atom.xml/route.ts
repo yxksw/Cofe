@@ -4,6 +4,13 @@ import { getDynamicBaseUrl } from '@/lib/siteConfig'
 export const dynamic = 'force-dynamic'
 export const revalidate = 3600 // Revalidate every hour
 
+// CORS 头配置
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Methods': 'GET, OPTIONS',
+  'Access-Control-Allow-Headers': 'Content-Type',
+}
+
 export async function GET() {
   const baseUrl = getDynamicBaseUrl()
   const username = process.env.GITHUB_USERNAME || 'metrue'
@@ -49,6 +56,7 @@ ${feedPosts.map(post => `
     return new Response(atomXml, {
       headers: {
         'Content-Type': 'application/atom+xml; charset=utf-8',
+        ...corsHeaders,
       },
     })
   } catch (error) {
@@ -71,9 +79,17 @@ ${feedPosts.map(post => `
     return new Response(errorFeed, {
       headers: {
         'Content-Type': 'application/atom+xml; charset=utf-8',
+        ...corsHeaders,
       },
     })
   }
+}
+
+// 处理 OPTIONS 预检请求
+export async function OPTIONS() {
+  return new Response(null, {
+    headers: corsHeaders,
+  })
 }
 
 function escapeXml(unsafe: string): string {
