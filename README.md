@@ -240,4 +240,4 @@ export default function CustomPage() {
 如有问题或建议，欢迎通过以下方式联系：
 
 - GitHub Issues: [提交问题](https://github.com/yxksw/Cofe/issues)
-- 邮箱: me@381359.xyz
+- 邮箱: yxksw@foxmail.com
