@@ -13,8 +13,8 @@ import { zhCN } from 'date-fns/locale';
 
 // 配置
 const CONFIG = {
-  apiUrl: 'https://tg-api.381359.xyz/',
-  emactionApi: 'https://api-emaction.381359.xyz/',
+  apiUrl: 'https://tg-api.050815.xyz/',
+  emactionApi: 'https://api-emaction.050815.xyz/',
   cacheKey: 'daily-messages-cache',
   cacheTimeKey: 'daily-messages-cache-time',
   cacheDuration: 5 * 60 * 1000, // 5分钟缓存

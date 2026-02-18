@@ -59,7 +59,7 @@ export function PostMeta({ date, content, slug }: PostMetaProps) {
       try {
         const pathname = `/blog/${slug}`
         const response = await fetch(
-          `https://cf-umami-cofe.381359.xyz/share?pathname=${encodeURIComponent(pathname)}`
+          `https://cf-umami-cofe.050815.xyz/share?pathname=${encodeURIComponent(pathname)}`
         )
         const data = await response.json()
         setViews(data.views || 0)

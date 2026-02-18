@@ -24,7 +24,7 @@ const GitalkComments = dynamic(() => import('@/components/GitalkComments'), {
 // 本站信息配置
 const SITE_INFO = {
     name: "塔罗会",
-    url: "https://cofe.381359.xyz",
+    url: "https://cofe.050815.xyz",
     description: "每一段旅行，都有终点。",
     avatar: "https://cn.cravatar.com/avatar/eb7277a11fa4dc00606e73afda41aeeb?=256"
 };

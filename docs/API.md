@@ -4,7 +4,7 @@
 
 Cofe 博客系统提供 GraphQL API 接口，用于外部应用（如 iOS/Android App）管理便签数据。
 
-**接口地址**: `https://cofe.381359.xyz/api/graphql`
+**接口地址**: `https://cofe.050815.xyz/api/graphql`
 
 ---
 
@@ -27,7 +27,7 @@ NextAuth 将会话存储为 HTTP-only Cookie，而非 Bearer Token。
 ### 方法 1：从浏览器提取（开发/测试）
 
 1. **登录 Web 应用**
-   - 访问 `https://cofe.381359.xyz/login`
+   - 访问 `https://cofe.050815.xyz/login`
    - 使用 GitHub 账号登录
 
 2. **获取会话令牌**
@@ -51,7 +51,7 @@ NextAuth 将会话存储为 HTTP-only Cookie，而非 Bearer Token。
 
 1. **重定向到 GitHub OAuth**
    ```
-   https://cofe.381359.xyz/api/auth/signin/github
+   https://cofe.050815.xyz/api/auth/signin/github
    ```
 
 2. **处理回调并提取会话 Cookie**
@@ -173,7 +173,7 @@ mutation CreateMemo($input: CreateMemoInput!) {
 
 #### 查询操作（无需认证）
 ```bash
-curl -X POST https://cofe.381359.xyz/api/graphql \
+curl -X POST https://cofe.050815.xyz/api/graphql \
   -H "Content-Type: application/json" \
   -d '{
     "query": "query GetMemos { memos { id content timestamp image } }"
@@ -186,7 +186,7 @@ curl -X POST https://cofe.381359.xyz/api/graphql \
 
 **步骤 2**: 在 Cookie 头中使用令牌
 ```bash
-curl -X POST https://cofe.381359.xyz/api/graphql \
+curl -X POST https://cofe.050815.xyz/api/graphql \
   -H "Content-Type: application/json" \
   -H "Cookie: next-auth.session-token=YOUR_TOKEN_HERE" \
   -d '{
@@ -204,7 +204,7 @@ curl -X POST https://cofe.381359.xyz/api/graphql \
 
 #### 查询操作（无需认证）
 1. **方法**: POST
-2. **URL**: `https://cofe.381359.xyz/api/graphql`
+2. **URL**: `https://cofe.050815.xyz/api/graphql`
 3. **请求头**: `Content-Type: application/json`
 4. **请求体** (raw JSON):
    ```json
@@ -215,7 +215,7 @@ curl -X POST https://cofe.381359.xyz/api/graphql \
 
 #### 变更操作（需要认证）
 1. **方法**: POST
-2. **URL**: `https://cofe.381359.xyz/api/graphql`
+2. **URL**: `https://cofe.050815.xyz/api/graphql`
 3. **请求头**:
    - `Content-Type: application/json`
    - `Cookie: next-auth.session-token=YOUR_TOKEN_HERE`
@@ -298,7 +298,7 @@ class GraphQLService {
         let store = ApolloStore()
         let client = URLSessionClient()
         let provider = NetworkInterceptorProvider(store: store, client: client)
-        let url = URL(string: "https://cofe.381359.xyz/api/graphql")!
+        let url = URL(string: "https://cofe.050815.xyz/api/graphql")!
         let transport = RequestChainNetworkTransport(
             interceptorProvider: provider, 
             endpointURL: url
@@ -405,7 +405,7 @@ API 继承了 GitHub 的速率限制，因为它使用 GitHub API 进行数据�
 
 ### 获取 YOUR_TOKEN 步骤
 
-1. **打开 Web 应用** → `https://cofe.381359.xyz/login`
+1. **打开 Web 应用** → `https://cofe.050815.xyz/login`
 2. **使用 GitHub 登录**
 3. **打开开发者工具** (F12 或右键 → 检查)
 4. **进入 Application 标签** → **Cookies** → 选择域名
@@ -416,12 +416,12 @@ API 继承了 GitHub 的速率限制，因为它使用 GitHub API 进行数据�
 
 ```bash
 # 查询操作（无需认证）
-curl -X POST https://cofe.381359.xyz/api/graphql \
+curl -X POST https://cofe.050815.xyz/api/graphql \
   -H "Content-Type: application/json" \
   -d '{"query": "query { memos { id content timestamp } }"}'
 
 # 变更操作（替换 YOUR_TOKEN 为实际令牌）
-curl -X POST https://cofe.381359.xyz/api/graphql \
+curl -X POST https://cofe.050815.xyz/api/graphql \
   -H "Content-Type: application/json" \
   -H "Cookie: next-auth.session-token=YOUR_TOKEN" \
   -d '{"query": "mutation CreateMemo($input: CreateMemoInput!) { createMemo(input: $input) { id content timestamp } }", "variables": {"input": {"content": "API 测试便签"}}}'

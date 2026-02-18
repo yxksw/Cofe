@@ -40,5 +40,5 @@ export function getDynamicBaseUrl(): string {
   }
   
   // Fallback for build time or when headers are not available
-  return 'https://cofe.381359.xyz'
+  return 'https://cofe.050815.xyz'
 }

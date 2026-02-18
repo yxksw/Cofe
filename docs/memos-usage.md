@@ -18,7 +18,7 @@
 
 ### 基础请求
 
-**接口地址**: `https://cofe.381359.xyz/api/graphql`
+**接口地址**: `https://cofe.050815.xyz/api/graphql`
 
 **请求方式**: POST
 
@@ -37,7 +37,7 @@ Content-Type: application/json
 ### cURL 示例
 
 ```bash
-curl -X POST https://cofe.381359.xyz/api/graphql \
+curl -X POST https://cofe.050815.xyz/api/graphql \
   -H "Content-Type: application/json" \
   -d '{
     "query": "query GetMemos { memos { id content timestamp image city } }"
@@ -48,7 +48,7 @@ curl -X POST https://cofe.381359.xyz/api/graphql \
 
 ```javascript
 async function fetchMemos() {
-  const response = await fetch('https://cofe.381359.xyz/api/graphql', {
+  const response = await fetch('https://cofe.050815.xyz/api/graphql', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json'
@@ -85,7 +85,7 @@ fetchMemos().then(memos => {
 import requests
 
 def fetch_memos():
-    url = "https://cofe.381359.xyz/api/graphql"
+    url = "https://cofe.050815.xyz/api/graphql"
     headers = {"Content-Type": "application/json"}
     payload = {
         "query": """
@@ -119,7 +119,7 @@ for memo in memos:
 
 ### 获取 Session Token
 
-1. 访问 `https://cofe.381359.xyz/login` 并登录
+1. 访问 `https://cofe.050815.xyz/login` 并登录
 2. 打开浏览器开发者工具 (F12)
 3. 进入 Application → Cookies
 4. 复制 `next-auth.session-token` 的值
@@ -127,7 +127,7 @@ for memo in memos:
 ### 创建请求
 
 ```bash
-curl -X POST https://cofe.381359.xyz/api/graphql \
+curl -X POST https://cofe.050815.xyz/api/graphql \
   -H "Content-Type: application/json" \
   -H "Cookie: next-auth.session-token=YOUR_TOKEN" \
   -d '{
@@ -145,7 +145,7 @@ curl -X POST https://cofe.381359.xyz/api/graphql \
 
 ```javascript
 async function createMemo(content, image = null, sessionToken) {
-  const response = await fetch('https://cofe.381359.xyz/api/graphql', {
+  const response = await fetch('https://cofe.050815.xyz/api/graphql', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -199,7 +199,7 @@ layout: page
 
 <script>
 async function loadMemos() {
-  const response = await fetch('https://cofe.381359.xyz/api/graphql', {
+  const response = await fetch('https://cofe.050815.xyz/api/graphql', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
@@ -290,7 +290,7 @@ const error = ref(null)
 async function fetchMemos() {
   loading.value = true
   try {
-    const response = await fetch('https://cofe.381359.xyz/api/graphql', {
+    const response = await fetch('https://cofe.050815.xyz/api/graphql', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -376,7 +376,7 @@ export default function Memos() {
   async function fetchMemos() {
     setLoading(true)
     try {
-      const response = await fetch('https://cofe.381359.xyz/api/graphql', {
+      const response = await fetch('https://cofe.050815.xyz/api/graphql', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -486,7 +486,7 @@ export default function Memos() {
   <script>
     async function loadMemos() {
       try {
-        const response = await fetch('https://cofe.381359.xyz/api/graphql', {
+        const response = await fetch('https://cofe.050815.xyz/api/graphql', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({

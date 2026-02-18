@@ -2,7 +2,7 @@
 
 一个简洁优雅的博客与便签应用，让写作回归本质。
 
-本项目灵感源自 [tinymind](https://github.com/mazzzystar/tinymind)，基于 [Cofe](https://github.com/metrue/Cofe) 进行深度定制开发。在线演示：[cofe.381359.xyz](https://cofe.381359.xyz)
+本项目灵感源自 [tinymind](https://github.com/mazzzystar/tinymind)，基于 [Cofe](https://github.com/metrue/Cofe) 进行深度定制开发。在线演示：[cofe.050815.xyz](https://cofe.050815.xyz)
 
 ---
 

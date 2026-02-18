@@ -8,7 +8,7 @@
  * import type { Memo, CreateMemoInput } from './memos'
  * 
  * // 获取 memos
- * const response = await fetch('https://cofe.381359.xyz/api/graphql', {
+ * const response = await fetch('https://cofe.050815.xyz/api/graphql', {
  *   method: 'POST',
  *   headers: { 'Content-Type': 'application/json' },
  *   body: JSON.stringify({
@@ -164,7 +164,7 @@ export const CREATE_MEMO_MUTATION = `
  */
 export const API_CONFIG = {
   /** GraphQL 接口地址 */
-  endpoint: 'https://cofe.381359.xyz/api/graphql',
+  endpoint: 'https://cofe.050815.xyz/api/graphql',
   
   /** 请求头 */
   headers: {

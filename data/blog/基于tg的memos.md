@@ -53,7 +53,7 @@ cover: "https://cdn.jsdmirror.com/gh/zsxcoder/github-img@main/img/tg-memos.avif"
 │  ┌──────────────────┐        ┌──────────────────────────┐  │
 │  │ Telegram API     │        │ Emaction Backend         │  │
 │  │ (数据获取)        │        │ (表情数据存储)            │  │
-│  │ tg-api.381359.xyz│        │ api-emaction.381359.xyz  │  │
+│  │ tg-api.050815.xyz│        │ api-emaction.050815.xyz  │  │
 │  └──────────────────┘        └──────────────────────────┘  │
 └─────────────────────────────────────────────────────────────┘
 ```
@@ -74,7 +74,7 @@ Telegram 数据通过 Cloudflare Worker 代理获取，原始代码参考：
 Next.js 页面组件
     │
     ▼
-请求 tg-api.381359.xyz/
+请求 tg-api.050815.xyz/
     │
     ▼
 Cloudflare Worker 代理
@@ -123,7 +123,7 @@ const fetchMessages = async () => {
   }
   
   // 3. 请求 API 获取最新数据
-  const response = await fetch('https://tg-api.381359.xyz/');
+  const response = await fetch('https://tg-api.050815.xyz/');
   const data = await response.json();
   
   // 4. 更新缓存
@@ -243,7 +243,7 @@ PATCH /reaction?targetId={targetId}&reaction_name={name}&diff={1|-1}
 #### 4.1.3 前端调用示例
 ```typescript
 const CONFIG = {
-  emactionApi: 'https://api-emaction.381359.xyz/',
+  emactionApi: 'https://api-emaction.050815.xyz/',
 };
 
 // 获取反应
@@ -363,7 +363,7 @@ export default {
 #### 4.3.3 配置验证
 部署后验证 CORS 配置：
 ```bash
-curl -I -X OPTIONS https://api-emaction.381359.xyz/reactions
+curl -I -X OPTIONS https://api-emaction.050815.xyz/reactions
 # 应返回 Access-Control-Allow-Origin: *
 ```
 
@@ -432,10 +432,10 @@ npm run build
 #### 表情 API 测试
 ```bash
 # 测试获取反应
-curl "https://api-emaction.381359.xyz/reactions?targetId=test-1"
+curl "https://api-emaction.050815.xyz/reactions?targetId=test-1"
 
 # 测试添加反应
-curl -X PATCH "https://api-emaction.381359.xyz/reaction?targetId=test-1&reaction_name=thumbs-up&diff=1"
+curl -X PATCH "https://api-emaction.050815.xyz/reaction?targetId=test-1&reaction_name=thumbs-up&diff=1"
 ```
 
 ### 5.4 部署流程

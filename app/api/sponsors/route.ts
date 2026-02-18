@@ -5,7 +5,7 @@ export interface Sponsor {
   amount: string
 }
 
-const SPONSORS_DATA_URL = 'https://home.381359.xyz/data/sponsors.json'
+const SPONSORS_DATA_URL = 'https://home.050815.xyz/data/sponsors.json'
 
 export async function GET() {
   try {

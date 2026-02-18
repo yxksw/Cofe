@@ -2,7 +2,7 @@
 
 A beautifully simple blog and memo application that brings writing back to its essence.
 
-This project is inspired by [tinymind](https://github.com/mazzzystar/tinymind) and built upon [Cofe](https://github.com/metrue/Cofe) with extensive customization. Live demo: [cofe.381359.xyz](https://cofe.381359.xyz)
+This project is inspired by [tinymind](https://github.com/mazzzystar/tinymind) and built upon [Cofe](https://github.com/metrue/Cofe) with extensive customization. Live demo: [cofe.050815.xyz](https://cofe.050815.xyz)
 
 ---
 

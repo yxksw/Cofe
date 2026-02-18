@@ -28,7 +28,7 @@ export function SiteStats() {
     // 获取 Umami 统计数据
     const fetchStats = async () => {
       try {
-        const response = await fetch('https://um-cofe.381359.xyz/')
+        const response = await fetch('https://um-cofe.050815.xyz/')
         const data = await response.json()
 
         if (data) {

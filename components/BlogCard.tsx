@@ -50,7 +50,7 @@ export const BlogCard = ({ post }: { post: BlogPost }) => {
       try {
         const pathname = `/blog/${post.id}`;
         const response = await fetch(
-          `https://cf-umami-cofe.381359.xyz/share?pathname=${encodeURIComponent(pathname)}`
+          `https://cf-umami-cofe.050815.xyz/share?pathname=${encodeURIComponent(pathname)}`
         );
         const data = await response.json();
         setViews(data.views || 0);

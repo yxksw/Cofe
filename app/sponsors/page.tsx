@@ -10,7 +10,7 @@ export const revalidate = 3600 // Revalidate every hour
 
 async function getSponsors() {
   try {
-    const response = await fetch('https://home.381359.xyz/data/sponsors.json', {
+    const response = await fetch('https://home.050815.xyz/data/sponsors.json', {
       next: { revalidate: 3600 }
     })
 
