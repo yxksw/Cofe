@@ -1,97 +1,97 @@
 name: Convert Friends Data
 
 on:
-  schedule:
-    # 每天早上8点运行 (UTC 时间 00:00)
-    - cron: '0 0 * * *'
-  workflow_dispatch: # 允许手动触发
+    schedule:
+        # 每天早上8点运行 (UTC 时间 00:00)
+        - cron: "0 0 * * *"
+    workflow_dispatch: # 允许手动触发
 
 jobs:
-  convert:
-    runs-on: ubuntu-latest
-    
-    steps:
-    - name: Checkout repository
-      uses: actions/checkout@v4
-      
-    - name: Setup Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: '20'
-        
-    - name: Convert friends.ts to friends.json
-      run: |
-        # 创建转换脚本
-        cat > convert-friends.js << 'EOF'
-        const fs = require('fs');
-        const path = require('path');
+    convert:
+        runs-on: ubuntu-latest
 
-        // 读取 friends.ts 文件内容
-        const friendsPath = path.join(__dirname, 'data', 'friends.ts');
-        const content = fs.readFileSync(friendsPath, 'utf-8');
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@v4
 
-        // 提取 FRIEND_LINKS 数组
-        const match = content.match(/export const FRIEND_LINKS: FriendLink\[\] = (\[[\s\S]*?\]);/);
-        
-        if (!match) {
-          console.error('❌ 无法找到 FRIEND_LINKS 数组');
-          process.exit(1);
-        }
+            - name: Setup Node.js
+              uses: actions/setup-node@v4
+              with:
+                  node-version: "20"
 
-        // 使用 eval 解析数组（简化处理）
-        let friendsData;
-        try {
-          // 移除类型注解后解析
-          const cleanContent = match[1]
-            .replace(/\s+/g, ' ')
-            .replace(/,\s*}/g, '}')
-            .replace(/,\s*]/g, ']');
-          friendsData = eval(cleanContent);
-        } catch (e) {
-          console.error('❌ 解析失败:', e.message);
-          process.exit(1);
-        }
+            - name: Convert friends.ts to friends.json
+              run: |
+                  # 创建转换脚本
+                  cat > convert-friends.js << 'EOF'
+                  const fs = require('fs');
+                  const path = require('path');
 
-        // 转换为目标格式
-        const friends = friendsData.map(link => [
-          link.name,
-          link.url,
-          link.avatar
-        ]);
+                  // 读取 friends.ts 文件内容
+                  const friendsPath = path.join(__dirname, 'data', 'friends.ts');
+                  const content = fs.readFileSync(friendsPath, 'utf-8');
 
-        const output = { friends };
+                  // 提取 FRIEND_LINKS 数组
+                  const match = content.match(/export const FRIEND_LINKS: FriendLink\[\] = (\[[\s\S]*?\]);/);
 
-        // 写入到 public 目录
-        const outputPath = path.join(__dirname, 'public', 'friends.json');
-        fs.writeFileSync(outputPath, JSON.stringify(output, null, 2) + '\n', 'utf-8');
+                  if (!match) {
+                    console.error('❌ 无法找到 FRIEND_LINKS 数组');
+                    process.exit(1);
+                  }
 
-        console.log(`✅ 成功转换 ${friends.length} 个友链`);
-        console.log('📄 输出文件: public/friends.json');
-        EOF
-        
-        # 运行转换脚本
-        node convert-friends.js
-        
-    - name: Check for changes
-      id: check_changes
-      run: |
-        if git diff --quiet public/friends.json; then
-          echo "changed=false" >> $GITHUB_OUTPUT
-          echo "✅ 没有检测到变化"
-        else
-          echo "changed=true" >> $GITHUB_OUTPUT
-          echo "📝 检测到变化，准备提交"
-        fi
-        
-    - name: Commit and push changes
-      if: steps.check_changes.outputs.changed == 'true'
-      run: |
-        git config --local user.email "github-actions[bot]@users.noreply.github.com"
-        git config --local user.name "github-actions[bot]"
-        git add public/friends.json
-        git commit -m "🤖 自动转换 friends.ts 到 public/friends.json [$(date +'%Y-%m-%d %H:%M:%S')]"
-        git push
-        
-    - name: Cleanup
-      run: |
-        rm -f convert-friends.js
+                  // 使用 eval 解析数组（简化处理）
+                  let friendsData;
+                  try {
+                    // 移除类型注解后解析
+                    const cleanContent = match[1]
+                      .replace(/\s+/g, ' ')
+                      .replace(/,\s*}/g, '}')
+                      .replace(/,\s*]/g, ']');
+                    friendsData = eval(cleanContent);
+                  } catch (e) {
+                    console.error('❌ 解析失败:', e.message);
+                    process.exit(1);
+                  }
+
+                  // 转换为目标格式
+                  const friends = friendsData.map(link => [
+                    link.name,
+                    link.url,
+                    link.avatar
+                  ]);
+
+                  const output = { friends };
+
+                  // 写入到 public 目录
+                  const outputPath = path.join(__dirname, 'public', 'friends.json');
+                  fs.writeFileSync(outputPath, JSON.stringify(output, null, 2) + '\n', 'utf-8');
+
+                  console.log(`✅ 成功转换 ${friends.length} 个友链`);
+                  console.log('📄 输出文件: public/friends.json');
+                  EOF
+
+                  # 运行转换脚本
+                  node convert-friends.js
+
+            - name: Check for changes
+              id: check_changes
+              run: |
+                  if git diff --quiet public/friends.json; then
+                    echo "changed=false" >> $GITHUB_OUTPUT
+                    echo "✅ 没有检测到变化"
+                  else
+                    echo "changed=true" >> $GITHUB_OUTPUT
+                    echo "📝 检测到变化，准备提交"
+                  fi
+
+            - name: Commit and push changes
+              if: steps.check_changes.outputs.changed == 'true'
+              run: |
+                  git config --local user.email "github-actions[bot]@users.noreply.github.com"
+                  git config --local user.name "github-actions[bot]"
+                  git add public/friends.json
+                  git commit -m "🤖 自动转换 friends.ts 到 public/friends.json [$(date +'%Y-%m-%d %H:%M:%S')]"
+                  git push
+
+            - name: Cleanup
+              run: |
+                  rm -f convert-friends.js
