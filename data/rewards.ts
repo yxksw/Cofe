@@ -27,13 +27,13 @@ export interface RewardConfig {
 export const REWARDS_CONFIG: RewardConfig = {
   alipay: {
     name: '支付宝收款码',
-    image: '/images/rewards/zhifubao.png',
+    image: 'https://cdn.jsdmirror.com/gh/zsxcoder/github-img@main/img/zhifubao.avif',
   },
   wechat: {
     name: '微信收款码',
-    image: '/images/rewards/weixin.png',
+    image: 'https://cdn.jsdmirror.com/gh/zsxcoder/github-img@main/img/weixin.avif',
   },
-  thankImage: '/images/rewards/thankyou.png',
+  thankImage: 'https://cdn.jsdmirror.com/gh/zsxcoder/github-img@main/img/thankyou.avif',
   list: [
     {
       name: '示例用户',
