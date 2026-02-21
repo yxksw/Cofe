@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { Icon } from '@iconify/react';
 import { REWARDS_CONFIG } from '@/data/rewards';
@@ -16,16 +16,52 @@ const DynamicGitalkComments = dynamic(() => import('@/components/GitalkComments'
   ),
 });
 
-export default function RewardsPage() {
-  const { alipay, wechat, thankImage, list } = REWARDS_CONFIG;
+// 远程打赏数据源
+const REMOTE_SPONSORS_URL = 'https://cdn.jsdmirror.cn/gh/yxksw/Friends@main/data/sponsors.json';
 
-  // 反转列表，最新的在最后
-  const sortedList = [...list].reverse();
+// 打赏数据类型
+interface Sponsor {
+  name: string;
+  avatar: string;
+  website?: string;
+  date: string;
+  amount: string;
+}
+
+export default function RewardsPage() {
+  const { alipay, wechat, thankImage } = REWARDS_CONFIG;
+  const [sponsors, setSponsors] = useState<Sponsor[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchSponsors = async () => {
+      try {
+        setLoading(true);
+        const response = await fetch(REMOTE_SPONSORS_URL);
+        if (!response.ok) {
+          throw new Error('Failed to fetch sponsors data');
+        }
+        const data: Sponsor[] = await response.json();
+        // 反转列表，最新的在前
+        setSponsors(data.reverse());
+      } catch (err) {
+        console.error('Failed to fetch sponsors:', err);
+        setError('加载赞赏数据失败，请稍后重试');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchSponsors();
+  }, []);
 
   // 计算统计数据
-  const totalCount = sortedList.length;
-  const totalAmount = sortedList.reduce((sum, item) => {
-    const amount = parseFloat(item.amount.replace('¥', ''));
+  const totalCount = sponsors.length;
+  const totalAmount = sponsors.reduce((sum, item) => {
+    // 处理金额格式，如 "9.80￥" 或 "¥8.88"
+    const amountStr = item.amount.replace(/[￥¥]/g, '');
+    const amount = parseFloat(amountStr);
     return sum + (isNaN(amount) ? 0 : amount);
   }, 0);
 
@@ -121,9 +157,19 @@ export default function RewardsPage() {
             </p>
           </div>
 
-          {sortedList.length > 0 ? (
+          {loading ? (
+            <div className="text-center py-12">
+              <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+              <p className="mt-4 text-muted-foreground">加载赞赏者名单中...</p>
+            </div>
+          ) : error ? (
+            <div className="text-center py-12 text-destructive">
+              <Icon icon="lucide:alert-circle" className="w-12 h-12 mx-auto mb-4" />
+              <p>{error}</p>
+            </div>
+          ) : sponsors.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {sortedList.map((sponsor, index) => (
+              {sponsors.map((sponsor, index) => (
                 <SponsorCard key={index} sponsor={sponsor} />
               ))}
             </div>
@@ -135,7 +181,7 @@ export default function RewardsPage() {
           )}
 
           {/* 统计信息 */}
-          {sortedList.length > 0 && (
+          {!loading && !error && sponsors.length > 0 && (
             <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-6 text-center">
               <div className="bg-card border border-border rounded-lg px-6 py-3">
                 <span className="text-muted-foreground">共计</span>
@@ -164,7 +210,7 @@ export default function RewardsPage() {
 }
 
 // 赞赏者卡片组件
-function SponsorCard({ sponsor }: { sponsor: typeof REWARDS_CONFIG.list[0] }) {
+function SponsorCard({ sponsor }: { sponsor: Sponsor }) {
   const CardContent = () => (
     <div className="relative bg-card border border-border rounded-xl p-4 overflow-hidden group hover:shadow-lg transition-all duration-300 hover:-translate-y-0.5">
       {/* 背景图片 */}
@@ -192,7 +238,6 @@ function SponsorCard({ sponsor }: { sponsor: typeof REWARDS_CONFIG.list[0] }) {
           </div>
           <div className="min-w-0">
             <h3 className="font-semibold text-foreground truncate">{sponsor.name}</h3>
-            <p className="text-xs text-muted-foreground truncate">{sponsor.description}</p>
           </div>
         </div>
         <div className="text-right flex-shrink-0">

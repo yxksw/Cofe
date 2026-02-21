@@ -1,15 +1,14 @@
 'use client';
 
-import { useState } from 'react';
-import { FRIEND_LINKS } from '@/data/friends';
+import { useState, useEffect } from 'react';
 import { Icon } from '@iconify/react';
 import FriendsList from '@/components/FriendsList';
 import FriendLevelLegend from '@/components/FriendLevelLegend';
 import DisconnectedFriendsList from '@/components/DisconnectedFriendsList';
 import SiteInfo from '@/components/SiteInfo';
 import ErrorBoundary from '@/components/ErrorBoundary';
-import FriendLinkModal from '@/components/FriendLinkModal';
 import dynamic from 'next/dynamic';
+import type { FriendLink } from '@/data/friends';
 
 // 动态导入 GitalkComments 组件，避免 SSR 问题
 const GitalkComments = dynamic(() => import('@/components/GitalkComments'), {
@@ -30,18 +29,38 @@ const SITE_INFO = {
 };
 
 // 友链联系邮箱
-const FRIEND_LINK_EMAIL = "your-email@example.com";
+const FRIEND_LINK_EMAIL = "yxksw@foxmail.com";
+
+// 本地 API 地址
+const API_URL = '/api/friends';
 
 export default function LinkPage() {
-    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [friendLinks, setFriendLinks] = useState<FriendLink[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
 
-    const handleOpenModal = () => {
-        setIsModalOpen(true);
-    };
+    useEffect(() => {
+        const fetchFriends = async () => {
+            try {
+                setLoading(true);
+                const response = await fetch(API_URL);
+                const result = await response.json();
+                
+                if (result.code !== 0) {
+                    throw new Error(result.msg || 'Failed to fetch friends data');
+                }
+                
+                setFriendLinks(result.data.list);
+            } catch (err) {
+                console.error('Failed to fetch friends:', err);
+                setError('加载友链数据失败，请稍后重试');
+            } finally {
+                setLoading(false);
+            }
+        };
 
-    const handleCloseModal = () => {
-        setIsModalOpen(false);
-    };
+        fetchFriends();
+    }, []);
 
     return (
         <div className="min-h-screen relative">
@@ -63,14 +82,28 @@ export default function LinkPage() {
                     </ErrorBoundary>
 
                     {/* Friends List with Pagination */}
-                    <ErrorBoundary>
-                        <FriendsList links={FRIEND_LINKS} />
-                    </ErrorBoundary>
+                    {loading ? (
+                        <div className="text-center py-12">
+                            <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+                            <p className="mt-4 text-muted-foreground">加载友链中...</p>
+                        </div>
+                    ) : error ? (
+                        <div className="text-center py-12 text-destructive">
+                            <Icon icon="lucide:alert-circle" className="w-12 h-12 mx-auto mb-4" />
+                            <p>{error}</p>
+                        </div>
+                    ) : (
+                        <ErrorBoundary>
+                            <FriendsList links={friendLinks} />
+                        </ErrorBoundary>
+                    )}
 
                     {/* Disconnected Friends List */}
-                    <ErrorBoundary>
-                        <DisconnectedFriendsList links={FRIEND_LINKS} />
-                    </ErrorBoundary>
+                    {!loading && !error && (
+                        <ErrorBoundary>
+                            <DisconnectedFriendsList links={friendLinks} />
+                        </ErrorBoundary>
+                    )}
 
                     {/* Apply Section - Redesigned */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
@@ -84,10 +117,10 @@ export default function LinkPage() {
                                 欢迎技术与生活类博客交换友链
                             </p>
                             <p className="text-sm text-slate-600 dark:text-slate-400 mb-4">
-                                评论区留言或请发送邮件至 <a href={`mailto:${FRIEND_LINK_EMAIL}`} className="text-primary hover:underline">{FRIEND_LINK_EMAIL}</a>
+                                评论区留言或请在仓库创建 <a href={`https://github.com/yxksw/Friends/issues/new?template=friend-link-request.yml`} className="text-primary hover:underline">议题</a>
                             </p>
                             {/* 提示信息框 */}
-                            <div className="rounded-lg border-2 border-dashed border-primary/30 bg-primary/5 dark:bg-primary/10 p-4 text-center mb-4">
+                            <div className="rounded-lg border-2 border-dashed border-primary/30 bg-primary/5 dark:bg-primary/10 p-4 text-center">
                                 <p className="text-sm text-primary font-medium mb-1">
                                     博客名称、描述、地址、头像等信息
                                 </p>
@@ -95,15 +128,6 @@ export default function LinkPage() {
                                     任意格式均可,包含基本信息即可
                                 </p>
                             </div>
-
-                            {/* 申请友链按钮 */}
-                            <button
-                                onClick={handleOpenModal}
-                                className="w-full py-3 px-4 bg-primary text-primary-foreground rounded-lg font-medium hover:bg-primary/90 transition-colors flex items-center justify-center gap-2"
-                            >
-                                <Icon icon="lucide:plus" className="w-5 h-5" />
-                                立即申请
-                            </button>
                         </div>
 
                         {/* 本站信息 */}
@@ -127,12 +151,6 @@ export default function LinkPage() {
                     </div>
                 </div>
             </main>
-
-            {/* 友链申请弹窗 */}
-            <FriendLinkModal 
-                isOpen={isModalOpen} 
-                onClose={handleCloseModal} 
-            />
         </div>
     );
 }
