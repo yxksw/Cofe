@@ -312,7 +312,7 @@ export default function PostDiffViewer() {
       {/* 悬浮面板 - 显示 diff 列表 */}
       <div
         className={cn(
-          'fixed top-20 right-4 z-40 w-80 max-w-[90vw]',
+          'fixed top-4 right-4 sm:top-20 sm:right-4 z-40 w-[calc(100%-2rem)] sm:w-80 max-w-[90vw]',
           'bg-background/95 dark:bg-background/95 border border-border',
           'rounded-xl shadow-lg overflow-hidden',
           'transition-all duration-300',
@@ -395,18 +395,21 @@ export default function PostDiffViewer() {
 
       {/* 底部提示条 - 当高亮显示时 */}
       {highlighted && (
-        <div className="fixed bottom-20 right-4 z-40 pointer-events-auto">
-          <div className="bg-card border border-green-500/50 rounded-lg shadow-lg px-4 py-3 flex items-center gap-3">
-            <Icon icon="material-symbols:check-circle" className="w-5 h-5 text-green-500" />
-            <div className="flex flex-col">
-              <span className="text-sm font-medium text-foreground">变更已高亮</span>
-              <span className="text-xs text-muted-foreground">
-                +{stats.added} 新增, -{stats.removed} 删除
-              </span>
+        <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-50 pointer-events-auto w-[calc(100%-2rem)] max-w-md sm:w-auto">
+          <div className="bg-card border border-green-500/50 rounded-lg shadow-lg px-4 py-3 flex items-center justify-between gap-3">
+            <div className="flex items-center gap-3">
+              <Icon icon="material-symbols:check-circle" className="w-5 h-5 text-green-500 flex-shrink-0" />
+              <div className="flex flex-col">
+                <span className="text-sm font-medium text-foreground">变更已高亮</span>
+                <span className="text-xs text-muted-foreground">
+                  +{stats.added} 新增, -{stats.removed} 删除
+                </span>
+              </div>
             </div>
             <button
               onClick={clearAllDiffState}
-              className="ml-2 p-1.5 rounded hover:bg-destructive/10 hover:text-destructive transition-colors"
+              className="p-1.5 rounded hover:bg-destructive/10 hover:text-destructive transition-colors flex-shrink-0"
+              title="清除高亮"
             >
               <Icon icon="material-symbols:close" className="w-4 h-4" />
             </button>

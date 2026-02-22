@@ -11,6 +11,14 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'Content-Type',
 }
 
+// 移除 Markdown 中的 YAML frontmatter
+function removeFrontmatter(content: string): string {
+  if (!content) return ''
+  // 匹配 --- 开头和结尾的 YAML frontmatter
+  const frontmatterRegex = /^---\s*\n[\s\S]*?\n---\s*\n?/
+  return content.replace(frontmatterRegex, '').trim()
+}
+
 export async function GET() {
   const baseUrl = getDynamicBaseUrl()
   const username = process.env.GITHUB_USERNAME || 'metrue'
@@ -48,7 +56,7 @@ ${feedPosts.map(post => `
     <link href="${baseUrl}/blog/${encodeURIComponent(post.id)}"/>
     <updated>${new Date(post.date).toISOString()}</updated>
     <id>${baseUrl}/blog/${encodeURIComponent(post.id)}</id>
-    <content type="html"><![CDATA[${post.content}]]></content>
+    <content type="html"><![CDATA[${removeFrontmatter(post.content)}]]></content>
     <published>${new Date(post.date).toISOString()}</published>
   </entry>`).join('')}
 </feed>`
