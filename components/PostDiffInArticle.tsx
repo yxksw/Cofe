@@ -3,64 +3,78 @@
 import { useEffect, useState, useCallback } from 'react'
 import { Icon } from '@iconify/react'
 import { cn } from '@/lib/utils'
-import type { Post, DiffPart } from '@/hooks/usePostChanges'
+
+export interface Post {
+  title: string
+  link: string
+  guid: string
+  pubDate: number
+  content: string
+  description?: string
+  isUpdated?: boolean
+  diff?: Array<{
+    value: string
+    added?: boolean
+    removed?: boolean
+  }>
+  diffType?: string
+}
+
+const DEBUG_STATE_KEY = 'cofe-diff-debug-state'
+const NOTIFICATION_STATE_KEY = 'cofe-notification-state'
+
+interface DiffPart {
+  value: string
+  added?: boolean
+  removed?: boolean
+}
 
 export function PostDiffInArticle() {
   const [post, setPost] = useState<Post | null>(null)
   const [isVisible, setIsVisible] = useState(true)
   const [isMinimized, setIsMinimized] = useState(false)
-  const [hasChanges, setHasChanges] = useState(false)
 
   useEffect(() => {
-    // 从 sessionStorage 读取变更数据
-    const stored = sessionStorage.getItem('active-post-changes')
+    const stored = sessionStorage.getItem(DEBUG_STATE_KEY)
     if (stored) {
       try {
         const data = JSON.parse(stored)
-        setPost(data)
-        setHasChanges(true)
+        if (data.items && data.items.length > 0) {
+          setPost(data.items[0])
+        }
       } catch (e) {
         console.error('Failed to parse post changes:', e)
       }
     }
-
-    // 监听 sessionStorage 变化
-    const handleStorageChange = () => {
-      const updated = sessionStorage.getItem('active-post-changes')
-      if (!updated) {
-        // 如果数据被清除，关闭组件
-        setIsVisible(false)
-        setHasChanges(false)
-        setPost(null)
-      }
-    }
-
-    window.addEventListener('storage', handleStorageChange)
-    
-    // 定时检查 sessionStorage 变化（同一页面）
-    const interval = setInterval(() => {
-      const current = sessionStorage.getItem('active-post-changes')
-      if (!current && hasChanges) {
-        setIsVisible(false)
-        setHasChanges(false)
-        setPost(null)
-      }
-    }, 1000)
-
-    return () => {
-      window.removeEventListener('storage', handleStorageChange)
-      clearInterval(interval)
-    }
-  }, [hasChanges])
-
-  // 关闭变更展示
-  const handleClose = useCallback(() => {
-    setIsVisible(false)
-    setHasChanges(false)
-    sessionStorage.removeItem('active-post-changes')
   }, [])
 
-  // 最小化/展开
+  const clearAllDiffState = useCallback(() => {
+    sessionStorage.removeItem(DEBUG_STATE_KEY)
+    localStorage.removeItem(NOTIFICATION_STATE_KEY)
+    
+    const containers = document.querySelectorAll('[data-post-inline-diff], [data-post-inline-diff-add-target], [data-post-inline-diff-del-target]')
+    containers.forEach((el) => {
+      if (el instanceof HTMLElement) {
+        el.removeAttribute('data-post-inline-diff')
+        el.removeAttribute('data-post-inline-diff-add-target')
+        el.removeAttribute('data-post-inline-diff-del-target')
+      }
+    })
+    
+    const addTargets = document.querySelectorAll('.post-inline-diff-add-target, .post-inline-diff-del-target, .post-inline-diff-add-line, .post-inline-diff-del-line')
+    addTargets.forEach((el) => el.remove())
+    
+    const url = new URL(window.location.href)
+    url.searchParams.delete('diff')
+    url.searchParams.delete('__diff_debug')
+    history.replaceState({}, '', `${url.pathname}${url.search}${url.hash}`)
+  }, [])
+
+  const handleClose = useCallback(() => {
+    setIsVisible(false)
+    clearAllDiffState()
+  }, [clearAllDiffState])
+
   const toggleMinimize = useCallback(() => {
     setIsMinimized((prev) => !prev)
   }, [])
@@ -69,9 +83,8 @@ export function PostDiffInArticle() {
     return null
   }
 
-  // 计算统计信息
-  const addedCount = post.diff.filter((p: DiffPart) => p.added).length
-  const removedCount = post.diff.filter((p: DiffPart) => p.removed).length
+  const addedCount = post.diff.filter((p) => p.added).length
+  const removedCount = post.diff.filter((p) => p.removed).length
 
   return (
     <div
@@ -87,7 +100,6 @@ export function PostDiffInArticle() {
         WebkitBackdropFilter: 'blur(16px) saturate(180%)',
       }}
     >
-      {/* 头部 */}
       <div className="flex items-center justify-between p-3 border-b border-border bg-muted/50">
         <div className="flex items-center gap-2">
           <Icon icon="material-symbols:edit-document" className="w-4 h-4 text-primary" />
@@ -117,15 +129,12 @@ export function PostDiffInArticle() {
         </div>
       </div>
 
-      {/* 变更内容 */}
       {!isMinimized && (
         <div className="max-h-[60vh] overflow-y-auto p-3 space-y-1 text-sm">
           {post.diff.map((part: DiffPart, idx: number) => {
             if (!part.added && !part.removed) {
-              // 未变更的内容，只显示少量上下文
               const lines = part.value.split('\n').filter((l) => l.trim())
               if (lines.length === 0) return null
-              // 只显示前2行作为上下文
               const contextLines = lines.slice(0, 2)
               return (
                 <div key={idx} className="text-muted-foreground/50 text-xs py-1">
@@ -158,7 +167,6 @@ export function PostDiffInArticle() {
         </div>
       )}
 
-      {/* 底部提示 */}
       {!isMinimized && (
         <div className="px-3 py-2 bg-muted/30 text-[10px] text-muted-foreground border-t border-border">
           点击关闭后，变更提示将不再显示

@@ -3,7 +3,12 @@
 import { useEffect, useState } from 'react'
 import { Icon } from '@iconify/react'
 import { cn } from '@/lib/utils'
-import type { DiffPart } from '@/hooks/usePostChanges'
+
+interface DiffPart {
+  value: string
+  added?: boolean
+  removed?: boolean
+}
 
 interface PostChanges {
   title: string
@@ -27,28 +32,12 @@ export default function PostInlineDiff() {
         console.error('Failed to parse post changes:', e)
       }
     }
-
-    // 监听 sessionStorage 变化
-    const interval = setInterval(() => {
-      const current = sessionStorage.getItem('active-post-changes')
-      if (!current && changes) {
-        setIsVisible(false)
-        setChanges(null)
-      }
-    }, 1000)
-
-    return () => clearInterval(interval)
-  }, [changes])
+  }, [])
 
   // 关闭 diff 显示
   const handleClose = () => {
     setIsVisible(false)
     sessionStorage.removeItem('active-post-changes')
-  }
-
-  // 隐藏 diff 显示（保留 sessionStorage 数据）
-  const handleHide = () => {
-    setIsVisible(false)
   }
 
   if (!changes?.diff || !isVisible) {
@@ -77,7 +66,7 @@ export default function PostInlineDiff() {
         </div>
         <div className="flex items-center gap-2">
           <button
-            onClick={handleHide}
+            onClick={() => setIsVisible(false)}
             className="text-xs text-muted-foreground hover:text-foreground transition-colors"
           >
             隐藏

@@ -1,31 +1,194 @@
 'use client'
 
 import { useEffect, useState, useCallback, useRef } from 'react'
+import * as Diff from 'diff'
 import { Icon } from '@iconify/react'
 import { cn } from '@/lib/utils'
 import Link from 'next/link'
-import type { Post } from '@/hooks/usePostChanges'
-import { checkForNewPosts } from '@/lib/rssStore'
-import { useNotificationPanel } from '@/hooks/usePostChanges'
 
+export interface Post {
+  title: string
+  link: string
+  guid: string
+  pubDate: number
+  content: string
+  description?: string
+  isUpdated?: boolean
+  diff?: Array<{
+    value: string
+    added?: boolean
+    removed?: boolean
+  }>
+}
+
+const DB_NAME = 'cofe-blog-rss-store'
+const DB_VERSION = 4
+const STORE_OLD = 'posts'
+const STORE_NEW = 'posts_new'
+const NOTIFICATION_STATE_KEY = 'cofe-notification-state'
 const INIT_TIME_KEY = 'cofe-notification-init-time'
-const LAST_SEEN_TIME_KEY = 'cofe-last-seen-time'
-const CHECK_INTERVAL = 5 * 60 * 1000 // 5分钟检查一次
+const CHECK_INTERVAL = 5 * 60 * 1000
+
+function normalizeGuid(guid: string, link: string) {
+  const value = (guid || link || '').trim()
+  if (!value) return ''
+  try {
+    const url = new URL(value, window.location.origin)
+    return `${url.pathname}${url.search}${url.hash}`
+  } catch {
+    return value
+  }
+}
+
+function generateId(guid: string) {
+  return `root:${guid}`
+}
+
+function normalizeRaw(text: string) {
+  const s = String(text || '').replace(/\r\n/g, '\n').replace(/\r/g, '\n')
+  const lines = s.split('\n').map((line) => line.replace(/[ \t]+$/g, ''))
+  return lines.join('\n').trim()
+}
+
+function normalizeForDiffHtml(html: string) {
+  const raw = normalizeRaw(html)
+  if (!raw) return ''
+  const parser = new DOMParser()
+  const doc = parser.parseFromString(`<div>${raw}</div>`, 'text/html')
+  const root = doc.body.firstElementChild
+  if (!root) return raw
+
+  const lines: string[] = []
+  for (const el of Array.from(root.children)) {
+    const htmlLine = String(el.outerHTML || '')
+      .replace(/\r\n/g, '\n')
+      .replace(/\r/g, '\n')
+      .replace(/\n+/g, ' ')
+      .replace(/[ \t]+/g, ' ')
+      .trim()
+    if (!htmlLine) continue
+    lines.push(htmlLine)
+  }
+
+  return lines.join('\n')
+}
+
+function computeDiff(oldText: string, newText: string) {
+  if (!oldText || !newText) return null
+
+  const cleanOld = normalizeForDiffHtml(oldText)
+  const cleanNew = normalizeForDiffHtml(newText)
+
+  if (!cleanOld || !cleanNew) return null
+
+  const diffs = Diff.diffLines(cleanOld, cleanNew)
+  const hasChanges = diffs.some((part) => part.added || part.removed)
+
+  if (!hasChanges) return null
+
+  return diffs
+}
 
 export default function NewPostNotification() {
-  const { isOpen, isMinimized, open, minimize } = useNotificationPanel()
+  const [isOpen, setIsOpen] = useState(false)
+  const [isMinimized, setIsMinimized] = useState(true)
   const [hasNewPosts, setHasNewPosts] = useState(false)
   const [newPosts, setNewPosts] = useState<Post[]>([])
   const [initTime, setInitTime] = useState<number>(0)
   const [lastCheckTime, setLastCheckTime] = useState<number>(0)
-  const [expandedDiffs, setExpandedDiffs] = useState<Set<string>>(new Set())
   const intervalRef = useRef<NodeJS.Timeout | null>(null)
   const isFirstRender = useRef(true)
 
-  // 检查新文章
-  const checkPosts = useCallback(async () => {
+  const openDB = useCallback((): Promise<IDBDatabase> => {
+    return new Promise((resolve, reject) => {
+      const request = indexedDB.open(DB_NAME, DB_VERSION)
+      request.onerror = () => reject(request.error)
+      request.onsuccess = () => resolve(request.result)
+      request.onupgradeneeded = (event: IDBVersionChangeEvent) => {
+        const db = (event.target as IDBOpenDBRequest).result
+        const ensureStore = (name: string) => {
+          if (db.objectStoreNames.contains(name)) {
+            const existingStore = (event.target as IDBOpenDBRequest).transaction?.objectStore(name)
+            if (existingStore && existingStore.keyPath !== 'id') {
+              db.deleteObjectStore(name)
+              db.createObjectStore(name, { keyPath: 'id' })
+            }
+            return
+          }
+          db.createObjectStore(name, { keyPath: 'id' })
+        }
+        ensureStore(STORE_OLD)
+        ensureStore(STORE_NEW)
+      }
+    })
+  }, [])
+
+  const getStoredPosts = useCallback(async (db: IDBDatabase, storeName: string): Promise<Post[]> => {
+    return new Promise((resolve, reject) => {
+      const transaction = db.transaction([storeName], 'readonly')
+      const store = transaction.objectStore(storeName)
+      const request = store.getAll()
+      request.onsuccess = () => resolve(request.result as Post[])
+      request.onerror = () => reject(request.error)
+    })
+  }, [])
+
+  const savePosts = useCallback(async (db: IDBDatabase, storeName: string, posts: Post[]): Promise<void> => {
+    return new Promise((resolve, reject) => {
+      const transaction = db.transaction([storeName], 'readwrite')
+      const store = transaction.objectStore(storeName)
+
+      posts.forEach((post) => {
+        const itemToSave = { ...post, id: generateId(post.guid) }
+        store.put(itemToSave)
+      })
+
+      transaction.oncomplete = () => resolve()
+      transaction.onerror = () => reject(transaction.error)
+    })
+  }, [])
+
+  const fetchRSS = useCallback(async (): Promise<Post[]> => {
     try {
-      const { newPosts: posts, hasChanges } = await checkForNewPosts()
+      const response = await fetch('/atom.xml', { cache: 'no-store' })
+      const text = await response.text()
+      const parser = new DOMParser()
+      const xml = parser.parseFromString(text, 'text/xml')
+
+      const items = Array.from(xml.querySelectorAll('entry'))
+
+      return items.map((item) => {
+        const title = item.querySelector('title')?.textContent || ''
+        const link = (item.querySelector('link')?.getAttribute('href') || '').trim()
+        const rawGuid = (item.querySelector('id')?.textContent || '').trim()
+        const pubDateStr = item.querySelector('updated')?.textContent || item.querySelector('published')?.textContent || ''
+        const pubDate = new Date(pubDateStr).getTime()
+        const content = item.querySelector('content')?.textContent || ''
+        const description = item.querySelector('summary')?.textContent || ''
+
+        const guid = normalizeGuid(rawGuid || link, link)
+
+        return {
+          title,
+          link,
+          guid,
+          pubDate,
+          description,
+          content,
+        }
+      })
+    } catch (e) {
+      console.error('Failed to fetch RSS:', e)
+      return []
+    }
+  }, [])
+
+  const checkForNewPosts = useCallback(async () => {
+    try {
+      const db = await openDB()
+      const storedPosts = await getStoredPosts(db, STORE_OLD)
+      const fetchedPosts = await fetchRSS()
+
       const currentTime = Date.now()
       const lastInitTime = localStorage.getItem(INIT_TIME_KEY)
       const isFresh = !lastInitTime && isFirstRender.current
@@ -34,83 +197,72 @@ export default function NewPostNotification() {
         isFirstRender.current = false
       }
 
-      if (hasChanges) {
-        console.log('[NewPostNotification] Total new/updated posts:', posts.length)
-        setNewPosts(posts)
+      const newOrUpdatedPosts: Post[] = []
+
+      for (const post of fetchedPosts) {
+        const existingPost = storedPosts.find((p) => p.guid === post.guid)
+
+        if (!existingPost) {
+          newOrUpdatedPosts.push({ ...post, isUpdated: false })
+        } else if (existingPost.content !== post.content) {
+          const diff = computeDiff(existingPost.content, post.content)
+          if (diff) {
+            newOrUpdatedPosts.push({ ...post, isUpdated: true, diff })
+          }
+        }
+      }
+
+      await savePosts(db, STORE_OLD, fetchedPosts)
+
+      if (newOrUpdatedPosts.length > 0) {
+        setNewPosts(newOrUpdatedPosts)
         setHasNewPosts(true)
         setInitTime(Number(lastInitTime) || currentTime)
         setLastCheckTime(currentTime)
 
-        // 如果是新会话且有新文章，自动展开
         if (isFresh) {
           setTimeout(() => {
-            open()
+            setIsMinimized(false)
+            setIsOpen(true)
           }, 1500)
         }
       }
 
-      // 保存初始化时间
       if (!lastInitTime) {
         localStorage.setItem(INIT_TIME_KEY, currentTime.toString())
       }
     } catch (error) {
       console.error('Error checking for new posts:', error)
     }
-  }, [open])
+  }, [openDB, getStoredPosts, fetchRSS, savePosts])
 
-  // 清除通知
   const clearNotification = useCallback(() => {
+    localStorage.removeItem(NOTIFICATION_STATE_KEY)
     const now = Date.now()
     localStorage.setItem(INIT_TIME_KEY, now.toString())
-    localStorage.setItem(LAST_SEEN_TIME_KEY, now.toString())
     setNewPosts([])
     setHasNewPosts(false)
     setInitTime(now)
     setLastCheckTime(now)
-    // 同时清除文章变更展示
-    sessionStorage.removeItem('active-post-changes')
   }, [])
 
-  // 切换 diff 展开状态
-  const toggleDiff = useCallback((guid: string) => {
-    setExpandedDiffs((prev) => {
-      const newSet = new Set(prev)
-      if (newSet.has(guid)) {
-        newSet.delete(guid)
-      } else {
-        newSet.add(guid)
-      }
-      return newSet
-    })
+  const handleClose = useCallback(() => {
+    setIsOpen(false)
+    setTimeout(() => setIsMinimized(true), 300)
   }, [])
 
-  // 在文章中显示变更
-  const showChangesInArticle = useCallback((post: Post) => {
-    sessionStorage.setItem('active-post-changes', JSON.stringify(post))
-    // 如果当前就在文章页面，刷新页面以显示变更
-    if (window.location.pathname.includes('/blog/')) {
-      window.location.reload()
-    } else {
-      // 否则跳转到文章页面
-      window.location.href = post.link
-    }
-  }, [])
-
-  // 初始化
   useEffect(() => {
-    checkPosts()
+    checkForNewPosts()
 
-    // 设置定时检查
-    intervalRef.current = setInterval(checkPosts, CHECK_INTERVAL)
+    intervalRef.current = setInterval(checkForNewPosts, CHECK_INTERVAL)
 
     return () => {
       if (intervalRef.current) {
         clearInterval(intervalRef.current)
       }
     }
-  }, [checkPosts])
+  }, [checkForNewPosts])
 
-  // 格式化时间
   const formatTime = (timestamp: number) => {
     return new Date(timestamp).toLocaleString('zh-CN', {
       month: 'short',
@@ -120,14 +272,15 @@ export default function NewPostNotification() {
     })
   }
 
-  // 如果没有新文章且是最小化状态，不显示红点
   const showDot = hasNewPosts && newPosts.length > 0 && isMinimized
 
   return (
     <div className="fixed bottom-20 right-4 z-50 flex flex-col items-end pointer-events-none">
-      {/* 最小化状态 - 铃铛图标 */}
       <button
-        onClick={open}
+        onClick={() => {
+          setIsMinimized(false)
+          setIsOpen(true)
+        }}
         className={cn(
           'pointer-events-auto p-3 rounded-full shadow-lg transition-all duration-500',
           'bg-primary/10 dark:bg-primary/20 border border-primary/20',
@@ -143,13 +296,11 @@ export default function NewPostNotification() {
           icon="material-symbols:notifications-outline"
           className="w-5 h-5 text-primary"
         />
-        {/* 红点通知 */}
         {showDot && (
           <span className="absolute top-0 right-0 w-3 h-3 bg-red-500 rounded-full border-2 border-background animate-pulse" />
         )}
       </button>
 
-      {/* 展开状态 - 通知面板 */}
       <div
         className={cn(
           'pointer-events-auto rounded-xl shadow-lg p-4 max-w-[90vw] w-80',
@@ -164,14 +315,12 @@ export default function NewPostNotification() {
           WebkitBackdropFilter: 'blur(16px) saturate(180%)',
         }}
       >
-        {/* 头部 */}
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2 text-primary">
             <Icon icon="material-symbols:notifications-active" className="w-5 h-5" />
             <h3 className="font-bold text-foreground">发现新文章</h3>
           </div>
           <div className="flex items-center gap-1">
-            {/* 清空按钮 */}
             <button
               onClick={clearNotification}
               className="text-muted-foreground hover:text-destructive transition-colors p-1 rounded-md hover:bg-destructive/10"
@@ -179,13 +328,8 @@ export default function NewPostNotification() {
             >
               <Icon icon="material-symbols:delete-outline" className="w-4 h-4" />
             </button>
-            {/* 最小化按钮 */}
             <button
-              onClick={() => {
-                minimize()
-                // 同时关闭文章变更展示
-                sessionStorage.removeItem('active-post-changes')
-              }}
+              onClick={handleClose}
               className="text-muted-foreground hover:text-foreground transition-colors p-1 rounded-md hover:bg-accent"
               title="隐藏"
             >
@@ -194,7 +338,6 @@ export default function NewPostNotification() {
           </div>
         </div>
 
-        {/* 时间戳 */}
         <div className="text-xs text-muted-foreground mb-2 px-1 flex flex-col gap-0.5">
           <div className="font-medium">
             {newPosts.length > 0 ? '发现更新' : '暂无更新'}
@@ -206,7 +349,6 @@ export default function NewPostNotification() {
           )}
         </div>
 
-        {/* 文章列表 */}
         <div className="max-h-[60vh] overflow-y-auto overflow-x-hidden space-y-1 custom-scrollbar">
           {newPosts.length === 0 ? (
             <div className="text-center text-muted-foreground py-4">
@@ -219,65 +361,39 @@ export default function NewPostNotification() {
             </div>
           ) : (
             newPosts.map((post) => {
-              const isExpanded = expandedDiffs.has(post.guid)
+              let postHref = post.link
+              if (post.isUpdated && post.diff) {
+                try {
+                  const url = new URL(post.link, window.location.origin)
+                  url.searchParams.set('diff', '1')
+                  url.hash = 'post-diff'
+                  postHref = `${url.pathname}${url.search}${url.hash}`
+                } catch {
+                  const base = post.link.split('#')[0]
+                  postHref = base.includes('?') ? `${base}&diff=1#post-diff` : `${base}?diff=1#post-diff`
+                }
+              }
 
               return (
                 <div key={post.guid} className="mb-2 last:mb-0">
                   <div className="flex items-center justify-between p-2 rounded-lg hover:bg-accent/50 transition-colors">
                     <Link
-                      href={post.link}
+                      href={postHref}
                       className="font-medium truncate pr-2 hover:text-primary transition-colors text-foreground block flex-1 text-sm"
                     >
                       {post.title}
                     </Link>
-                    <div className="flex items-center shrink-0 gap-1">
-                      {post.isUpdated && post.diff && (
-                        <>
-                          <button
-                            onClick={() => toggleDiff(post.guid)}
-                            className="text-xs text-primary hover:underline focus:outline-none"
-                          >
-                            {isExpanded ? '收起' : '查看变更'}
-                          </button>
-                          <button
-                            onClick={() => showChangesInArticle(post)}
-                            className="text-xs text-blue-500 hover:underline focus:outline-none ml-1"
-                            title="在文章中查看变更"
-                          >
-                            文中查看
-                          </button>
-                        </>
+                    <span
+                      className={cn(
+                        'text-[10px] px-1.5 py-0.5 rounded shrink-0',
+                        post.isUpdated
+                          ? 'bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-300'
+                          : 'bg-green-100 dark:bg-green-900 text-green-600 dark:text-green-300'
                       )}
-                      <span
-                        className={cn(
-                          'text-[10px] px-1.5 py-0.5 rounded',
-                          post.isUpdated
-                            ? 'bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-300'
-                            : 'bg-green-100 dark:bg-green-900 text-green-600 dark:text-green-300'
-                        )}
-                      >
-                        {post.isUpdated ? '更新' : '新文章'}
-                      </span>
-                    </div>
+                    >
+                      {post.isUpdated ? '更新' : '新文章'}
+                    </span>
                   </div>
-
-                  {/* Diff 内容 */}
-                  {post.isUpdated && post.diff && isExpanded && (
-                    <div className="mt-2 p-2 bg-muted rounded text-xs overflow-x-auto border border-border max-h-60 overflow-y-auto">
-                      {post.diff.map((part, idx) => {
-                        const colorClass = part.added
-                          ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 block my-1 p-1 rounded break-all whitespace-pre-wrap'
-                          : part.removed
-                          ? 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300 block my-1 p-1 rounded break-all whitespace-pre-wrap'
-                          : 'text-muted-foreground block my-1 p-1 break-all whitespace-pre-wrap'
-                        return (
-                          <div key={idx} className={colorClass}>
-                            {part.value}
-                          </div>
-                        )
-                      })}
-                    </div>
-                  )}
                 </div>
               )
             })
