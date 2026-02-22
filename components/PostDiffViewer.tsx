@@ -99,31 +99,15 @@ export default function PostDiffViewer() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  const clearDiffState = useCallback(() => {
-    debugLog('===== clearDiffState 开始 =====')
-    
-    const currentPath = window.location.pathname
-    const postKey = `post-diff-${currentPath}`
-    
-    debugLog('Step 1: 清除 storage', { key: postKey })
-    sessionStorage.removeItem(postKey)
-    debugSuccess('Step 2: storage 已清除')
-    
-    setIsVisible(false)
-    debugLog('Step 3: 状态已更新')
-    
-    debugSuccess('===== clearDiffState 完成 =====')
-  }, [])
-
-  const handleClose = useCallback(() => {
-    debugLog('点击关闭按钮')
-    clearDiffState()
-  }, [clearDiffState])
-
   const toggleMinimize = useCallback(() => {
     debugLog('点击最小化/展开按钮', { currentState: isMinimized ? 'minimized' : 'expanded' })
     setIsMinimized((prev) => !prev)
   }, [isMinimized])
+
+  const handleClose = useCallback(() => {
+    debugLog('点击关闭按钮')
+    setIsVisible(false)
+  }, [])
 
   debugLog('===== 渲染检查 =====', { 
     isVisible, 
