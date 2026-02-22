@@ -1,196 +1,168 @@
 'use client'
 
 import { useEffect, useState, useCallback } from 'react'
-import { diffWords } from 'diff'
 import { Icon } from '@iconify/react'
 import { cn } from '@/lib/utils'
 
-const STORAGE_PREFIX = 'cofe-post-content-cache-'
+interface DiffPart {
+  value: string
+  added?: boolean
+  removed?: boolean
+}
+
+interface PostChanges {
+  title: string
+  link: string
+  guid: string
+  diff?: DiffPart[]
+}
 
 export default function PostContentHighlighter() {
-  const [showNotification, setShowNotification] = useState(false)
-  const [diffCount, setDiffCount] = useState(0)
+  const [changes, setChanges] = useState<PostChanges | null>(null)
+  const [highlighted, setHighlighted] = useState(false)
+  const [stats, setStats] = useState({ added: 0, removed: 0 })
 
-  // 获取文章内容文本
-  const getContentText = useCallback(() => {
-    // 查找文章内容的容器
-    const container = document.querySelector('.prose') || 
-                      document.querySelector('article') || 
-                      document.querySelector('[class*="markdown"]') ||
-                      document.querySelector('main')
-    return container ? container.textContent || '' : ''
-  }, [])
-
-  // 高亮第一个差异
-  const highlightFirstDiff = useCallback((textToFind: string) => {
-    if (!textToFind) return
-
-    const container = 
-      document.querySelector('.prose') || 
-      document.querySelector('article') || 
-      document.querySelector('[class*="markdown"]') ||
-      document.querySelector('main')
-    
-    if (!container) return
-
-    // 清理搜索文本，取前50个字符
-    const searchStr = textToFind.trim().substring(0, 50)
-    if (!searchStr) return
-
-    // 使用 TreeWalker 查找文本节点
-    const walker = document.createTreeWalker(
-      container,
-      NodeFilter.SHOW_TEXT,
-      null
-    )
-
-    let node: Node | null
-    while ((node = walker.nextNode())) {
-      if (node.textContent && node.textContent.includes(searchStr)) {
-        const parent = node.parentElement
-        if (parent) {
-          // 添加高亮动画
-          parent.classList.add('content-update-highlight')
-          parent.scrollIntoView({ behavior: 'smooth', block: 'center' })
-          
-          // 2秒后移除高亮
-          setTimeout(() => {
-            parent.classList.remove('content-update-highlight')
-          }, 3000)
-        }
-        break
-      }
-    }
-  }, [])
-
-  // 检查内容差异
-  const checkContentDiff = useCallback(() => {
-    // 只在文章页面运行
-    const isBlogPost = window.location.pathname.startsWith('/blog/')
-    if (!isBlogPost) return
-
-    const currentPath = window.location.pathname
-    const storageKey = STORAGE_PREFIX + currentPath
-    const currentText = getContentText()
-
-    if (!currentText) return
-
-    const cachedText = localStorage.getItem(storageKey)
-
-    if (!cachedText) {
-      // 首次访问，缓存当前文本
-      localStorage.setItem(storageKey, currentText)
-    } else if (cachedText !== currentText) {
-      // 内容已更改
-      const diffs = diffWords(cachedText, currentText)
-      
-      // 过滤出有意义的添加部分（长度大于10个字符）
-      const addedParts = diffs.filter(
-        (part) => part.added && part.value.trim().length > 10
-      )
-
-      if (addedParts.length > 0) {
-        setDiffCount(addedParts.length)
-        setShowNotification(true)
-        
-        // 高亮第一个差异
-        highlightFirstDiff(addedParts[0].value)
-      }
-
-      // 更新缓存
-      localStorage.setItem(storageKey, currentText)
-    }
-  }, [getContentText, highlightFirstDiff])
-
-  // 滚动到第一个更新处
-  const scrollToUpdate = useCallback(() => {
-    const highlighted = document.querySelector('.content-update-highlight')
-    if (highlighted) {
-      highlighted.scrollIntoView({ behavior: 'smooth', block: 'center' })
-    }
-    setShowNotification(false)
-  }, [])
-
-  // 初始化检查
   useEffect(() => {
-    // 延迟执行，等待页面内容加载完成
-    const timer = setTimeout(() => {
-      checkContentDiff()
-    }, 1000)
+    // 从 sessionStorage 读取变更数据
+    const stored = sessionStorage.getItem('active-post-changes')
+    if (stored) {
+      try {
+        const data = JSON.parse(stored)
+        setChanges(data)
+      } catch (e) {
+        console.error('Failed to parse post changes:', e)
+      }
+    }
+  }, [])
 
-    return () => clearTimeout(timer)
-  }, [checkContentDiff])
+  // 高亮文章中的变更内容
+  const highlightChanges = useCallback(() => {
+    if (!changes?.diff || highlighted) return
 
-  // 如果不是文章页面，不渲染
-  if (typeof window !== 'undefined' && !window.location.pathname.startsWith('/blog/')) {
+    const articleContent = document.querySelector('.markdown-content, .prose')
+    if (!articleContent) return
+
+    let addedCount = 0
+    let removedCount = 0
+
+    // 处理每个变更部分
+    changes.diff.forEach((part) => {
+      if (part.added) {
+        addedCount++
+        highlightText(articleContent, part.value, 'added')
+      } else if (part.removed) {
+        removedCount++
+        highlightText(articleContent, part.value, 'removed')
+      }
+    })
+
+    setStats({ added: addedCount, removed: removedCount })
+    setHighlighted(true)
+  }, [changes, highlighted])
+
+  // 清除高亮
+  const clearHighlight = useCallback(() => {
+    const highlights = document.querySelectorAll('.diff-highlight-added, .diff-highlight-removed')
+    highlights.forEach((el) => {
+      const parent = el.parentNode
+      if (parent) {
+        parent.replaceChild(document.createTextNode(el.textContent || ''), el)
+        parent.normalize()
+      }
+    })
+    setHighlighted(false)
+    sessionStorage.removeItem('active-post-changes')
+  }, [])
+
+  // 在文本中高亮指定内容
+  const highlightText = (container: Element, text: string, type: 'added' | 'removed') => {
+    if (!text.trim()) return
+
+    const walker = document.createTreeWalker(container, NodeFilter.SHOW_TEXT, null)
+    const textNodes: Text[] = []
+    let node: Node | null
+
+    // 收集所有文本节点
+    while ((node = walker.nextNode())) {
+      textNodes.push(node as Text)
+    }
+
+    // 处理每个文本节点
+    textNodes.forEach((textNode) => {
+      const content = textNode.textContent || ''
+      const searchText = text.trim()
+
+      if (content.includes(searchText)) {
+        const span = document.createElement('span')
+        span.className = type === 'added' 
+          ? 'diff-highlight-added bg-green-200 dark:bg-green-900/50 text-green-900 dark:text-green-100 px-1 rounded'
+          : 'diff-highlight-removed bg-red-200 dark:bg-red-900/50 text-red-900 dark:text-red-100 px-1 rounded line-through opacity-70'
+        span.textContent = searchText
+
+        const parts = content.split(searchText)
+        const fragment = document.createDocumentFragment()
+
+        parts.forEach((part, index) => {
+          if (part) {
+            fragment.appendChild(document.createTextNode(part))
+          }
+          if (index < parts.length - 1) {
+            fragment.appendChild(span.cloneNode(true))
+          }
+        })
+
+        if (textNode.parentNode) {
+          textNode.parentNode.replaceChild(fragment, textNode)
+        }
+      }
+    })
+  }
+
+  if (!changes?.diff) {
     return null
   }
 
   return (
-    <>
-      {/* 内容更新通知 */}
-      <div
-        className={cn(
-          'fixed top-20 right-4 z-50 transition-all duration-300',
-          showNotification
-            ? 'translate-x-0 opacity-100'
-            : 'translate-x-full opacity-0 pointer-events-none'
+    <div className="fixed bottom-24 right-4 z-40 flex flex-col items-end gap-2 pointer-events-none">
+      {/* 控制按钮 */}
+      <div className="pointer-events-auto flex flex-col gap-2">
+        {!highlighted ? (
+          <button
+            onClick={highlightChanges}
+            className={cn(
+              'flex items-center gap-2 px-4 py-2 rounded-lg shadow-lg',
+              'bg-primary text-primary-foreground hover:bg-primary/90',
+              'transition-all duration-300 animate-in fade-in slide-in-from-right'
+            )}
+          >
+            <Icon icon="material-symbols:highlight-alt" className="w-5 h-5" />
+            <span className="text-sm font-medium">高亮变更</span>
+          </button>
+        ) : (
+          <>
+            {/* 统计信息 */}
+            <div className="bg-card border border-border rounded-lg shadow-lg px-4 py-2 text-sm">
+              <div className="flex items-center gap-3">
+                <span className="text-green-600 dark:text-green-400">+{stats.added}</span>
+                <span className="text-red-600 dark:text-red-400">-{stats.removed}</span>
+              </div>
+            </div>
+            
+            {/* 清除高亮按钮 */}
+            <button
+              onClick={clearHighlight}
+              className={cn(
+                'flex items-center gap-2 px-4 py-2 rounded-lg shadow-lg',
+                'bg-muted text-muted-foreground hover:bg-muted/80',
+                'transition-all duration-300'
+              )}
+            >
+              <Icon icon="material-symbols:close" className="w-5 h-5" />
+              <span className="text-sm font-medium">清除高亮</span>
+            </button>
+          </>
         )}
-      >
-        <div
-          className={cn(
-            'rounded-xl shadow-lg p-4 max-w-sm relative',
-            'bg-background/80 dark:bg-background/80 border border-border',
-            'flex flex-col gap-2'
-          )}
-          style={{
-            backdropFilter: 'blur(16px) saturate(180%)',
-            WebkitBackdropFilter: 'blur(16px) saturate(180%)',
-          }}
-        >
-          <div className="flex items-center gap-2 text-primary">
-            <Icon icon="material-symbols:edit-document" className="w-5 h-5" />
-            <span className="font-bold text-sm text-foreground">内容已更新</span>
-          </div>
-          <p className="text-xs text-muted-foreground">
-            检测到文章内容有变化，已为您高亮显示差异部分。
-            {diffCount > 0 && `共 ${diffCount} 处更新。`}
-          </p>
-          <div className="flex gap-2 mt-1">
-            <button
-              onClick={scrollToUpdate}
-              className="px-3 py-1.5 bg-primary text-primary-foreground rounded-md text-xs hover:bg-primary/90 transition-colors"
-            >
-              跳转到更新处
-            </button>
-            <button
-              onClick={() => setShowNotification(false)}
-              className="px-3 py-1.5 bg-secondary text-secondary-foreground rounded-md text-xs hover:bg-secondary/80 transition-colors"
-            >
-              忽略
-            </button>
-          </div>
-        </div>
       </div>
-
-      {/* 高亮样式 */}
-      <style jsx global>{`
-        .content-update-highlight {
-          background: linear-gradient(120deg, rgba(234, 179, 8, 0.3) 0%, rgba(234, 179, 8, 0.1) 100%);
-          border-radius: 4px;
-          padding: 2px 4px;
-          animation: highlight-pulse 2s ease-in-out;
-        }
-
-        @keyframes highlight-pulse {
-          0%, 100% {
-            background-color: rgba(234, 179, 8, 0.3);
-          }
-          50% {
-            background-color: rgba(234, 179, 8, 0.5);
-          }
-        }
-      `}</style>
-    </>
+    </div>
   )
 }
