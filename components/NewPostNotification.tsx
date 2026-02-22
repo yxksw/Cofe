@@ -185,14 +185,20 @@ export default function NewPostNotification() {
 
   const checkForNewPosts = useCallback(async () => {
     try {
+      console.log('[NewPostNotification] ========== 开始检查 ==========')
       const db = await openDB()
       const storedPosts = await getStoredPosts(db, STORE_OLD)
       const fetchedPosts = await fetchRSS()
+
+      console.log('[NewPostNotification] 存储的文章数:', storedPosts.length)
+      console.log('[NewPostNotification] 获取的文章数:', fetchedPosts.length)
 
       const currentTime = Date.now()
       const lastInitTime = localStorage.getItem(INIT_TIME_KEY)
       // 首次访问：没有存储过数据
       const isFirstVisit = storedPosts.length === 0
+
+      console.log('[NewPostNotification] 是否首次访问:', isFirstVisit)
 
       if (isFirstRender.current) {
         isFirstRender.current = false
@@ -200,9 +206,9 @@ export default function NewPostNotification() {
 
       // 首次访问：只存储数据，不显示通知
       if (isFirstVisit) {
+        console.log('[NewPostNotification] 首次访问，存储数据并返回')
         await savePosts(db, STORE_OLD, fetchedPosts)
         localStorage.setItem(INIT_TIME_KEY, currentTime.toString())
-        console.log('[NewPostNotification] 首次访问，已存储 RSS 数据到 IndexedDB')
         return
       }
 
@@ -214,31 +220,48 @@ export default function NewPostNotification() {
 
         if (!existingPost) {
           // 新文章
+          console.log('[NewPostNotification] 发现新文章:', post.title)
           newOrUpdatedPosts.push({ ...post, isUpdated: false })
         } else if (existingPost.content !== post.content) {
           // 文章更新
+          console.log('[NewPostNotification] 文章有变更:', post.title)
+          console.log('[NewPostNotification] 旧内容长度:', existingPost.content?.length)
+          console.log('[NewPostNotification] 新内容长度:', post.content?.length)
           const diff = computeDiff(existingPost.content, post.content)
           if (diff) {
+            console.log('[NewPostNotification] 差异块数:', diff.length)
             newOrUpdatedPosts.push({ ...post, isUpdated: true, diff })
+          } else {
+            console.log('[NewPostNotification] 内容不同但 diff 计算为空')
           }
+        } else {
+          console.log('[NewPostNotification] 文章无变更:', post.title)
         }
       }
 
+      console.log('[NewPostNotification] 变更文章数:', newOrUpdatedPosts.length)
+
       // 用新数据覆盖旧数据
       await savePosts(db, STORE_OLD, fetchedPosts)
+      console.log('[NewPostNotification] 已用新数据覆盖旧数据')
 
       // 更新检查时间
       localStorage.setItem(INIT_TIME_KEY, currentTime.toString())
 
       // 有变更时显示通知
       if (newOrUpdatedPosts.length > 0) {
+        console.log('[NewPostNotification] 设置通知状态')
         setNewPosts(newOrUpdatedPosts)
         setHasNewPosts(true)
         setInitTime(Number(lastInitTime) || currentTime)
         setLastCheckTime(currentTime)
+      } else {
+        console.log('[NewPostNotification] 无变更，不显示通知')
       }
+
+      console.log('[NewPostNotification] ========== 检查结束 ==========')
     } catch (error) {
-      console.error('Error checking for new posts:', error)
+      console.error('[NewPostNotification] 检查出错:', error)
     }
   }, [openDB, getStoredPosts, fetchRSS, savePosts])
 
