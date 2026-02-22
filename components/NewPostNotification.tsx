@@ -191,25 +191,32 @@ export default function NewPostNotification() {
 
       const currentTime = Date.now()
       const lastInitTime = localStorage.getItem(INIT_TIME_KEY)
-      const isFresh = !lastInitTime && isFirstRender.current
+      // 首次访问：没有存储过数据
+      const isFirstVisit = storedPosts.length === 0
 
       if (isFirstRender.current) {
         isFirstRender.current = false
       }
 
-      const newOrUpdatedPosts: Post[] = []
+      // 首次访问：只存储数据，不显示通知
+      if (isFirstVisit) {
+        await savePosts(db, STORE_OLD, fetchedPosts)
+        localStorage.setItem(INIT_TIME_KEY, currentTime.toString())
+        console.log('[NewPostNotification] 首次访问，已存储 RSS 数据到 IndexedDB')
+        return
+      }
 
-      console.log('[NewPostNotification] fetchedPosts:', fetchedPosts.length)
-      console.log('[NewPostNotification] storedPosts:', storedPosts.length)
+      // 后续访问：比较差异
+      const newOrUpdatedPosts: Post[] = []
 
       for (const post of fetchedPosts) {
         const existingPost = storedPosts.find((p) => p.guid === post.guid)
 
         if (!existingPost) {
-          console.log('[NewPostNotification] New post:', post.title, post.guid)
+          // 新文章
           newOrUpdatedPosts.push({ ...post, isUpdated: false })
         } else if (existingPost.content !== post.content) {
-          console.log('[NewPostNotification] Updated post:', post.title)
+          // 文章更新
           const diff = computeDiff(existingPost.content, post.content)
           if (diff) {
             newOrUpdatedPosts.push({ ...post, isUpdated: true, diff })
@@ -217,26 +224,18 @@ export default function NewPostNotification() {
         }
       }
 
-      console.log('[NewPostNotification] newOrUpdatedPosts:', newOrUpdatedPosts.length)
-
+      // 用新数据覆盖旧数据
       await savePosts(db, STORE_OLD, fetchedPosts)
 
+      // 更新检查时间
+      localStorage.setItem(INIT_TIME_KEY, currentTime.toString())
+
+      // 有变更时显示通知
       if (newOrUpdatedPosts.length > 0) {
         setNewPosts(newOrUpdatedPosts)
         setHasNewPosts(true)
         setInitTime(Number(lastInitTime) || currentTime)
         setLastCheckTime(currentTime)
-
-        if (isFresh) {
-          setTimeout(() => {
-            setIsMinimized(false)
-            setIsOpen(true)
-          }, 1500)
-        }
-      }
-
-      if (!lastInitTime) {
-        localStorage.setItem(INIT_TIME_KEY, currentTime.toString())
       }
     } catch (error) {
       console.error('Error checking for new posts:', error)
