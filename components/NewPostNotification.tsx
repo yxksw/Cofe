@@ -175,7 +175,6 @@ export default function NewPostNotification() {
 
       const currentTime = Date.now()
       const lastInitTime = localStorage.getItem(INIT_TIME_KEY)
-      const lastSeenTime = Number(localStorage.getItem(LAST_SEEN_TIME_KEY)) || 0
       const isFresh = !lastInitTime && isFirstRender.current
 
       if (isFirstRender.current) {
@@ -189,13 +188,10 @@ export default function NewPostNotification() {
         const existingPost = storedPosts.find((p) => p.guid === post.guid)
 
         if (!existingPost) {
-          // 新文章 - 检查是否是在上次查看之后发布的
-          if (post.pubDate > lastSeenTime) {
-            newOrUpdatedPosts.push({ ...post, isUpdated: false })
-          }
+          // 新文章 - GUID 不存在于存储中
+          newOrUpdatedPosts.push({ ...post, isUpdated: false })
         } else if (existingPost.content !== post.content) {
-          // 更新的文章 - 只要有内容变化就显示（不检查时间）
-          // 因为文章更新时 pubDate 可能不变
+          // 更新的文章 - 内容有变化
           const diff = computeDiff(existingPost.content, post.content)
           if (diff) {
             newOrUpdatedPosts.push({ ...post, isUpdated: true, diff })
