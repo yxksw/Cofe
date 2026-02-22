@@ -4,6 +4,7 @@ import { useEffect, useState, ReactNode } from 'react'
 import { Icon } from '@iconify/react'
 import { useSession } from 'next-auth/react'
 import Link from 'next/link'
+import Image from 'next/image'
 import announcementConfig from '@/data/announcement.json'
 import announcementContent from '@/data/announcement.md'
 import ReactMarkdown from 'react-markdown'
@@ -146,10 +147,13 @@ export function Announcement() {
                           </button>
                         ) : (
                           <span className="block space-y-2">
-                            <img
-                              src={src}
-                              alt={alt}
+                            <Image
+                              src={src || ''}
+                              alt={alt || ''}
+                              width={800}
+                              height={600}
                               className="max-w-full h-auto rounded-lg border border-border"
+                              unoptimized
                             />
                             <button
                               onClick={() => setShowImages(false)}
@@ -210,10 +214,13 @@ export function Announcement() {
                           </button>
                         ) : (
                           <span className="block space-y-2">
-                            <img
-                              src={src}
-                              alt={alt}
+                            <Image
+                              src={src || ''}
+                              alt={alt || ''}
+                              width={800}
+                              height={600}
                               className="max-w-full h-auto rounded-lg border border-border"
+                              unoptimized
                             />
                             <button
                               onClick={() => setShowImages(false)}

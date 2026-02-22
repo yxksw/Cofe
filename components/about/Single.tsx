@@ -2,6 +2,7 @@
 
 import { about } from '@/data/about'
 import aboutContent from '@/data/about.md'
+import Image from 'next/image'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import rehypeRaw from 'rehype-raw'
@@ -78,10 +79,12 @@ export function Single() {
                       rehypePlugins={[rehypeRaw]}
                       components={{
                         a: LinkComponent,
-                        img: ({ src, alt, ...props }) => (
-                          <img
-                            src={src}
-                            alt={alt}
+                        img: ({ src, alt, width, height, ...props }) => (
+                          <Image
+                            src={src || ''}
+                            alt={alt || ''}
+                            width={typeof width === 'number' ? width : 16}
+                            height={typeof height === 'number' ? height : 16}
                             {...props}
                             className="inline-block"
                             style={{
@@ -91,6 +94,7 @@ export function Single() {
                               verticalAlign: '-0.15em',
                               margin: '0 0.1em'
                             }}
+                            unoptimized
                           />
                         )
                       }}

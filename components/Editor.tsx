@@ -4,6 +4,7 @@ import "katex/dist/katex.min.css";
 
 import { useCallback, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import Image from "next/image";
 import type { ExternalDiscussion } from "discussing";
 
 import { Button } from "@/components/ui/button";
@@ -885,10 +886,13 @@ export default function Editor({
                   {/* Cover Preview */}
                   {cover && (
                     <div className="relative group">
-                      <img
+                      <Image
                         src={cover}
                         alt="Cover preview"
+                        width={800}
+                        height={160}
                         className="w-full h-40 object-cover rounded-lg border border-border"
+                        unoptimized
                       />
                       <button
                         type="button"

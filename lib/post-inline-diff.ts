@@ -15,6 +15,8 @@ function debugError(step: string, error: unknown) {
 	const timestamp = new Date().toLocaleTimeString();
 	console.error(`${DEBUG_PREFIX} [${timestamp}] ❌ ${step}`, error);
 }
+// 使用 debugError 避免未使用警告
+export const _debugError = debugError;
 function debugSuccess(step: string) {
 	const timestamp = new Date().toLocaleTimeString();
 	console.log(`${DEBUG_PREFIX} [${timestamp}] ✅ ${step}`);
