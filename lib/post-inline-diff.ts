@@ -300,7 +300,7 @@ export function findBlockByText(container: HTMLElement, line: string) {
 	debugLog('搜索关键词', needle);
 	
 	const blocks = Array.from(container.querySelectorAll(
-		"p, li, blockquote, pre, h1, h2, h3, h4, h5, h6",
+		"p, li, blockquote, pre, h1, h2, h3, h4, h5, h6, code, td, th, .code-block, [class*='language-']",
 	));
 	debugLog('找到块级元素数量', blocks.length);
 	
@@ -573,51 +573,70 @@ export function applyInlineDiff(container: HTMLElement, diffParts: DiffPart[]) {
 			}
 
 			if (row.type === "add") {
-				debugLog('处理添加操作');
-				let endIdx = idx;
-				while (endIdx + 1 < hunk.length && hunk[endIdx + 1].type === "add") {
-					endIdx++;
-				}
-				debugLog('连续添加行数', endIdx - idx + 1);
+			debugLog('处理添加操作');
+			let endIdx = idx;
+			while (endIdx + 1 < hunk.length && hunk[endIdx + 1].type === "add") {
+				endIdx++;
+			}
+			debugLog('连续添加行数', endIdx - idx + 1);
+			
+			for (let i = idx; i <= endIdx; i++) {
+				const addRow = hunk[i];
+				const key = normalizeForMatch(addRow.text);
 				
-				for (let i = idx; i <= endIdx; i++) {
-					const addRow = hunk[i];
-					const key = normalizeForMatch(addRow.text);
-					if (key.kind === "img") {
-						debugLog('查找图片添加目标');
-						const img = findImgBySrc(container, key.value);
-						if (img instanceof HTMLElement) {
-							debugLog('找到图片，应用样式');
-							img.classList.add("post-inline-diff-add-target-img");
-							img.setAttribute("data-post-inline-diff-add-target-img", "1");
-							if (!anchorState.inserted) {
-								const anchor = document.createElement("span");
-								anchor.id = "post-diff";
-								anchor.setAttribute("data-post-inline-diff", "1");
-								img.parentNode?.insertBefore(anchor, img);
-								anchorState.inserted = true;
-							}
+				if (key.kind === "img") {
+					debugLog('查找图片添加目标');
+					const img = findImgBySrc(container, key.value);
+					if (img instanceof HTMLElement) {
+						debugLog('找到图片，应用样式');
+						img.classList.add("post-inline-diff-add-target-img");
+						img.setAttribute("data-post-inline-diff-add-target-img", "1");
+						if (!anchorState.inserted) {
+							const anchor = document.createElement("span");
+							anchor.id = "post-diff";
+							anchor.setAttribute("data-post-inline-diff", "1");
+							img.parentNode?.insertBefore(anchor, img);
+							anchorState.inserted = true;
 						}
+					}
+				} else {
+					// 对于新增内容，我们需要创建一个新的节点并插入到文章中
+					debugLog('创建新增内容节点');
+					
+					// 查找上下文元素作为插入位置参考
+					const before = findContextBefore(container, hunk, i);
+					const after = findContextAfter(container, hunk, i);
+					
+					// 创建新增内容节点
+					const addNode = createAdditionNode(addRow.text, !anchorState.inserted);
+					if (!anchorState.inserted) anchorState.inserted = true;
+					
+					if (after) {
+						// 在上下文元素之后插入
+						debugLog('在上下文元素后插入新增节点');
+						after.parentNode?.insertBefore(addNode, after.nextSibling);
+					} else if (before) {
+						// 在上下文元素之前插入
+						debugLog('在上下文元素前插入新增节点');
+						before.parentNode?.insertBefore(addNode, before.nextSibling);
 					} else {
-						debugLog('查找文本添加目标');
+						// 如果没有上下文，查找最近的相关元素
+						debugLog('查找最近的相关元素');
 						const target = findBlockByText(container, addRow.text);
 						if (target instanceof HTMLElement) {
-							debugLog('找到文本目标，应用样式');
-							target.classList.add("post-inline-diff-add-target");
-							target.setAttribute("data-post-inline-diff-add-target", "1");
-							if (!anchorState.inserted) {
-								const anchor = document.createElement("span");
-								anchor.id = "post-diff";
-								anchor.setAttribute("data-post-inline-diff", "1");
-								target.parentNode?.insertBefore(anchor, target);
-								anchorState.inserted = true;
-							}
+							debugLog('找到相关元素，在其后插入');
+							target.parentNode?.insertBefore(addNode, target.nextSibling);
+						} else {
+							// 最后手段：追加到容器
+							debugLog('追加到容器');
+							container.appendChild(addNode);
 						}
 					}
 				}
-				idx = endIdx + 1;
-				continue;
 			}
+			idx = endIdx + 1;
+			continue;
+		}
 
 			if (row.type !== "del") {
 				idx += 1;
