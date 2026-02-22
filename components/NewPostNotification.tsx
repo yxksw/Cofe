@@ -231,8 +231,9 @@ export default function NewPostNotification() {
         } else if (existingPost.content !== post.content) {
           // 文章更新
           console.log('[NewPostNotification] 文章有变更:', post.title)
-          console.log('[NewPostNotification] 旧内容长度:', existingPost.content?.length)
-          console.log('[NewPostNotification] 新内容长度:', post.content?.length)
+          console.log('[NewPostNotification] 旧内容前100字符:', existingPost.content?.substring(0, 100))
+          console.log('[NewPostNotification] 新内容前100字符:', post.content?.substring(0, 100))
+          console.log('[NewPostNotification] 内容是否相同:', existingPost.content === post.content)
           const diff = computeDiff(existingPost.content, post.content)
           if (diff) {
             console.log('[NewPostNotification] 差异块数:', diff.length)
