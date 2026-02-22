@@ -10,56 +10,11 @@ interface FriendCardProps {
     link: FriendLink;
 }
 
-// 获取状态指示器样式
-const getStatusIndicator = (status?: string, responseTime?: number) => {
-    if (!status) return null;
-
-    const baseClasses = "flex items-center gap-1 text-[10px] px-1.5 py-0.5 rounded-full";
-
-    switch (status) {
-        case 'ok':
-            if (responseTime && responseTime < 1000) {
-                return {
-                    className: `${baseClasses} bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400`,
-                    icon: "lucide:zap",
-                    label: `${responseTime}ms`
-                };
-            } else if (responseTime && responseTime < 3000) {
-                return {
-                    className: `${baseClasses} bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400`,
-                    icon: "lucide:activity",
-                    label: `${responseTime}ms`
-                };
-            } else {
-                return {
-                    className: `${baseClasses} bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400`,
-                    icon: "lucide:alert-circle",
-                    label: responseTime ? `${responseTime}ms` : '较慢'
-                };
-            }
-        case 'timeout':
-            return {
-                className: `${baseClasses} bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400`,
-                icon: "lucide:clock",
-                label: "超时"
-            };
-        case 'error':
-            return {
-                className: `${baseClasses} bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-400`,
-                icon: "lucide:x-circle",
-                label: "异常"
-            };
-        default:
-            return null;
-    }
-};
-
 const FriendCard: React.FC<FriendCardProps> = ({ link }) => {
     const [imageLoaded, setImageLoaded] = useState(false);
     const [imageError, setImageError] = useState(false);
     const [shouldLoad, setShouldLoad] = useState(false);
     const imgRef = useRef<HTMLDivElement>(null);
-    const statusInfo = getStatusIndicator(link.status, link.responseTime);
 
     // 计算已添加天数
     const getDaysAdded = () => {
@@ -117,17 +72,6 @@ const FriendCard: React.FC<FriendCardProps> = ({ link }) => {
             <div className={`absolute top-0 right-0 p-8 opacity-0 group-hover:opacity-5 transition-opacity pointer-events-none ${levelInfo?.theme}`}>
                 {levelInfo && <Icon icon={levelInfo.icon} className="w-32 h-32" />}
             </div>
-
-            {/* Status Badge - Top Right Corner */}
-            {statusInfo && (
-                <div 
-                    className={`absolute top-2 right-2 z-20 flex items-center gap-1 text-[10px] px-2 py-1 rounded-md font-medium shadow-sm ${statusInfo.className}`}
-                    title={`最后检测: ${link.lastChecked || '未知'}`}
-                >
-                    <Icon icon={statusInfo.icon} className="w-3 h-3" />
-                    <span>{statusInfo.label}</span>
-                </div>
-            )}
 
             {/* Avatar Section */}
             <div ref={imgRef} className="relative w-12 h-12 sm:w-14 sm:h-14 flex-shrink-0">

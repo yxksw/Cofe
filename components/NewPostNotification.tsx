@@ -6,7 +6,7 @@ import { Icon } from '@iconify/react'
 import { cn } from '@/lib/utils'
 import Link from 'next/link'
 
-interface Post {
+export interface Post {
   title: string
   link: string
   guid: string
@@ -30,6 +30,24 @@ const STORE_NAME = 'posts'
 const NOTIFICATION_STATE_KEY = 'cofe-notification-state'
 const INIT_TIME_KEY = 'cofe-notification-init-time'
 const CHECK_INTERVAL = 5 * 60 * 1000 // 5分钟检查一次
+
+// 全局状态，用于跨组件通信
+export const usePostChanges = () => {
+  const [activeChanges, setActiveChanges] = useState<Post | null>(null)
+  
+  const showChanges = useCallback((post: Post) => {
+    setActiveChanges(post)
+    // 存储到 sessionStorage，供文章页面读取
+    sessionStorage.setItem('active-post-changes', JSON.stringify(post))
+  }, [])
+  
+  const hideChanges = useCallback(() => {
+    setActiveChanges(null)
+    sessionStorage.removeItem('active-post-changes')
+  }, [])
+  
+  return { activeChanges, showChanges, hideChanges }
+}
 
 export default function NewPostNotification() {
   const [isOpen, setIsOpen] = useState(false)
@@ -232,6 +250,18 @@ export default function NewPostNotification() {
     })
   }, [])
 
+  // 在文章中显示变更
+  const showChangesInArticle = useCallback((post: Post) => {
+    sessionStorage.setItem('active-post-changes', JSON.stringify(post))
+    // 如果当前就在文章页面，刷新页面以显示变更
+    if (window.location.pathname.includes('/blog/')) {
+      window.location.reload()
+    } else {
+      // 否则跳转到文章页面
+      window.location.href = post.link
+    }
+  }, [])
+
   // 初始化
   useEffect(() => {
     checkForNewPosts()
@@ -370,12 +400,21 @@ export default function NewPostNotification() {
                     </Link>
                     <div className="flex items-center shrink-0 gap-1">
                       {post.isUpdated && post.diff && (
-                        <button
-                          onClick={() => toggleDiff(post.guid)}
-                          className="text-xs text-primary hover:underline focus:outline-none"
-                        >
-                          {isExpanded ? '收起' : '查看变更'}
-                        </button>
+                        <>
+                          <button
+                            onClick={() => toggleDiff(post.guid)}
+                            className="text-xs text-primary hover:underline focus:outline-none"
+                          >
+                            {isExpanded ? '收起' : '查看变更'}
+                          </button>
+                          <button
+                            onClick={() => showChangesInArticle(post)}
+                            className="text-xs text-blue-500 hover:underline focus:outline-none ml-1"
+                            title="在文章中查看变更"
+                          >
+                            文中查看
+                          </button>
+                        </>
                       )}
                       <span
                         className={cn(

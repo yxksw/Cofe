@@ -29,7 +29,7 @@ const SITE_INFO = {
 };
 
 // 友链联系邮箱
-const FRIEND_LINK_EMAIL = "yxksw@foxmail.com";
+// const FRIEND_LINK_EMAIL = "yxksw@foxmail.com";
 
 // 本地 API 地址
 const API_URL = '/api/friends';

@@ -13,7 +13,7 @@ const FriendsList: React.FC<FriendsListProps> = ({ links }) => {
     const PAGE_SIZE = 12;
     const [currentPage, setCurrentPage] = useState(1);
 
-    // 过滤掉失联的友链
+    // 过滤掉失联的友链，只显示正常友链
     const activeLinks = links.filter(link => !link.disconnected);
 
     const totalPages = Math.ceil(activeLinks.length / PAGE_SIZE);
