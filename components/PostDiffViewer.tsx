@@ -52,13 +52,21 @@ export default function PostDiffViewer() {
     const currentPath = window.location.pathname
     debugLog('Step 1: 当前路径', currentPath)
 
+    // 检查是否设置了"不再提醒"
+    const dismissKey = `post-diff-dismissed-${currentPath}`
+    const isDismissed = sessionStorage.getItem(dismissKey)
+    if (isDismissed) {
+      debugLog('Step 2: 用户已选择不再提醒此文章的变更')
+      return
+    }
+
     // 构建 storage key
     const postKey = `post-diff-${currentPath}`
-    debugLog('Step 2: 构建 storage key', postKey)
+    debugLog('Step 3: 构建 storage key', postKey)
 
     // 从 sessionStorage 读取 diff 数据
     const stored = sessionStorage.getItem(postKey)
-    debugLog('Step 3: 读取 sessionStorage', { 
+    debugLog('Step 4: 读取 sessionStorage', { 
       key: postKey,
       hasData: !!stored, 
       dataLength: stored?.length,
@@ -67,9 +75,9 @@ export default function PostDiffViewer() {
     
     if (stored) {
       try {
-        debugLog('Step 4: 解析 JSON 数据')
+        debugLog('Step 5: 解析 JSON 数据')
         const data: PostDiffData = JSON.parse(stored)
-        debugLog('Step 5: 解析成功', { 
+        debugLog('Step 6: 解析成功', { 
           title: data.title,
           hasDiff: !!data.diff,
           diffLength: data.diff?.length,
@@ -77,7 +85,7 @@ export default function PostDiffViewer() {
         })
         
         if (data.diff && data.diff.length > 0) {
-          debugSuccess('Step 6: 找到有效的 diff 数据')
+          debugSuccess('Step 7: 找到有效的 diff 数据')
           setDiffData(data)
           setIsVisible(true)
           
@@ -86,13 +94,13 @@ export default function PostDiffViewer() {
           const removedCount = data.diff.filter((p) => p.removed).length
           setStats({ added: addedCount, removed: removedCount })
         } else {
-          debugLog('Step 6: diff 数据为空')
+          debugLog('Step 7: diff 数据为空')
         }
       } catch (e) {
-        debugError('Step 4: 解析 diff 数据失败', e)
+        debugError('Step 5: 解析 diff 数据失败', e)
       }
     } else {
-      debugLog('Step 4: sessionStorage 中没有 diff 数据')
+      debugLog('Step 5: sessionStorage 中没有 diff 数据')
     }
     
     debugLog('===== useEffect 完成 =====')
@@ -106,6 +114,21 @@ export default function PostDiffViewer() {
 
   const handleClose = useCallback(() => {
     debugLog('点击关闭按钮')
+    setIsVisible(false)
+  }, [])
+
+  const handleDismiss = useCallback(() => {
+    debugLog('点击不再提醒按钮')
+    
+    // 获取当前文章的路径
+    const currentPath = window.location.pathname
+    const dismissKey = `post-diff-dismissed-${currentPath}`
+    
+    // 设置不再提醒标记
+    sessionStorage.setItem(dismissKey, 'true')
+    debugSuccess(`已设置不再提醒标记: ${dismissKey}`)
+    
+    // 隐藏弹窗
     setIsVisible(false)
   }, [])
 
@@ -217,9 +240,19 @@ export default function PostDiffViewer() {
               ))}
             </div>
             
-            {/* 底部提示 */}
-            <div className="px-3 py-2.5 bg-muted/30 text-xs text-muted-foreground border-t border-border">
-              文章已更新，请查看上方变更内容
+            {/* 底部操作栏 */}
+            <div className="px-3 py-2.5 bg-muted/30 border-t border-border flex items-center justify-between">
+              <span className="text-xs text-muted-foreground">
+                文章已更新
+              </span>
+              <button
+                onClick={handleDismiss}
+                className="text-xs text-muted-foreground hover:text-foreground transition-colors flex items-center gap-1"
+                title="不再提醒此文章的变更"
+              >
+                <Icon icon="material-symbols:notifications-off" className="w-3 h-3" />
+                不再提醒
+              </button>
             </div>
           </div>
         )}
