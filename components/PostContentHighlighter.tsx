@@ -47,10 +47,10 @@ export default function PostContentHighlighter() {
 
     // 处理每个变更部分
     changes.diff.forEach((part) => {
-      if (part.added) {
+      if (part.added && part.value.trim()) {
         addedCount++
         highlightText(articleContent, part.value, 'added')
-      } else if (part.removed) {
+      } else if (part.removed && part.value.trim()) {
         removedCount++
         highlightText(articleContent, part.value, 'removed')
       }
@@ -78,41 +78,60 @@ export default function PostContentHighlighter() {
   const highlightText = (container: Element, text: string, type: 'added' | 'removed') => {
     if (!text.trim()) return
 
+    // 清理搜索文本（去除多余空白）
+    const searchText = text.trim().replace(/\s+/g, ' ')
+    if (searchText.length < 3) return // 太短的文本不处理
+
     const walker = document.createTreeWalker(container, NodeFilter.SHOW_TEXT, null)
     const textNodes: Text[] = []
     let node: Node | null
 
     // 收集所有文本节点
     while ((node = walker.nextNode())) {
+      // 跳过已经高亮的节点
+      if ((node.parentElement?.classList.contains('diff-highlight-added')) ||
+          (node.parentElement?.classList.contains('diff-highlight-removed'))) {
+        continue
+      }
       textNodes.push(node as Text)
     }
 
     // 处理每个文本节点
     textNodes.forEach((textNode) => {
       const content = textNode.textContent || ''
-      const searchText = text.trim()
+      
+      // 尝试多种匹配方式
+      const patterns = [
+        searchText,
+        searchText.replace(/[\n\r]/g, ''),
+        searchText.replace(/\s+/g, ''),
+        // 尝试匹配每一行
+        ...searchText.split('\n').filter(line => line.trim().length > 5).map(line => line.trim())
+      ]
 
-      if (content.includes(searchText)) {
-        const span = document.createElement('span')
-        span.className = type === 'added' 
-          ? 'diff-highlight-added bg-green-200 dark:bg-green-900/50 text-green-900 dark:text-green-100 px-1 rounded'
-          : 'diff-highlight-removed bg-red-200 dark:bg-red-900/50 text-red-900 dark:text-red-100 px-1 rounded line-through opacity-70'
-        span.textContent = searchText
+      for (const pattern of patterns) {
+        if (pattern.length < 3) continue
+        
+        const index = content.indexOf(pattern)
+        if (index !== -1) {
+          const span = document.createElement('span')
+          span.className = type === 'added' 
+            ? 'diff-highlight-added bg-green-200 dark:bg-green-900/50 text-green-900 dark:text-green-100 px-1 rounded'
+            : 'diff-highlight-removed bg-red-200 dark:bg-red-900/50 text-red-900 dark:text-red-100 px-1 rounded line-through opacity-70'
+          span.textContent = pattern
 
-        const parts = content.split(searchText)
-        const fragment = document.createDocumentFragment()
+          const before = content.substring(0, index)
+          const after = content.substring(index + pattern.length)
+          
+          const fragment = document.createDocumentFragment()
+          if (before) fragment.appendChild(document.createTextNode(before))
+          fragment.appendChild(span)
+          if (after) fragment.appendChild(document.createTextNode(after))
 
-        parts.forEach((part, index) => {
-          if (part) {
-            fragment.appendChild(document.createTextNode(part))
+          if (textNode.parentNode) {
+            textNode.parentNode.replaceChild(fragment, textNode)
           }
-          if (index < parts.length - 1) {
-            fragment.appendChild(span.cloneNode(true))
-          }
-        })
-
-        if (textNode.parentNode) {
-          textNode.parentNode.replaceChild(fragment, textNode)
+          break // 匹配成功，跳出循环
         }
       }
     })
@@ -123,7 +142,7 @@ export default function PostContentHighlighter() {
   }
 
   return (
-    <div className="fixed bottom-24 right-4 z-40 flex flex-col items-end gap-2 pointer-events-none">
+    <div className="fixed bottom-36 right-4 z-40 flex flex-col items-end gap-2 pointer-events-none">
       {/* 控制按钮 */}
       <div className="pointer-events-auto flex flex-col gap-2">
         {!highlighted ? (
