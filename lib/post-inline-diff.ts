@@ -296,11 +296,14 @@ export function findBlockByText(container: HTMLElement, line: string) {
 		return null;
 	}
 	
-	// 使用更短的 needle 以提高匹配率，但不要太短
+	// 使用更短的 needle 以提高匹配率
+	const fullNeedle = key.value;
 	const needle = key.value.slice(0, Math.min(48, key.value.length));
-	// 如果内容很短，直接使用全部内容
 	const shortNeedle = key.value.slice(0, Math.min(20, key.value.length));
-	debugLog('搜索关键词', { needle, shortNeedle, fullLength: key.value.length });
+	// 提取核心文本（移除 Markdown 标记）
+	const coreText = key.value.replace(/[*_`#\[\]\(\)!]/g, '').trim();
+	const coreNeedle = coreText.slice(0, Math.min(15, coreText.length));
+	debugLog('搜索关键词', { fullNeedle: fullNeedle.substring(0, 50), needle: needle.substring(0, 30), shortNeedle, coreNeedle });
 	
 	const blocks = Array.from(container.querySelectorAll(
 		"p, li, blockquote, pre, h1, h2, h3, h4, h5, h6, code, td, th, .code-block, [class*='language-']",
@@ -316,18 +319,22 @@ export function findBlockByText(container: HTMLElement, line: string) {
 		if (el.classList.contains("post-inline-diff-add-target")) continue;
 		const content = el.textContent || "";
 		const normalizedContent = normalizeLineText(content);
+		// 也提取文章内容的纯文本
+		const contentCore = normalizedContent.replace(/[*_`#\[\]\(\)!]/g, '').trim();
 		
 		// 尝试多种匹配方式
-		const matchLong = normalizedContent.includes(needle);
-		const matchShort = normalizedContent.includes(shortNeedle);
+		const matchFull = normalizedContent.includes(fullNeedle) || fullNeedle.includes(normalizedContent);
+		const matchLong = normalizedContent.includes(needle) || needle.includes(normalizedContent);
+		const matchShort = normalizedContent.includes(shortNeedle) || shortNeedle.includes(normalizedContent);
 		const matchExact = normalizedContent === key.value;
+		const matchCore = coreNeedle.length > 3 && contentCore.includes(coreNeedle);
 		
-		if (!matchLong && !matchShort && !matchExact) continue;
+		if (!matchFull && !matchLong && !matchShort && !matchExact && !matchCore) continue;
 		
 		debugLog(`找到匹配块 #${i + 1}`, { 
 			tag: el.tagName, 
 			text: content.substring(0, 50),
-			matchType: matchExact ? 'exact' : matchLong ? 'long' : 'short'
+			matchType: matchExact ? 'exact' : matchFull ? 'full' : matchLong ? 'long' : matchShort ? 'short' : 'core'
 		});
 		return el;
 	}
