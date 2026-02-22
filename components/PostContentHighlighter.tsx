@@ -168,10 +168,10 @@ export default function PostContentHighlighter() {
     }
 
     debugLog('Step H.2: 查找文章容器')
-    const container = document.querySelector('.markdown-content, .prose, article')
+    const container = document.querySelector('.markdown-body, .markdown-content, .prose, article')
     
     if (!container) {
-      debugLog('Step H.3: ❌ 未找到文章容器，尝试的选择器: .markdown-content, .prose, article')
+      debugLog('Step H.3: ❌ 未找到文章容器，尝试的选择器: .markdown-body, .markdown-content, .prose, article')
       // 列出页面上所有可能的内容容器
       const possibleContainers = document.querySelectorAll('article, main, [class*="content"], [class*="markdown"], [class*="prose"]')
       debugLog('Step H.3.1: 页面上可能的内容容器', Array.from(possibleContainers).map(el => ({
@@ -226,7 +226,7 @@ export default function PostContentHighlighter() {
   const clearHighlight = useCallback(() => {
     debugLog('===== clearHighlight 开始 =====')
     
-    const container = document.querySelector('.markdown-content, .prose, article')
+    const container = document.querySelector('.markdown-body, .markdown-content, .prose, article')
     if (container && container instanceof HTMLElement) {
       debugLog('Step C.1: 找到容器，调用 clearInlineDiff')
       try {
