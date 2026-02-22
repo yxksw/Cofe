@@ -358,6 +358,7 @@ table {
   border-radius: var(--radius);
   overflow: hidden;
   border: 1px solid hsl(var(--border));
+  background-color: hsl(var(--card));
 }
 
 /* 表头样式 */
@@ -371,32 +372,53 @@ th {
   font-weight: 600;
   color: hsl(var(--foreground));
   border-bottom: 1px solid hsl(var(--border));
+  background-color: hsl(var(--muted));
 }
 
-/* 表格单元格样式 */
+/* 表格单元格样式 - 所有 td 必须有背景色 */
 td {
   padding: 0.75rem 1rem;
   border-bottom: 1px solid hsl(var(--border));
   color: hsl(var(--foreground));
+  background-color: hsl(var(--card));
+}
+
+/* 表格行 */
+tbody tr {
+  transition: background-color 0.15s ease;
+  background-color: hsl(var(--card));
+}
+
+/* 斑马纹效果 - 奇数行 */
+tbody tr:nth-child(odd) {
+  background-color: hsl(var(--card));
+}
+
+tbody tr:nth-child(odd) td {
+  background-color: hsl(var(--card));
+}
+
+/* 斑马纹效果 - 偶数行 */
+tbody tr:nth-child(even) {
+  background-color: hsl(var(--muted) / 0.3);
+}
+
+tbody tr:nth-child(even) td {
+  background-color: hsl(var(--muted) / 0.3);
 }
 
 /* 表格行悬停效果 */
-tbody tr {
-  transition: background-color 0.15s ease;
+tbody tr:hover {
+  background-color: hsl(var(--accent) / 0.2);
 }
 
-tbody tr:hover {
-  background-color: hsl(var(--muted) / 0.5);
+tbody tr:hover td {
+  background-color: hsl(var(--accent) / 0.2);
 }
 
 /* 最后一行无边框 */
 tbody tr:last-child td {
   border-bottom: none;
-}
-
-/* 斑马纹效果 */
-tbody tr:nth-child(even) {
-  background-color: hsl(var(--muted) / 0.3);
 }
 
 /* 深色模式表格样式 */
@@ -406,35 +428,45 @@ tbody tr:nth-child(even) {
 }
 
 .dark thead {
-  background-color: hsl(var(--muted) / 0.8);
+  background-color: hsl(var(--muted) / 0.5);
 }
 
 .dark th {
   color: hsl(var(--foreground));
   border-bottom-color: hsl(var(--border));
-  background-color: hsl(var(--muted) / 0.8);
+  background-color: hsl(var(--muted) / 0.5);
 }
 
 .dark td {
   color: hsl(var(--foreground));
   border-bottom-color: hsl(var(--border));
+}
+
+/* 深色模式 - 奇数行 */
+.dark tbody tr:nth-child(odd) {
   background-color: hsl(var(--card));
 }
 
-.dark tbody tr {
+.dark tbody tr:nth-child(odd) td {
   background-color: hsl(var(--card));
 }
 
-.dark tbody tr:hover {
-  background-color: hsl(var(--accent) / 0.3);
-}
-
+/* 深色模式 - 偶数行 */
 .dark tbody tr:nth-child(even) {
-  background-color: hsl(var(--muted) / 0.2);
+  background-color: hsl(var(--muted) / 0.15);
 }
 
 .dark tbody tr:nth-child(even) td {
-  background-color: hsl(var(--muted) / 0.2);
+  background-color: hsl(var(--muted) / 0.15);
+}
+
+/* 深色模式 - 悬停效果 */
+.dark tbody tr:hover {
+  background-color: hsl(var(--accent) / 0.15);
+}
+
+.dark tbody tr:hover td {
+  background-color: hsl(var(--accent) / 0.15);
 }
 
 /* 表格容器滚动条 */
