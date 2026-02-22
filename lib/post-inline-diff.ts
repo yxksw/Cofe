@@ -600,8 +600,25 @@ export function applyInlineDiff(container: HTMLElement, diffParts: DiffPart[]) {
 						}
 					}
 				} else {
-					// 对于新增内容，我们需要创建一个新的节点并插入到文章中
-					debugLog('创建新增内容节点');
+				// 对于新增内容，首先尝试在文章中查找对应的元素
+				debugLog('查找新增内容对应的元素');
+				const target = findBlockByText(container, addRow.text);
+				
+				if (target instanceof HTMLElement) {
+					// 如果找到了，给该元素添加新增样式
+					debugLog('找到对应元素，应用新增样式');
+					target.classList.add("post-inline-diff-add-target");
+					target.setAttribute("data-post-inline-diff-add-target", "1");
+					if (!anchorState.inserted) {
+						const anchor = document.createElement("span");
+						anchor.id = "post-diff";
+						anchor.setAttribute("data-post-inline-diff", "1");
+						target.parentNode?.insertBefore(anchor, target);
+						anchorState.inserted = true;
+					}
+				} else {
+					// 如果没找到，可能是全新的内容，尝试在合适位置插入
+					debugLog('未找到对应元素，尝试插入新节点');
 					
 					// 查找上下文元素作为插入位置参考
 					const before = findContextBefore(container, hunk, i);
@@ -619,20 +636,10 @@ export function applyInlineDiff(container: HTMLElement, diffParts: DiffPart[]) {
 						// 在上下文元素之前插入
 						debugLog('在上下文元素前插入新增节点');
 						before.parentNode?.insertBefore(addNode, before.nextSibling);
-					} else {
-						// 如果没有上下文，查找最近的相关元素
-						debugLog('查找最近的相关元素');
-						const target = findBlockByText(container, addRow.text);
-						if (target instanceof HTMLElement) {
-							debugLog('找到相关元素，在其后插入');
-							target.parentNode?.insertBefore(addNode, target.nextSibling);
-						} else {
-							// 最后手段：追加到容器
-							debugLog('追加到容器');
-							container.appendChild(addNode);
-						}
 					}
+					// 如果没有上下文，不插入（避免显示在错误位置）
 				}
+			}
 			}
 			idx = endIdx + 1;
 			continue;
