@@ -36,12 +36,14 @@ export class PublicGitHubClient {
     try {
       // Try to fetch a blog manifest file if it exists
       try {
-        const timestamp = Date.now()
-        const manifestResponse = await fetch(`${this.baseUrl}/data/blog-manifest.json?t=${timestamp}`, {
+        // Use random cache buster to avoid GitHub CDN cache
+        const cacheBuster = `${Date.now()}_${Math.random().toString(36).substring(7)}`
+        const manifestResponse = await fetch(`${this.baseUrl}/data/blog-manifest.json?nocache=${cacheBuster}`, {
           cache: 'no-store',
           headers: {
-            'Cache-Control': 'no-cache, no-store, must-revalidate',
-            'Pragma': 'no-cache'
+            'Cache-Control': 'no-cache, no-store, must-revalidate, max-age=0',
+            'Pragma': 'no-cache',
+            'Expires': '0'
           }
         })
         if (manifestResponse.ok) {
@@ -78,12 +80,14 @@ export class PublicGitHubClient {
    */
   async getBlogPost(filename: string): Promise<BlogPost | null> {
     try {
-      const timestamp = Date.now()
-      const response = await fetch(`${this.baseUrl}/data/blog/${filename}?t=${timestamp}`, {
+      // Use random cache buster to avoid GitHub CDN cache
+      const cacheBuster = `${Date.now()}_${Math.random().toString(36).substring(7)}`
+      const response = await fetch(`${this.baseUrl}/data/blog/${filename}?nocache=${cacheBuster}`, {
         cache: 'no-store',
         headers: {
-          'Cache-Control': 'no-cache, no-store, must-revalidate',
-          'Pragma': 'no-cache'
+          'Cache-Control': 'no-cache, no-store, must-revalidate, max-age=0',
+          'Pragma': 'no-cache',
+          'Expires': '0'
         }
       })
       
