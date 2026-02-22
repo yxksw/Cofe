@@ -427,12 +427,33 @@ export default function NewPostNotification() {
         debugLog('Step 10.1: 需要存储 diff 的文章数', updatedPostsWithDiff.length)
         
         if (updatedPostsWithDiff.length > 0) {
+          // 存储所有变更文章的列表（用于通知面板）
           const storageData = {
             items: updatedPostsWithDiff,
             timestamp: currentTime
           }
-          debugLog('Step 10.2: 存储到 sessionStorage', storageData)
+          debugLog('Step 10.2: 存储到 sessionStorage (列表)', storageData)
           sessionStorage.setItem(DEBUG_STATE_KEY, JSON.stringify(storageData))
+          
+          // 为每个文章单独存储 diff 数据（用于文章页面）
+          updatedPostsWithDiff.forEach(post => {
+            try {
+              const postPath = new URL(post.link, window.location.origin).pathname
+              const postKey = `post-diff-${postPath}`
+              const postData = {
+                title: post.title,
+                link: post.link,
+                guid: post.guid,
+                diff: post.diff,
+                timestamp: currentTime
+              }
+              debugLog(`Step 10.2a: 存储文章 diff 数据`, { key: postKey, title: post.title })
+              sessionStorage.setItem(postKey, JSON.stringify(postData))
+            } catch (e) {
+              debugError('Step 10.2a: 存储文章 diff 失败', e)
+            }
+          })
+          
           debugSuccess('Step 10.3: sessionStorage 存储完成')
         }
       } else {
