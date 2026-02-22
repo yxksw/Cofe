@@ -2,7 +2,7 @@ import { createOptimizedGitHubClient } from '@/lib/client'
 import { getDynamicBaseUrl } from '@/lib/siteConfig'
 
 export const dynamic = 'force-dynamic'
-export const revalidate = 3600 // Revalidate every hour
+export const revalidate = 0 // Disable cache for real-time updates
 
 // CORS 头配置
 const corsHeaders = {
@@ -56,6 +56,9 @@ ${feedPosts.map(post => `
     return new Response(atomXml, {
       headers: {
         'Content-Type': 'application/atom+xml; charset=utf-8',
+        'Cache-Control': 'no-cache, no-store, must-revalidate, max-age=0',
+        'Pragma': 'no-cache',
+        'Expires': '0',
         ...corsHeaders,
       },
     })
@@ -79,6 +82,9 @@ ${feedPosts.map(post => `
     return new Response(errorFeed, {
       headers: {
         'Content-Type': 'application/atom+xml; charset=utf-8',
+        'Cache-Control': 'no-cache, no-store, must-revalidate, max-age=0',
+        'Pragma': 'no-cache',
+        'Expires': '0',
         ...corsHeaders,
       },
     })
