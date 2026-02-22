@@ -301,3 +301,150 @@
 .dark .code-block .comment { color: #8b949e; font-style: italic; }
 .dark .code-block .operator { color: #ff7b72; }
 .dark .code-block .punctuation { color: #c9d1d9; }
+
+/* ==================== 滚动条样式 ==================== */
+
+/* 亮色模式滚动条 */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: hsl(var(--muted));
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: hsl(var(--muted-foreground) / 0.3);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: hsl(var(--muted-foreground) / 0.5);
+}
+
+/* 深色模式滚动条 */
+.dark ::-webkit-scrollbar-track {
+  background: hsl(var(--muted));
+}
+
+.dark ::-webkit-scrollbar-thumb {
+  background: hsl(var(--muted-foreground) / 0.4);
+}
+
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: hsl(var(--muted-foreground) / 0.6);
+}
+
+/* Firefox 滚动条 */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: hsl(var(--muted-foreground) / 0.3) hsl(var(--muted));
+}
+
+.dark * {
+  scrollbar-color: hsl(var(--muted-foreground) / 0.4) hsl(var(--muted));
+}
+
+/* ==================== 表格样式 ==================== */
+
+/* 基础表格样式 */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1rem 0;
+  font-size: 0.875rem;
+  border-radius: var(--radius);
+  overflow: hidden;
+  border: 1px solid hsl(var(--border));
+}
+
+/* 表头样式 */
+thead {
+  background-color: hsl(var(--muted));
+}
+
+th {
+  padding: 0.75rem 1rem;
+  text-align: left;
+  font-weight: 600;
+  color: hsl(var(--foreground));
+  border-bottom: 1px solid hsl(var(--border));
+}
+
+/* 表格单元格样式 */
+td {
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid hsl(var(--border));
+  color: hsl(var(--foreground));
+}
+
+/* 表格行悬停效果 */
+tbody tr {
+  transition: background-color 0.15s ease;
+}
+
+tbody tr:hover {
+  background-color: hsl(var(--muted) / 0.5);
+}
+
+/* 最后一行无边框 */
+tbody tr:last-child td {
+  border-bottom: none;
+}
+
+/* 斑马纹效果 */
+tbody tr:nth-child(even) {
+  background-color: hsl(var(--muted) / 0.3);
+}
+
+/* 深色模式表格样式 */
+.dark table {
+  border-color: hsl(var(--border));
+}
+
+.dark thead {
+  background-color: hsl(var(--muted));
+}
+
+.dark th {
+  color: hsl(var(--foreground));
+  border-bottom-color: hsl(var(--border));
+}
+
+.dark td {
+  color: hsl(var(--foreground));
+  border-bottom-color: hsl(var(--border));
+}
+
+.dark tbody tr:hover {
+  background-color: hsl(var(--muted) / 0.7);
+}
+
+.dark tbody tr:nth-child(even) {
+  background-color: hsl(var(--muted) / 0.4);
+}
+
+/* 表格容器滚动条 */
+.table-wrapper {
+  overflow-x: auto;
+  border-radius: var(--radius);
+  border: 1px solid hsl(var(--border));
+}
+
+.dark .table-wrapper {
+  border-color: hsl(var(--border));
+}
+
+/* 表格响应式 */
+@media (max-width: 768px) {
+  table {
+    font-size: 0.8rem;
+  }
+  
+  th,
+  td {
+    padding: 0.5rem 0.75rem;
+  }
+}
