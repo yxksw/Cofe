@@ -36,7 +36,14 @@ export class PublicGitHubClient {
     try {
       // Try to fetch a blog manifest file if it exists
       try {
-        const manifestResponse = await fetch(`${this.baseUrl}/data/blog-manifest.json`)
+        const timestamp = Date.now()
+        const manifestResponse = await fetch(`${this.baseUrl}/data/blog-manifest.json?t=${timestamp}`, {
+          cache: 'no-store',
+          headers: {
+            'Cache-Control': 'no-cache, no-store, must-revalidate',
+            'Pragma': 'no-cache'
+          }
+        })
         if (manifestResponse.ok) {
           const manifest = await manifestResponse.json()
           // Handle both legacy and new manifest formats
@@ -71,7 +78,14 @@ export class PublicGitHubClient {
    */
   async getBlogPost(filename: string): Promise<BlogPost | null> {
     try {
-      const response = await fetch(`${this.baseUrl}/data/blog/${filename}`)
+      const timestamp = Date.now()
+      const response = await fetch(`${this.baseUrl}/data/blog/${filename}?t=${timestamp}`, {
+        cache: 'no-store',
+        headers: {
+          'Cache-Control': 'no-cache, no-store, must-revalidate',
+          'Pragma': 'no-cache'
+        }
+      })
       
       if (!response.ok) {
         if (response.status === 404) {
