@@ -1,0 +1,305 @@
+# 新文章通知功能技术文档
+
+## 1. 功能概述
+
+新文章通知是一个基于 RSS 订阅检测的系统，能够自动检测博客文章的新增和更新，并通过 UI 通知用户。
+
+### 1.1 核心功能
+- **RSS 订阅检测** - 定时获取博客 RSS 数据
+- **文章对比** - 使用 diff 算法比较文章变更
+- **本地存储** - 使用 IndexedDB 存储文章历史
+- **UI 通知** - 悬浮通知面板展示新文章和更新
+- **文章内变更展示** - 在文章页面显示具体的变更内容
+
+### 1.2 技术栈
+| 技术 | 用途 |
+|------|------|
+| IndexedDB | 本地数据存储 |
+| diff | 文本差异对比 |
+| React Hooks | 状态管理 |
+| sessionStorage | 跨页面数据传递 |
+
+---
+
+## 2. 架构设计
+
+### 2.1 整体架构
+```
+┌─────────────────────────────────────────────────────────────┐
+│                      用户界面层                              │
+│  ┌──────────────────┐  ┌────────────────────────────────┐  │
+│  │ NewPostNotification│  │ PostDiffInArticle             │  │
+│  │ 悬浮通知面板      │  │ 文章内变更展示                │  │
+│  └──────────────────┘  └────────────────────────────────┘  │
+└─────────────────────────────────────────────────────────────┘
+                              │
+                              ▼
+┌─────────────────────────────────────────────────────────────┐
+│                      数据管理层                              │
+│  ┌──────────────────┐  ┌────────────────────────────────┐  │
+│  │ IndexedDB        │  │ sessionStorage                 │  │
+│  │ 文章历史存储      │  │ 跨页面变更数据传递             │  │
+│  └──────────────────┘  └────────────────────────────────┘  │
+└─────────────────────────────────────────────────────────────┘
+                              │
+                              ▼
+┌─────────────────────────────────────────────────────────────┐
+│                      数据获取层                              │
+│  ┌──────────────────┐                                      │
+│  │ RSS Feed         │  /atom.xml                           │
+│  └──────────────────┘                                      │
+└─────────────────────────────────────────────────────────────┘
+```
+
+### 2.2 数据流
+```
+1. 页面加载
+   │
+   ▼
+2. 获取 RSS 数据
+   │
+   ▼
+3. 对比 IndexedDB 中的历史数据
+   │
+   ▼
+4. 检测新增/更新的文章
+   │
+   ▼
+5. 更新 IndexedDB
+   │
+   ▼
+6. 显示通知（如有变更）
+```
+
+---
+
+## 3. 核心组件
+
+### 3.1 NewPostNotification 组件
+
+**文件路径**: `components/NewPostNotification.tsx`
+
+**功能**:
+- 定时检查 RSS 更新（每 5 分钟）
+- 检测新文章和文章更新
+- 使用 diff 算法计算变更内容
+- 悬浮通知面板展示
+- 支持查看变更详情
+
+**核心代码**:
+```typescript
+// RSS 数据获取
+const fetchRSS = async (): Promise<Post[]> => {
+  const response = await fetch('/atom.xml', { cache: 'no-store' })
+  const text = await response.text()
+  const parser = new DOMParser()
+  const xml = parser.parseFromString(text, 'text/xml')
+  // 解析 entry 节点...
+}
+
+// 差异计算
+const computeDiff = (oldText: string, newText: string) => {
+  const diffs = diffLines(oldText, newText)
+  return diffs.map(part => ({
+    value: part.value,
+    added: part.added,
+    removed: part.removed
+  }))
+}
+```
+
+**UI 特性**:
+- 铃铛图标带红点提示
+- 可展开/收起通知面板
+- 新文章标记为"新文章"
+- 更新文章标记为"更新"，可查看 diff
+- 支持"文中查看"跳转到文章页面
+
+### 3.2 PostDiffInArticle 组件
+
+**文件路径**: `components/PostDiffInArticle.tsx`
+
+**功能**:
+- 在文章页面右上角显示变更面板
+- 展示文章的具体变更内容
+- 支持最小化和关闭
+- 变更内容高亮显示（绿色新增、红色删除）
+
+**数据传递**:
+```typescript
+// 在通知面板点击"文中查看"
+sessionStorage.setItem('active-post-changes', JSON.stringify(post))
+
+// 文章页面读取
+const stored = sessionStorage.getItem('active-post-changes')
+```
+
+---
+
+## 4. IndexedDB 存储
+
+### 4.1 数据库结构
+```typescript
+const DB_NAME = 'cofe-blog-rss-store'
+const DB_VERSION = 1
+const STORE_NAME = 'posts'
+
+interface StoredPost {
+  id: string          // 作用域 + GUID
+  title: string
+  link: string
+  guid: string
+  pubDate: number
+  content: string
+  isUpdated?: boolean
+  diff?: DiffPart[]
+}
+```
+
+### 4.2 存储操作
+```typescript
+// 打开数据库
+const openDB = (): Promise<IDBDatabase> => {
+  return new Promise((resolve, reject) => {
+    const request = indexedDB.open(DB_NAME, DB_VERSION)
+    request.onupgradeneeded = (event) => {
+      const db = (event.target as IDBOpenDBRequest).result
+      db.createObjectStore(STORE_NAME, { keyPath: 'id' })
+    }
+    // ...
+  })
+}
+
+// 生成作用域 ID（支持多域名）
+const generateId = (guid: string): string => {
+  const scope = window.location.hostname
+  return `${scope}:${guid}`
+}
+```
+
+---
+
+## 5. 主题闪烁问题解决
+
+### 5.1 问题描述
+深色模式下刷新页面，表格等组件会先以亮色模式显示，然后切换到深色模式，造成闪烁。
+
+### 5.2 解决方案
+在 HTML 的 `<head>` 中添加内联脚本，在页面渲染前就设置主题：
+
+```html
+<script>
+  (function() {
+    function getTheme() {
+      const savedTheme = localStorage.getItem('cofe-blog-theme')
+      if (savedTheme === 'dark' || savedTheme === 'light') {
+        return savedTheme
+      }
+      return window.matchMedia('(prefers-color-scheme: dark)').matches 
+        ? 'dark' : 'light'
+    }
+    const theme = getTheme()
+    document.documentElement.classList.add(theme)
+  })()
+</script>
+```
+
+### 5.3 工作原理
+1. **服务器端渲染** - HTML 中没有主题类
+2. **浏览器解析** - 内联脚本立即执行，设置主题
+3. **页面渲染** - 已经有正确的主题类
+4. **React hydration** - ThemeProvider 接管，避免重复设置
+
+---
+
+## 6. 配置与使用
+
+### 6.1 集成到布局
+在 `app/layout.tsx` 中添加组件：
+```tsx
+import NewPostNotification from '@/components/NewPostNotification'
+import PostContentHighlighter from '@/components/PostContentHighlighter'
+
+export default function RootLayout({ children }) {
+  return (
+    <html>
+      <body>
+        <ThemeProvider>
+          {children}
+          <NewPostNotification />
+          <PostContentHighlighter />
+        </ThemeProvider>
+      </body>
+    </html>
+  )
+}
+```
+
+### 6.2 集成到文章页面
+在 `components/BlogPostContent.tsx` 中添加：
+```tsx
+import { PostDiffInArticle } from './PostDiffInArticle'
+
+export default function BlogPostContent() {
+  return (
+    <>
+      <PostDiffInArticle />
+      {/* 文章内容 */}
+    </>
+  )
+}
+```
+
+---
+
+## 7. 样式说明
+
+### 7.1 通知面板样式
+- 位置：固定右下角
+- 背景：毛玻璃效果（`backdrop-filter: blur(16px)`）
+- 圆角：`0.75rem`
+- 阴影：`shadow-lg`
+
+### 7.2 变更高亮样式
+- **新增内容** - 绿色背景 (`bg-green-100`)，左侧绿色边框
+- **删除内容** - 红色背景 (`bg-red-100`)，左侧红色边框，删除线
+
+### 7.3 表格深色模式样式
+使用硬编码颜色值确保一致性：
+```css
+.dark table {
+  background-color: #1e293b;
+  color: #f1f5f9;
+  border-color: #334155;
+}
+```
+
+---
+
+## 8. 注意事项
+
+1. **首次访问** - 自动检测并展开通知面板
+2. **定时检查** - 每 5 分钟自动检查一次
+3. **数据持久化** - 使用 IndexedDB，清理浏览器数据会丢失历史
+4. **跨域名** - 使用 `window.location.hostname` 作为作用域前缀
+5. **兼容性** - 需要浏览器支持 IndexedDB
+
+---
+
+## 9. 相关文件
+
+| 文件 | 说明 |
+|------|------|
+| `components/NewPostNotification.tsx` | 通知面板组件 |
+| `components/PostDiffInArticle.tsx` | 文章内变更展示 |
+| `components/PostContentHighlighter.tsx` | 内容高亮组件 |
+| `app/layout.tsx` | 布局文件，集成主题初始化脚本 |
+| `app/globals.css` | 全局样式，包含表格深色模式样式 |
+
+---
+
+## 10. 参考链接
+
+- [diff 库文档](https://github.com/kpdecker/jsdiff)
+- [IndexedDB API](https://developer.mozilla.org/zh-CN/docs/Web/API/IndexedDB_API)
+- [Tailwind CSS 深色模式](https://tailwindcss.com/docs/dark-mode)

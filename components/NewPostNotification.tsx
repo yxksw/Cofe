@@ -29,6 +29,7 @@ const DB_VERSION = 1
 const STORE_NAME = 'posts'
 const NOTIFICATION_STATE_KEY = 'cofe-notification-state'
 const INIT_TIME_KEY = 'cofe-notification-init-time'
+const LAST_SEEN_TIME_KEY = 'cofe-last-seen-time'
 const CHECK_INTERVAL = 5 * 60 * 1000 // 5分钟检查一次
 
 // 全局状态，用于跨组件通信
@@ -174,6 +175,7 @@ export default function NewPostNotification() {
 
       const currentTime = Date.now()
       const lastInitTime = localStorage.getItem(INIT_TIME_KEY)
+      const lastSeenTime = Number(localStorage.getItem(LAST_SEEN_TIME_KEY)) || 0
       const isFresh = !lastInitTime && isFirstRender.current
 
       if (isFirstRender.current) {
@@ -187,12 +189,14 @@ export default function NewPostNotification() {
         const existingPost = storedPosts.find((p) => p.guid === post.guid)
 
         if (!existingPost) {
-          // 新文章
-          newOrUpdatedPosts.push({ ...post, isUpdated: false })
+          // 新文章 - 检查是否是在上次查看之后发布的
+          if (post.pubDate > lastSeenTime) {
+            newOrUpdatedPosts.push({ ...post, isUpdated: false })
+          }
         } else if (existingPost.content !== post.content) {
-          // 更新的文章
+          // 更新的文章 - 检查更新时间是否在上次查看之后
           const diff = computeDiff(existingPost.content, post.content)
-          if (diff) {
+          if (diff && post.pubDate > lastSeenTime) {
             newOrUpdatedPosts.push({ ...post, isUpdated: true, diff })
           }
         }
@@ -231,6 +235,7 @@ export default function NewPostNotification() {
     localStorage.removeItem(NOTIFICATION_STATE_KEY)
     const now = Date.now()
     localStorage.setItem(INIT_TIME_KEY, now.toString())
+    localStorage.setItem(LAST_SEEN_TIME_KEY, now.toString())
     setNewPosts([])
     setHasNewPosts(false)
     setInitTime(now)
