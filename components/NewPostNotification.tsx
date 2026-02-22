@@ -194,9 +194,10 @@ export default function NewPostNotification() {
             newOrUpdatedPosts.push({ ...post, isUpdated: false })
           }
         } else if (existingPost.content !== post.content) {
-          // 更新的文章 - 检查更新时间是否在上次查看之后
+          // 更新的文章 - 只要有内容变化就显示（不检查时间）
+          // 因为文章更新时 pubDate 可能不变
           const diff = computeDiff(existingPost.content, post.content)
-          if (diff && post.pubDate > lastSeenTime) {
+          if (diff) {
             newOrUpdatedPosts.push({ ...post, isUpdated: true, diff })
           }
         }
