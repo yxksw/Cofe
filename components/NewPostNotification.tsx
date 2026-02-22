@@ -138,10 +138,16 @@ export default function NewPostNotification() {
       const transaction = db.transaction([storeName], 'readwrite')
       const store = transaction.objectStore(storeName)
 
-      posts.forEach((post) => {
-        const itemToSave = { ...post, id: generateId(post.guid) }
-        store.put(itemToSave)
-      })
+      // 先清空旧数据
+      const clearRequest = store.clear()
+      clearRequest.onsuccess = () => {
+        // 再存储新数据
+        posts.forEach((post) => {
+          const itemToSave = { ...post, id: generateId(post.guid) }
+          store.put(itemToSave)
+        })
+      }
+      clearRequest.onerror = () => reject(clearRequest.error)
 
       transaction.oncomplete = () => resolve()
       transaction.onerror = () => reject(transaction.error)
