@@ -51,9 +51,15 @@ Test content`
 
       const result = await client.getBlogPost('test.md')
 
-      // ✅ Uses raw URL for blog posts
+      // ✅ Uses raw URL for blog posts (with cache buster)
       expect(global.fetch).toHaveBeenCalledWith(
-        'https://raw.githubusercontent.com/testuser/Cofe/main/data/blog/test.md'
+        expect.stringContaining('https://raw.githubusercontent.com/testuser/Cofe/main/data/blog/test.md?nocache='),
+        expect.objectContaining({
+          cache: 'no-store',
+          headers: expect.objectContaining({
+            'Cache-Control': 'no-cache, no-store, must-revalidate, max-age=0'
+          })
+        })
       )
       expect(result?.title).toBe('Test Post')
     })

@@ -287,7 +287,7 @@ export function findImgBySrc(container: HTMLElement, src: string) {
 }
 
 export function findBlockByText(container: HTMLElement, line: string) {
-	debugLog('findBlockByText 开始', { line: line?.substring(0, 50) });
+	debugLog('findBlockByText 开始', { line: line?.substring(0, 100) });
 	const key = normalizeForMatch(line);
 	debugLog('normalizeForMatch 结果', key);
 	
@@ -296,8 +296,11 @@ export function findBlockByText(container: HTMLElement, line: string) {
 		return null;
 	}
 	
-	const needle = key.value.slice(0, 48);
-	debugLog('搜索关键词', needle);
+	// 使用更短的 needle 以提高匹配率，但不要太短
+	const needle = key.value.slice(0, Math.min(48, key.value.length));
+	// 如果内容很短，直接使用全部内容
+	const shortNeedle = key.value.slice(0, Math.min(20, key.value.length));
+	debugLog('搜索关键词', { needle, shortNeedle, fullLength: key.value.length });
 	
 	const blocks = Array.from(container.querySelectorAll(
 		"p, li, blockquote, pre, h1, h2, h3, h4, h5, h6, code, td, th, .code-block, [class*='language-']",
@@ -310,10 +313,22 @@ export function findBlockByText(container: HTMLElement, line: string) {
 		if (el.closest(".post-inline-diff-add-line")) continue;
 		if (el.closest(".post-inline-diff-del-line")) continue;
 		if (el.classList.contains("post-inline-diff-del-target")) continue;
+		if (el.classList.contains("post-inline-diff-add-target")) continue;
 		const content = el.textContent || "";
 		const normalizedContent = normalizeLineText(content);
-		if (!normalizedContent.includes(needle)) continue;
-		debugLog(`找到匹配块 #${i + 1}`, { tag: el.tagName, text: content.substring(0, 50) });
+		
+		// 尝试多种匹配方式
+		const matchLong = normalizedContent.includes(needle);
+		const matchShort = normalizedContent.includes(shortNeedle);
+		const matchExact = normalizedContent === key.value;
+		
+		if (!matchLong && !matchShort && !matchExact) continue;
+		
+		debugLog(`找到匹配块 #${i + 1}`, { 
+			tag: el.tagName, 
+			text: content.substring(0, 50),
+			matchType: matchExact ? 'exact' : matchLong ? 'long' : 'short'
+		});
 		return el;
 	}
 	
