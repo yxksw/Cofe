@@ -1,6 +1,25 @@
 const CONTEXT_LINES = 2;
 const BASE_URL = "/";
 
+// 调试日志工具
+const DEBUG_PREFIX = '[PostInlineDiff]';
+function debugLog(step: string, data?: unknown) {
+	const timestamp = new Date().toLocaleTimeString();
+	if (data !== undefined) {
+		console.log(`${DEBUG_PREFIX} [${timestamp}] ${step}`, data);
+	} else {
+		console.log(`${DEBUG_PREFIX} [${timestamp}] ${step}`);
+	}
+}
+function debugError(step: string, error: unknown) {
+	const timestamp = new Date().toLocaleTimeString();
+	console.error(`${DEBUG_PREFIX} [${timestamp}] ❌ ${step}`, error);
+}
+function debugSuccess(step: string) {
+	const timestamp = new Date().toLocaleTimeString();
+	console.log(`${DEBUG_PREFIX} [${timestamp}] ✅ ${step}`);
+}
+
 type DiffPart = { added?: boolean; removed?: boolean; value?: string };
 type DiffRow = { type: "add" | "del" | "ctx"; text: string };
 type DiffHunk = DiffRow[];
@@ -21,6 +40,7 @@ export function decodeHtmlEntities(value: string) {
 }
 
 export function normalizeUrlForCompare(raw: string) {
+	debugLog('normalizeUrlForCompare 输入', raw);
 	const v = decodeHtmlEntities(String(raw ?? "").trim());
 	if (!v) return "";
 	try {
@@ -33,8 +53,11 @@ export function normalizeUrlForCompare(raw: string) {
 		const qs = entries
 			.map(([k, val]) => `${encodeURIComponent(k)}=${encodeURIComponent(val)}`)
 			.join("&");
-		return `${url.pathname}${qs ? `?${qs}` : ""}`;
+		const result = `${url.pathname}${qs ? `?${qs}` : ""}`;
+		debugLog('normalizeUrlForCompare 结果', result);
+		return result;
 	} catch {
+		debugLog('normalizeUrlForCompare 失败，返回原值', v);
 		return v;
 	}
 }
@@ -77,14 +100,14 @@ export function stripBasePath(pathname: string) {
 }
 
 export function clearInlineDiff(container: HTMLElement) {
-	container.querySelectorAll("[data-post-inline-diff-inline]").forEach((el) => {
+	debugLog('clearInlineDiff 开始', { containerTag: container.tagName, containerClass: container.className });
+	
+	const inlineElements = container.querySelectorAll("[data-post-inline-diff-inline]");
+	debugLog('找到 inline diff 元素', inlineElements.length);
+	inlineElements.forEach((el) => {
 		if (!(el instanceof HTMLElement)) return;
 		const kind = el.getAttribute("data-post-inline-diff-inline") || "";
-		if (kind === "anchor") {
-			el.remove();
-			return;
-		}
-		if (kind === "add") {
+		if (kind === "anchor" || kind === "add") {
 			el.remove();
 			return;
 		}
@@ -92,42 +115,43 @@ export function clearInlineDiff(container: HTMLElement) {
 		el.replaceWith(text);
 	});
 
-	container
-		.querySelectorAll("[data-post-inline-diff]")
-		.forEach((el) => el.remove());
-	container
-		.querySelectorAll("[data-post-inline-diff-add-target]")
-		.forEach((el) => el.removeAttribute("data-post-inline-diff-add-target"));
-	container
-		.querySelectorAll(".post-inline-diff-add-target")
-		.forEach((el) => el.classList.remove("post-inline-diff-add-target"));
-	container
-		.querySelectorAll("[data-post-inline-diff-add-target-img]")
-		.forEach((el) =>
-			el.removeAttribute("data-post-inline-diff-add-target-img"),
-		);
-	container
-		.querySelectorAll(".post-inline-diff-add-target-img")
-		.forEach((el) => el.classList.remove("post-inline-diff-add-target-img"));
-	container
-		.querySelectorAll("[data-post-inline-diff-del-target]")
-		.forEach((el) => el.removeAttribute("data-post-inline-diff-del-target"));
-	container
-		.querySelectorAll(".post-inline-diff-del-target")
-		.forEach((el) => el.classList.remove("post-inline-diff-del-target"));
-	container
-		.querySelectorAll("[data-post-inline-diff-del-target-img]")
-		.forEach((el) =>
-			el.removeAttribute("data-post-inline-diff-del-target-img"),
-		);
-	container
-		.querySelectorAll(".post-inline-diff-del-target-img")
-		.forEach((el) => el.classList.remove("post-inline-diff-del-target-img"));
+	const diffElements = container.querySelectorAll("[data-post-inline-diff]");
+	debugLog('找到 diff 元素', diffElements.length);
+	diffElements.forEach((el) => el.remove());
+	
+	const addTargets = container.querySelectorAll("[data-post-inline-diff-add-target]");
+	debugLog('找到 add target 标记', addTargets.length);
+	addTargets.forEach((el) => el.removeAttribute("data-post-inline-diff-add-target"));
+	
+	const addTargetClasses = container.querySelectorAll(".post-inline-diff-add-target");
+	addTargetClasses.forEach((el) => el.classList.remove("post-inline-diff-add-target"));
+	
+	const addTargetImgs = container.querySelectorAll("[data-post-inline-diff-add-target-img]");
+	addTargetImgs.forEach((el) => el.removeAttribute("data-post-inline-diff-add-target-img"));
+	
+	const addTargetImgClasses = container.querySelectorAll(".post-inline-diff-add-target-img");
+	addTargetImgClasses.forEach((el) => el.classList.remove("post-inline-diff-add-target-img"));
+	
+	const delTargets = container.querySelectorAll("[data-post-inline-diff-del-target]");
+	delTargets.forEach((el) => el.removeAttribute("data-post-inline-diff-del-target"));
+	
+	const delTargetClasses = container.querySelectorAll(".post-inline-diff-del-target");
+	delTargetClasses.forEach((el) => el.classList.remove("post-inline-diff-del-target"));
+	
+	const delTargetImgs = container.querySelectorAll("[data-post-inline-diff-del-target-img]");
+	delTargetImgs.forEach((el) => el.removeAttribute("data-post-inline-diff-del-target-img"));
+	
+	const delTargetImgClasses = container.querySelectorAll(".post-inline-diff-del-target-img");
+	delTargetImgClasses.forEach((el) => el.classList.remove("post-inline-diff-del-target-img"));
+	
+	debugSuccess('clearInlineDiff 完成');
 }
 
 function buildRows(diffParts: DiffPart[]): DiffRow[] {
+	debugLog('buildRows 开始', { diffPartsCount: diffParts.length });
 	const rows: DiffRow[] = [];
-	for (const part of diffParts) {
+	for (let i = 0; i < diffParts.length; i++) {
+		const part = diffParts[i];
 		const type: DiffRow["type"] = part?.added
 			? "add"
 			: part?.removed
@@ -138,15 +162,22 @@ function buildRows(diffParts: DiffPart[]): DiffRow[] {
 		if (lines.length > 0 && lines[lines.length - 1] === "") lines.pop();
 		for (const line of lines) rows.push({ type, text: line });
 	}
+	debugLog('buildRows 完成', { rowsCount: rows.length });
 	return rows;
 }
 
 function sliceWithContext(rows: DiffRow[]) {
+	debugLog('sliceWithContext 开始', { rowsCount: rows.length });
 	const changeIndexes: number[] = [];
 	for (let i = 0; i < rows.length; i += 1) {
 		if (rows[i].type !== "ctx") changeIndexes.push(i);
 	}
-	if (changeIndexes.length === 0) return [];
+	debugLog('变更行索引', changeIndexes);
+	
+	if (changeIndexes.length === 0) {
+		debugLog('没有变更行，返回空数组');
+		return [];
+	}
 
 	const keep = new Array(rows.length).fill(false);
 	for (const idx of changeIndexes) {
@@ -169,12 +200,14 @@ function sliceWithContext(rows: DiffRow[]) {
 		}
 	}
 
+	debugLog('sliceWithContext 完成', { outCount: out.length });
 	return out;
 }
 
 function toHunks(
 	rowsWithGaps: Array<DiffRow | { type: "gap"; text: string }>,
 ): DiffHunk[] {
+	debugLog('toHunks 开始', { rowsCount: rowsWithGaps.length });
 	const hunks: DiffHunk[] = [];
 	let current: DiffHunk = [];
 	for (const row of rowsWithGaps) {
@@ -186,6 +219,7 @@ function toHunks(
 		current.push(row);
 	}
 	if (current.length) hunks.push(current);
+	debugLog('toHunks 完成', { hunksCount: hunks.length });
 	return hunks;
 }
 
@@ -223,36 +257,65 @@ function normalizeForMatch(line: string) {
 }
 
 export function findImgBySrc(container: HTMLElement, src: string) {
+	debugLog('findImgBySrc 开始', { src: src?.substring(0, 50) });
 	const normPath = normalizeUrlForCompare(src);
-	if (!normPath) return null;
+	if (!normPath) {
+		debugLog('normPath 为空，返回 null');
+		return null;
+	}
 	const imgs = Array.from(container.querySelectorAll("img"));
-	for (const img of imgs) {
+	debugLog('找到图片数量', imgs.length);
+	
+	for (let i = 0; i < imgs.length; i++) {
+		const img = imgs[i];
 		if (!(img instanceof HTMLImageElement)) continue;
 		const cand = img.getAttribute("src") || img.getAttribute("data-src") || "";
 		const candPath = normalizeUrlForCompare(cand);
-		if (candPath === normPath) return img;
-		if (candPath && normPath && (candPath.includes(normPath) || normPath.includes(candPath)))
+		if (candPath === normPath) {
+			debugLog(`找到匹配图片 #${i + 1}`);
 			return img;
+		}
+		if (candPath && normPath && (candPath.includes(normPath) || normPath.includes(candPath))) {
+			debugLog(`找到包含匹配图片 #${i + 1}`);
+			return img;
+		}
 	}
+	debugLog('未找到匹配图片');
 	return null;
 }
 
 export function findBlockByText(container: HTMLElement, line: string) {
+	debugLog('findBlockByText 开始', { line: line?.substring(0, 50) });
 	const key = normalizeForMatch(line);
-	if (key.kind !== "text") return null;
+	debugLog('normalizeForMatch 结果', key);
+	
+	if (key.kind !== "text") {
+		debugLog('不是文本类型，返回 null');
+		return null;
+	}
+	
 	const needle = key.value.slice(0, 48);
+	debugLog('搜索关键词', needle);
+	
 	const blocks = Array.from(container.querySelectorAll(
 		"p, li, blockquote, pre, h1, h2, h3, h4, h5, h6",
 	));
-	for (const el of blocks) {
+	debugLog('找到块级元素数量', blocks.length);
+	
+	for (let i = 0; i < blocks.length; i++) {
+		const el = blocks[i];
 		if (!(el instanceof HTMLElement)) continue;
 		if (el.closest(".post-inline-diff-add-line")) continue;
 		if (el.closest(".post-inline-diff-del-line")) continue;
 		if (el.classList.contains("post-inline-diff-del-target")) continue;
 		const content = el.textContent || "";
-		if (!normalizeLineText(content).includes(needle)) continue;
+		const normalizedContent = normalizeLineText(content);
+		if (!normalizedContent.includes(needle)) continue;
+		debugLog(`找到匹配块 #${i + 1}`, { tag: el.tagName, text: content.substring(0, 50) });
 		return el;
 	}
+	
+	debugLog('未找到匹配块');
 	return null;
 }
 
@@ -261,12 +324,17 @@ function findContextBefore(
 	hunk: DiffHunk,
 	rowIndex: number,
 ) {
+	debugLog('findContextBefore 开始', { rowIndex });
 	for (let i = rowIndex - 1; i >= 0; i -= 1) {
 		const row = hunk[i];
 		if (row?.type !== "ctx") continue;
 		const el = findBlockByText(container, row.text);
-		if (el) return el;
+		if (el) {
+			debugLog('找到上下文元素（前）');
+			return el;
+		}
 	}
+	debugLog('未找到上下文元素（前）');
 	return null;
 }
 
@@ -275,31 +343,62 @@ function findContextAfter(
 	hunk: DiffHunk,
 	rowIndex: number,
 ) {
+	debugLog('findContextAfter 开始', { rowIndex });
 	for (let i = rowIndex + 1; i < hunk.length; i += 1) {
 		const row = hunk[i];
 		if (row?.type !== "ctx") continue;
 		const el = findBlockByText(container, row.text);
-		if (el) return el;
+		if (el) {
+			debugLog('找到上下文元素（后）');
+			return el;
+		}
 	}
+	debugLog('未找到上下文元素（后）');
 	return null;
 }
 
 export function lineExistsInArticle(container: HTMLElement, line: string) {
+	debugLog('lineExistsInArticle 开始', { line: line?.substring(0, 50) });
 	const key = normalizeForMatch(line);
-	if (key.kind === "img") return !!findImgBySrc(container, key.value);
-	if (key.kind !== "text") return false;
-	return !!findBlockByText(container, line);
+	debugLog('normalizeForMatch 结果', key);
+	
+	if (key.kind === "img") {
+		const exists = !!findImgBySrc(container, key.value);
+		debugLog('图片是否存在', exists);
+		return exists;
+	}
+	if (key.kind !== "text") {
+		debugLog('不是文本类型，返回 false');
+		return false;
+	}
+	const exists = !!findBlockByText(container, line);
+	debugLog('文本行是否存在', exists);
+	return exists;
 }
 
 export function findAnchorElement(container: HTMLElement, hunk: DiffHunk) {
+	debugLog('findAnchorElement 开始', { hunkSize: hunk.length });
 	const pick = (row: DiffRow) => String(row?.text ?? "").trim();
 	const ctx = hunk.find((r) => r.type === "ctx" && pick(r).length >= 6);
 	const anchorLine = ctx?.text ?? "";
-	if (!anchorLine) return null;
+	debugLog('锚点行', anchorLine?.substring(0, 50));
+	
+	if (!anchorLine) {
+		debugLog('锚点行为空，返回 null');
+		return null;
+	}
 
 	const key = normalizeForMatch(anchorLine);
-	if (key.kind === "img") return findImgBySrc(container, key.value);
-	return findBlockByText(container, anchorLine);
+	debugLog('normalizeForMatch 结果', key);
+	
+	if (key.kind === "img") {
+		const img = findImgBySrc(container, key.value);
+		if (img) debugLog('找到图片锚点');
+		return img;
+	}
+	const el = findBlockByText(container, anchorLine);
+	if (el) debugLog('找到文本锚点');
+	return el;
 }
 
 export function sanitizeHtmlFragment(html: string) {
@@ -333,6 +432,7 @@ export function createDeletionNode(
 	text: string,
 	includeAnchor: boolean,
 ) {
+	debugLog('createDeletionNode', { text: text?.substring(0, 50), includeAnchor });
 	const el = document.createElement("div");
 	el.setAttribute("data-post-inline-diff", "1");
 	el.className = "post-inline-diff-del-line";
@@ -358,6 +458,7 @@ export function createAdditionNode(
 	text: string,
 	includeAnchor: boolean,
 ) {
+	debugLog('createAdditionNode', { text: text?.substring(0, 50), includeAnchor });
 	const el = document.createElement("div");
 	el.setAttribute("data-post-inline-diff", "1");
 	el.className = "post-inline-diff-add-line";
@@ -389,23 +490,48 @@ function insertAfter(node: Node, ref: Node | null) {
 }
 
 export function applyInlineDiff(container: HTMLElement, diffParts: DiffPart[]) {
+	debugLog('========== applyInlineDiff 开始 ==========');
+	debugLog('输入参数', { 
+		containerTag: container.tagName, 
+		containerClass: container.className,
+		diffPartsCount: diffParts.length 
+	});
+	
 	const log = isLogEnabled();
+	debugLog('日志是否启用', log);
+	
+	debugLog('Step 1: 清除旧的 diff');
 	clearInlineDiff(container);
+	
+	debugLog('Step 2: 构建行');
 	const rows = buildRows(diffParts);
+	
+	debugLog('Step 3: 切分上下文');
 	const focused = sliceWithContext(rows);
+	
+	debugLog('Step 4: 构建 hunks');
 	const hunks = toHunks(focused);
+	debugLog('hunks 数量', hunks.length);
 
 	const anchorState = { inserted: false };
-	for (const hunk of hunks) {
+	
+	for (let hunkIndex = 0; hunkIndex < hunks.length; hunkIndex++) {
+		const hunk = hunks[hunkIndex];
+		debugLog(`处理 hunk #${hunkIndex + 1}/${hunks.length}`, { hunkSize: hunk.length });
+		
 		let idx = 0;
 		while (idx < hunk.length) {
 			const row = hunk[idx];
+			debugLog(`处理行 #${idx + 1}/${hunk.length}`, { type: row.type, text: row.text?.substring(0, 50) });
+			
 			if (idx + 1 < hunk.length) {
 				const next = hunk[idx + 1];
 				const isReplace =
 					(row.type === "del" && next.type === "add") ||
 					(row.type === "add" && next.type === "del");
+				
 				if (isReplace) {
+					debugLog('检测到替换操作');
 					const oldHtml = row.type === "del" ? row.text : next.text;
 					const newHtml = row.type === "add" ? row.text : next.text;
 					const oldKey = normalizeForMatch(oldHtml);
@@ -414,13 +540,16 @@ export function applyInlineDiff(container: HTMLElement, diffParts: DiffPart[]) {
 					let isImgReplace = false;
 
 					if (newKey.kind === "img") {
+						debugLog('查找图片目标');
 						target = findImgBySrc(container, newKey.value);
 						isImgReplace = true;
 					} else {
+						debugLog('查找文本目标');
 						target = findBlockByText(container, newHtml);
 					}
 
 					if (target instanceof HTMLElement) {
+						debugLog('找到目标元素，应用替换样式');
 						if (isImgReplace) {
 							target.classList.add("post-inline-diff-add-target-img");
 							target.setAttribute("data-post-inline-diff-add-target-img", "1");
@@ -435,21 +564,28 @@ export function applyInlineDiff(container: HTMLElement, diffParts: DiffPart[]) {
 						target.parentNode?.insertBefore(node, target);
 						idx += 2;
 						continue;
+					} else {
+						debugLog('未找到目标元素');
 					}
 				}
 			}
 
 			if (row.type === "add") {
+				debugLog('处理添加操作');
 				let endIdx = idx;
 				while (endIdx + 1 < hunk.length && hunk[endIdx + 1].type === "add") {
 					endIdx++;
 				}
+				debugLog('连续添加行数', endIdx - idx + 1);
+				
 				for (let i = idx; i <= endIdx; i++) {
 					const addRow = hunk[i];
 					const key = normalizeForMatch(addRow.text);
 					if (key.kind === "img") {
+						debugLog('查找图片添加目标');
 						const img = findImgBySrc(container, key.value);
 						if (img instanceof HTMLElement) {
+							debugLog('找到图片，应用样式');
 							img.classList.add("post-inline-diff-add-target-img");
 							img.setAttribute("data-post-inline-diff-add-target-img", "1");
 							if (!anchorState.inserted) {
@@ -461,8 +597,10 @@ export function applyInlineDiff(container: HTMLElement, diffParts: DiffPart[]) {
 							}
 						}
 					} else {
+						debugLog('查找文本添加目标');
 						const target = findBlockByText(container, addRow.text);
 						if (target instanceof HTMLElement) {
+							debugLog('找到文本目标，应用样式');
 							target.classList.add("post-inline-diff-add-target");
 							target.setAttribute("data-post-inline-diff-add-target", "1");
 							if (!anchorState.inserted) {
@@ -484,13 +622,16 @@ export function applyInlineDiff(container: HTMLElement, diffParts: DiffPart[]) {
 				continue;
 			}
 
+			debugLog('处理删除操作');
 			const key = normalizeForMatch(row.text);
 			if (key.kind === "none") {
+				debugLog('空内容，跳过');
 				idx += 1;
 				continue;
 			}
 
 			if (lineExistsInArticle(container, row.text)) {
+				debugLog('行存在于文章中，应用删除样式');
 				if (key.kind === "img") {
 					const img = findImgBySrc(container, key.value);
 					if (img instanceof HTMLElement) {
@@ -520,22 +661,27 @@ export function applyInlineDiff(container: HTMLElement, diffParts: DiffPart[]) {
 				continue;
 			}
 
+			debugLog('行不存在于文章中，创建删除节点');
 			const before = findContextBefore(container, hunk, idx);
 			const after = findContextAfter(container, hunk, idx);
 			const node = createDeletionNode(row.text, !anchorState.inserted);
 			if (!anchorState.inserted) anchorState.inserted = true;
 
 			if (after) {
+				debugLog('在上下文后插入');
 				insertAfter(node, after);
 			} else if (before) {
+				debugLog('在上下文前插入');
 				before.parentNode?.insertBefore(node, before.nextSibling);
 			} else {
+				debugLog('追加到容器');
 				container.appendChild(node);
 			}
 			idx += 1;
 		}
 	}
 
+	debugSuccess('========== applyInlineDiff 完成 ==========');
 	if (log) {
 		console.log("[PostInlineDiff] Applied diff hunks:", hunks.length);
 	}
