@@ -73,6 +73,24 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         <script defer src="https://um.050815.xyz/script.js" data-website-id="25a1f616-f12e-4441-ad5b-f0c9d5c39b1c"></script>
         <script src="https://cf-umami-cofe.050815.xyz/tracker.js" defer></script>
         <script src="/js/articletoc.js" defer></script>
+        {/* 主题初始化脚本 - 防止闪烁 */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              (function() {
+                function getTheme() {
+                  const savedTheme = localStorage.getItem('cofe-blog-theme');
+                  if (savedTheme === 'dark' || savedTheme === 'light') {
+                    return savedTheme;
+                  }
+                  return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+                }
+                const theme = getTheme();
+                document.documentElement.classList.add(theme);
+              })();
+            `,
+          }}
+        />
       </Head>
       <body className={`${gowun_wodum.className} bg-background`}>
         <BackgroundImage />

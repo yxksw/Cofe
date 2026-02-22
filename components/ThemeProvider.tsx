@@ -62,31 +62,21 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (typeof window === 'undefined') return
 
-    console.log('ThemeProvider: Updating theme to:', theme)
-    console.log('ThemeProvider: Current documentElement.classList:', document.documentElement.classList)
+    // 获取当前已设置的主题（由内联脚本设置）
+    const currentClass = document.documentElement.classList.contains('dark') ? 'dark' : 'light'
     
-    // 移除旧的主题类
-    document.documentElement.classList.remove('light', 'dark')
-    // 添加新的主题类
-    document.documentElement.classList.add(theme)
-    
-    // 确保dark类正确设置
-    if (theme === 'dark') {
-      document.documentElement.classList.add('dark')
-      console.log('ThemeProvider: Added dark class')
-    } else {
-      document.documentElement.classList.remove('dark')
-      console.log('ThemeProvider: Removed dark class')
+    // 只有当主题变化时才更新
+    if (currentClass !== theme) {
+      // 移除旧的主题类
+      document.documentElement.classList.remove('light', 'dark')
+      // 添加新的主题类
+      document.documentElement.classList.add(theme)
     }
-    
-    console.log('ThemeProvider: Updated documentElement.classList:', document.documentElement.classList)
 
     // 保存到localStorage
     try {
       localStorage.setItem(STORAGE_KEY, theme)
-      console.log('ThemeProvider: Saved theme to localStorage:', theme)
-    } catch (error) {
-      console.error('ThemeProvider: Error saving theme to localStorage:', error)
+    } catch {
       // 忽略localStorage错误
     }
   }, [theme])
