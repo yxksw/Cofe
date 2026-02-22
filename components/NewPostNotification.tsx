@@ -199,18 +199,25 @@ export default function NewPostNotification() {
 
       const newOrUpdatedPosts: Post[] = []
 
+      console.log('[NewPostNotification] fetchedPosts:', fetchedPosts.length)
+      console.log('[NewPostNotification] storedPosts:', storedPosts.length)
+
       for (const post of fetchedPosts) {
         const existingPost = storedPosts.find((p) => p.guid === post.guid)
 
         if (!existingPost) {
+          console.log('[NewPostNotification] New post:', post.title, post.guid)
           newOrUpdatedPosts.push({ ...post, isUpdated: false })
         } else if (existingPost.content !== post.content) {
+          console.log('[NewPostNotification] Updated post:', post.title)
           const diff = computeDiff(existingPost.content, post.content)
           if (diff) {
             newOrUpdatedPosts.push({ ...post, isUpdated: true, diff })
           }
         }
       }
+
+      console.log('[NewPostNotification] newOrUpdatedPosts:', newOrUpdatedPosts.length)
 
       await savePosts(db, STORE_OLD, fetchedPosts)
 
