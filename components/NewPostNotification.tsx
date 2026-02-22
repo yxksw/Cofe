@@ -44,44 +44,11 @@ function generateId(guid: string) {
   return `root:${guid}`
 }
 
-function normalizeRaw(text: string) {
-  const s = String(text || '').replace(/\r\n/g, '\n').replace(/\r/g, '\n')
-  const lines = s.split('\n').map((line) => line.replace(/[ \t]+$/g, ''))
-  return lines.join('\n').trim()
-}
-
-function normalizeForDiffHtml(html: string) {
-  const raw = normalizeRaw(html)
-  if (!raw) return ''
-  const parser = new DOMParser()
-  const doc = parser.parseFromString(`<div>${raw}</div>`, 'text/html')
-  const root = doc.body.firstElementChild
-  if (!root) return raw
-
-  const lines: string[] = []
-  for (const el of Array.from(root.children)) {
-    const htmlLine = String(el.outerHTML || '')
-      .replace(/\r\n/g, '\n')
-      .replace(/\r/g, '\n')
-      .replace(/\n+/g, ' ')
-      .replace(/[ \t]+/g, ' ')
-      .trim()
-    if (!htmlLine) continue
-    lines.push(htmlLine)
-  }
-
-  return lines.join('\n')
-}
-
 function computeDiff(oldText: string, newText: string) {
   if (!oldText || !newText) return null
 
-  const cleanOld = normalizeForDiffHtml(oldText)
-  const cleanNew = normalizeForDiffHtml(newText)
-
-  if (!cleanOld || !cleanNew) return null
-
-  const diffs = Diff.diffLines(cleanOld, cleanNew)
+  // 直接对原始文本进行行级 diff
+  const diffs = Diff.diffLines(oldText, newText)
   const hasChanges = diffs.some((part) => part.added || part.removed)
 
   if (!hasChanges) return null
