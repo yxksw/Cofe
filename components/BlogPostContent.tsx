@@ -16,6 +16,7 @@ import { TableOfContents } from './TableOfContents'
 import { processExternalLink } from '@/lib/externalLink'
 import { PostMeta } from './PostMeta'
 import { PostDiffInArticle } from './PostDiffInArticle'
+import PostInlineDiff from './PostInlineDiff'
 
 // 动态导入 GitalkComments 组件，避免 SSR 问题
 const GitalkComments = dynamic(() => import('./GitalkComments'), {
@@ -48,6 +49,8 @@ export function BlogPostContent({ title, date, content, slug, headerContent, dis
       <TableOfContents contentRef={contentRef} />
       <PostDiffInArticle />
       <div className='max-w-3xl mx-auto px-4 py-8'>
+        {/* 文章内联变更展示 */}
+        <PostInlineDiff />
       {headerContent && (
         <div className='flex justify-end mb-6'>
           {headerContent}
