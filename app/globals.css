@@ -402,28 +402,39 @@ tbody tr:nth-child(even) {
 /* 深色模式表格样式 */
 .dark table {
   border-color: hsl(var(--border));
+  background-color: hsl(var(--card));
 }
 
 .dark thead {
-  background-color: hsl(var(--muted));
+  background-color: hsl(var(--muted) / 0.8);
 }
 
 .dark th {
   color: hsl(var(--foreground));
   border-bottom-color: hsl(var(--border));
+  background-color: hsl(var(--muted) / 0.8);
 }
 
 .dark td {
   color: hsl(var(--foreground));
   border-bottom-color: hsl(var(--border));
+  background-color: hsl(var(--card));
+}
+
+.dark tbody tr {
+  background-color: hsl(var(--card));
 }
 
 .dark tbody tr:hover {
-  background-color: hsl(var(--muted) / 0.7);
+  background-color: hsl(var(--accent) / 0.3);
 }
 
 .dark tbody tr:nth-child(even) {
-  background-color: hsl(var(--muted) / 0.4);
+  background-color: hsl(var(--muted) / 0.2);
+}
+
+.dark tbody tr:nth-child(even) td {
+  background-color: hsl(var(--muted) / 0.2);
 }
 
 /* 表格容器滚动条 */
