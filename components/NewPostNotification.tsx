@@ -1,58 +1,19 @@
 'use client'
 
 import { useEffect, useState, useCallback, useRef } from 'react'
-import { diffLines } from 'diff'
 import { Icon } from '@iconify/react'
 import { cn } from '@/lib/utils'
 import Link from 'next/link'
+import type { Post } from '@/hooks/usePostChanges'
+import { checkForNewPosts } from '@/lib/rssStore'
+import { useNotificationPanel } from '@/hooks/usePostChanges'
 
-export interface Post {
-  title: string
-  link: string
-  guid: string
-  pubDate: number
-  content: string
-  isUpdated?: boolean
-  diff?: Array<{
-    value: string
-    added?: boolean
-    removed?: boolean
-  }>
-}
-
-interface StoredPost extends Post {
-  id: string
-}
-
-const DB_NAME = 'cofe-blog-rss-store'
-const DB_VERSION = 1
-const STORE_NAME = 'posts'
-const NOTIFICATION_STATE_KEY = 'cofe-notification-state'
 const INIT_TIME_KEY = 'cofe-notification-init-time'
 const LAST_SEEN_TIME_KEY = 'cofe-last-seen-time'
 const CHECK_INTERVAL = 5 * 60 * 1000 // 5分钟检查一次
 
-// 全局状态，用于跨组件通信
-export const usePostChanges = () => {
-  const [activeChanges, setActiveChanges] = useState<Post | null>(null)
-  
-  const showChanges = useCallback((post: Post) => {
-    setActiveChanges(post)
-    // 存储到 sessionStorage，供文章页面读取
-    sessionStorage.setItem('active-post-changes', JSON.stringify(post))
-  }, [])
-  
-  const hideChanges = useCallback(() => {
-    setActiveChanges(null)
-    sessionStorage.removeItem('active-post-changes')
-  }, [])
-  
-  return { activeChanges, showChanges, hideChanges }
-}
-
 export default function NewPostNotification() {
-  const [isOpen, setIsOpen] = useState(false)
-  const [isMinimized, setIsMinimized] = useState(true)
+  const { isOpen, isMinimized, open, minimize } = useNotificationPanel()
   const [hasNewPosts, setHasNewPosts] = useState(false)
   const [newPosts, setNewPosts] = useState<Post[]>([])
   const [initTime, setInitTime] = useState<number>(0)
@@ -61,118 +22,10 @@ export default function NewPostNotification() {
   const intervalRef = useRef<NodeJS.Timeout | null>(null)
   const isFirstRender = useRef(true)
 
-  // 打开 IndexedDB
-  const openDB = useCallback((): Promise<IDBDatabase> => {
-    return new Promise((resolve, reject) => {
-      const request = indexedDB.open(DB_NAME, DB_VERSION)
-      request.onerror = () => reject(request.error)
-      request.onsuccess = () => resolve(request.result)
-      request.onupgradeneeded = (event: IDBVersionChangeEvent) => {
-        const db = (event.target as IDBOpenDBRequest).result
-        if (!db.objectStoreNames.contains(STORE_NAME)) {
-          db.createObjectStore(STORE_NAME, { keyPath: 'id' })
-        }
-      }
-    })
-  }, [])
-
-  // 生成作用域 ID
-  const generateId = useCallback((guid: string): string => {
-    const scope = window.location.hostname
-    return `${scope}:${guid}`
-  }, [])
-
-  // 获取存储的文章
-  const getStoredPosts = useCallback(async (db: IDBDatabase): Promise<StoredPost[]> => {
-    return new Promise((resolve, reject) => {
-      const transaction = db.transaction([STORE_NAME], 'readonly')
-      const store = transaction.objectStore(STORE_NAME)
-      const request = store.getAll()
-      request.onsuccess = () => resolve(request.result as StoredPost[])
-      request.onerror = () => reject(request.error)
-    })
-  }, [])
-
-  // 保存文章
-  const savePosts = useCallback(async (db: IDBDatabase, posts: Post[]): Promise<void> => {
-    return new Promise((resolve, reject) => {
-      const transaction = db.transaction([STORE_NAME], 'readwrite')
-      const store = transaction.objectStore(STORE_NAME)
-
-      posts.forEach((post) => {
-        const itemToSave: StoredPost = { ...post, id: generateId(post.guid) }
-        store.put(itemToSave)
-      })
-
-      transaction.oncomplete = () => resolve()
-      transaction.onerror = () => reject(transaction.error)
-    })
-  }, [generateId])
-
-  // 获取 RSS 数据
-  const fetchRSS = useCallback(async (): Promise<Post[]> => {
-    try {
-      const response = await fetch('/atom.xml', { cache: 'no-store' })
-      const text = await response.text()
-      const parser = new DOMParser()
-      const xml = parser.parseFromString(text, 'text/xml')
-      const entries = Array.from(xml.querySelectorAll('entry'))
-
-      return entries.map((entry) => {
-        const title = entry.querySelector('title')?.textContent || ''
-        const link = entry.querySelector('link')?.getAttribute('href') || ''
-        const guid = entry.querySelector('id')?.textContent || link
-        const updated = entry.querySelector('updated')?.textContent || ''
-        const pubDate = new Date(updated).getTime()
-        const content = entry.querySelector('content')?.textContent || ''
-
-        return {
-          title,
-          link,
-          guid,
-          pubDate,
-          content,
-        }
-      })
-    } catch (e) {
-      console.error('Failed to fetch RSS:', e)
-      return []
-    }
-  }, [])
-
-  // 计算差异
-  const computeDiff = useCallback((oldText: string, newText: string) => {
-    if (!oldText || !newText) return null
-
-    // 去除 HTML 标签
-    const stripHtml = (html: string): string => {
-      const tmp = document.createElement('DIV')
-      tmp.innerHTML = html
-      return tmp.textContent || tmp.innerText || ''
-    }
-
-    const cleanOld = stripHtml(oldText)
-    const cleanNew = stripHtml(newText)
-
-    const diffs = diffLines(cleanOld, cleanNew)
-    const hasChanges = diffs.some((part) => part.added || part.removed)
-
-    if (!hasChanges) return null
-
-    return diffs.map((part) => ({
-      value: part.value,
-      added: part.added,
-      removed: part.removed,
-    }))
-  }, [])
-
   // 检查新文章
-  const checkForNewPosts = useCallback(async () => {
+  const checkPosts = useCallback(async () => {
     try {
-      const db = await openDB()
-      const storedPosts = await getStoredPosts(db)
-      const fetchedPosts = await fetchRSS()
-
+      const { newPosts: posts, hasChanges } = await checkForNewPosts()
       const currentTime = Date.now()
       const lastInitTime = localStorage.getItem(INIT_TIME_KEY)
       const isFresh = !lastInitTime && isFirstRender.current
@@ -181,30 +34,9 @@ export default function NewPostNotification() {
         isFirstRender.current = false
       }
 
-      // 比较存储的和获取的文章
-      const newOrUpdatedPosts: Post[] = []
-
-      for (const post of fetchedPosts) {
-        const existingPost = storedPosts.find((p) => p.guid === post.guid)
-
-        if (!existingPost) {
-          // 新文章 - GUID 不存在于存储中
-          newOrUpdatedPosts.push({ ...post, isUpdated: false })
-        } else if (existingPost.content !== post.content) {
-          // 更新的文章 - 内容有变化
-          const diff = computeDiff(existingPost.content, post.content)
-          if (diff) {
-            newOrUpdatedPosts.push({ ...post, isUpdated: true, diff })
-          }
-        }
-      }
-
-      // 保存所有获取的文章
-      await savePosts(db, fetchedPosts)
-
-      // 更新状态
-      if (newOrUpdatedPosts.length > 0) {
-        setNewPosts(newOrUpdatedPosts)
+      if (hasChanges) {
+        console.log('[NewPostNotification] Total new/updated posts:', posts.length)
+        setNewPosts(posts)
         setHasNewPosts(true)
         setInitTime(Number(lastInitTime) || currentTime)
         setLastCheckTime(currentTime)
@@ -212,8 +44,7 @@ export default function NewPostNotification() {
         // 如果是新会话且有新文章，自动展开
         if (isFresh) {
           setTimeout(() => {
-            setIsMinimized(false)
-            setIsOpen(true)
+            open()
           }, 1500)
         }
       }
@@ -225,11 +56,10 @@ export default function NewPostNotification() {
     } catch (error) {
       console.error('Error checking for new posts:', error)
     }
-  }, [openDB, getStoredPosts, fetchRSS, computeDiff, savePosts])
+  }, [open])
 
   // 清除通知
   const clearNotification = useCallback(() => {
-    localStorage.removeItem(NOTIFICATION_STATE_KEY)
     const now = Date.now()
     localStorage.setItem(INIT_TIME_KEY, now.toString())
     localStorage.setItem(LAST_SEEN_TIME_KEY, now.toString())
@@ -237,6 +67,8 @@ export default function NewPostNotification() {
     setHasNewPosts(false)
     setInitTime(now)
     setLastCheckTime(now)
+    // 同时清除文章变更展示
+    sessionStorage.removeItem('active-post-changes')
   }, [])
 
   // 切换 diff 展开状态
@@ -266,17 +98,17 @@ export default function NewPostNotification() {
 
   // 初始化
   useEffect(() => {
-    checkForNewPosts()
+    checkPosts()
 
     // 设置定时检查
-    intervalRef.current = setInterval(checkForNewPosts, CHECK_INTERVAL)
+    intervalRef.current = setInterval(checkPosts, CHECK_INTERVAL)
 
     return () => {
       if (intervalRef.current) {
         clearInterval(intervalRef.current)
       }
     }
-  }, [checkForNewPosts])
+  }, [checkPosts])
 
   // 格式化时间
   const formatTime = (timestamp: number) => {
@@ -295,10 +127,7 @@ export default function NewPostNotification() {
     <div className="fixed bottom-20 right-4 z-50 flex flex-col items-end pointer-events-none">
       {/* 最小化状态 - 铃铛图标 */}
       <button
-        onClick={() => {
-          setIsMinimized(false)
-          setIsOpen(true)
-        }}
+        onClick={open}
         className={cn(
           'pointer-events-auto p-3 rounded-full shadow-lg transition-all duration-500',
           'bg-primary/10 dark:bg-primary/20 border border-primary/20',
@@ -353,8 +182,9 @@ export default function NewPostNotification() {
             {/* 最小化按钮 */}
             <button
               onClick={() => {
-                setIsOpen(false)
-                setTimeout(() => setIsMinimized(true), 300)
+                minimize()
+                // 同时关闭文章变更展示
+                sessionStorage.removeItem('active-post-changes')
               }}
               className="text-muted-foreground hover:text-foreground transition-colors p-1 rounded-md hover:bg-accent"
               title="隐藏"

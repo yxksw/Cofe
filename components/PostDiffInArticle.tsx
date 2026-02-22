@@ -3,18 +3,13 @@
 import { useEffect, useState, useCallback } from 'react'
 import { Icon } from '@iconify/react'
 import { cn } from '@/lib/utils'
-import type { Post } from './NewPostNotification'
-
-interface DiffPart {
-  value: string
-  added?: boolean
-  removed?: boolean
-}
+import type { Post, DiffPart } from '@/hooks/usePostChanges'
 
 export function PostDiffInArticle() {
   const [post, setPost] = useState<Post | null>(null)
   const [isVisible, setIsVisible] = useState(true)
   const [isMinimized, setIsMinimized] = useState(false)
+  const [hasChanges, setHasChanges] = useState(false)
 
   useEffect(() => {
     // 从 sessionStorage 读取变更数据
@@ -23,15 +18,45 @@ export function PostDiffInArticle() {
       try {
         const data = JSON.parse(stored)
         setPost(data)
+        setHasChanges(true)
       } catch (e) {
         console.error('Failed to parse post changes:', e)
       }
     }
-  }, [])
+
+    // 监听 sessionStorage 变化
+    const handleStorageChange = () => {
+      const updated = sessionStorage.getItem('active-post-changes')
+      if (!updated) {
+        // 如果数据被清除，关闭组件
+        setIsVisible(false)
+        setHasChanges(false)
+        setPost(null)
+      }
+    }
+
+    window.addEventListener('storage', handleStorageChange)
+    
+    // 定时检查 sessionStorage 变化（同一页面）
+    const interval = setInterval(() => {
+      const current = sessionStorage.getItem('active-post-changes')
+      if (!current && hasChanges) {
+        setIsVisible(false)
+        setHasChanges(false)
+        setPost(null)
+      }
+    }, 1000)
+
+    return () => {
+      window.removeEventListener('storage', handleStorageChange)
+      clearInterval(interval)
+    }
+  }, [hasChanges])
 
   // 关闭变更展示
   const handleClose = useCallback(() => {
     setIsVisible(false)
+    setHasChanges(false)
     sessionStorage.removeItem('active-post-changes')
   }, [])
 
@@ -45,8 +70,8 @@ export function PostDiffInArticle() {
   }
 
   // 计算统计信息
-  const addedCount = post.diff.filter((p) => p.added).length
-  const removedCount = post.diff.filter((p) => p.removed).length
+  const addedCount = post.diff.filter((p: DiffPart) => p.added).length
+  const removedCount = post.diff.filter((p: DiffPart) => p.removed).length
 
   return (
     <div

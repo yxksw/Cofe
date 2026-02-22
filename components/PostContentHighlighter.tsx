@@ -3,12 +3,7 @@
 import { useEffect, useState, useCallback } from 'react'
 import { Icon } from '@iconify/react'
 import { cn } from '@/lib/utils'
-
-interface DiffPart {
-  value: string
-  added?: boolean
-  removed?: boolean
-}
+import type { DiffPart } from '@/hooks/usePostChanges'
 
 interface PostChanges {
   title: string
@@ -21,6 +16,7 @@ export default function PostContentHighlighter() {
   const [changes, setChanges] = useState<PostChanges | null>(null)
   const [highlighted, setHighlighted] = useState(false)
   const [stats, setStats] = useState({ added: 0, removed: 0 })
+  const [isVisible, setIsVisible] = useState(true)
 
   useEffect(() => {
     // 从 sessionStorage 读取变更数据
@@ -33,13 +29,38 @@ export default function PostContentHighlighter() {
         console.error('Failed to parse post changes:', e)
       }
     }
-  }, [])
+
+    // 监听 sessionStorage 变化
+    const interval = setInterval(() => {
+      const current = sessionStorage.getItem('active-post-changes')
+      if (!current && changes) {
+        setIsVisible(false)
+        setChanges(null)
+        // 清除高亮 - 使用函数形式避免依赖问题
+        setHighlighted(currentHighlighted => {
+          if (currentHighlighted) {
+            const highlights = document.querySelectorAll('.diff-highlight-added, .diff-highlight-removed')
+            highlights.forEach((el) => {
+              const parent = el.parentNode
+              if (parent) {
+                parent.replaceChild(document.createTextNode(el.textContent || ''), el)
+                parent.normalize()
+              }
+            })
+          }
+          return false
+        })
+      }
+    }, 1000)
+
+    return () => clearInterval(interval)
+  }, [changes])
 
   // 高亮文章中的变更内容
   const highlightChanges = useCallback(() => {
     if (!changes?.diff || highlighted) return
 
-    const articleContent = document.querySelector('.markdown-content, .prose')
+    const articleContent = document.querySelector('.markdown-body, .prose')
     if (!articleContent) return
 
     let addedCount = 0
@@ -71,8 +92,14 @@ export default function PostContentHighlighter() {
       }
     })
     setHighlighted(false)
-    sessionStorage.removeItem('active-post-changes')
   }, [])
+
+  // 完全关闭
+  const handleClose = useCallback(() => {
+    clearHighlight()
+    setIsVisible(false)
+    sessionStorage.removeItem('active-post-changes')
+  }, [clearHighlight])
 
   // 在文本中高亮指定内容
   const highlightText = (container: Element, text: string, type: 'added' | 'removed') => {
@@ -137,7 +164,7 @@ export default function PostContentHighlighter() {
     })
   }
 
-  if (!changes?.diff) {
+  if (!changes?.diff || !isVisible) {
     return null
   }
 
@@ -178,6 +205,19 @@ export default function PostContentHighlighter() {
             >
               <Icon icon="material-symbols:close" className="w-5 h-5" />
               <span className="text-sm font-medium">清除高亮</span>
+            </button>
+
+            {/* 关闭按钮 */}
+            <button
+              onClick={handleClose}
+              className={cn(
+                'flex items-center gap-2 px-4 py-2 rounded-lg shadow-lg',
+                'bg-destructive/10 text-destructive hover:bg-destructive/20',
+                'transition-all duration-300'
+              )}
+            >
+              <Icon icon="material-symbols:delete-outline" className="w-5 h-5" />
+              <span className="text-sm font-medium">关闭</span>
             </button>
           </>
         )}
