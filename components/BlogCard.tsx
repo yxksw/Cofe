@@ -48,7 +48,9 @@ export const BlogCard = ({ post }: { post: BlogPost }) => {
   useEffect(() => {
     const fetchViews = async () => {
       try {
-        const pathname = `/blog/${post.id}`;
+        // 使用 encodeURIComponent 对 post.id 进行编码，确保中文路径正确处理
+        const encodedId = encodeURIComponent(post.id);
+        const pathname = `/blog/${encodedId}`;
         const response = await fetch(
           `https://cf-umami-cofe.050815.xyz/share?pathname=${encodeURIComponent(pathname)}`
         );

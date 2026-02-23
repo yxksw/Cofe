@@ -95,7 +95,9 @@ export function PostMeta({ date, content, slug }: PostMetaProps) {
     // 获取浏览量
     const fetchViews = async () => {
       try {
-        const pathname = `/blog/${slug}`
+        // 使用 encodeURIComponent 对 slug 进行编码，确保中文路径正确处理
+        const encodedSlug = encodeURIComponent(slug)
+        const pathname = `/blog/${encodedSlug}`
         const apiUrl = `https://cf-umami-cofe.050815.xyz/share?pathname=${encodeURIComponent(pathname)}`
         
         // 调试日志
