@@ -96,11 +96,34 @@ export function PostMeta({ date, content, slug }: PostMetaProps) {
     const fetchViews = async () => {
       try {
         const pathname = `/blog/${slug}`
-        const response = await fetch(
-          `https://cf-umami-cofe.050815.xyz/share?pathname=${encodeURIComponent(pathname)}`
-        )
+        const apiUrl = `https://cf-umami-cofe.050815.xyz/share?pathname=${encodeURIComponent(pathname)}`
+        
+        // 调试日志
+        console.log('[PostMeta] 开始获取浏览量:', {
+          slug,
+          pathname,
+          apiUrl
+        })
+        
+        const response = await fetch(apiUrl)
+        
+        console.log('[PostMeta] API 响应:', {
+          status: response.status,
+          statusText: response.statusText,
+          ok: response.ok
+        })
+        
         const data = await response.json()
+        
+        console.log('[PostMeta] API 数据:', data)
+        
         const viewCount = data.views || 0
+        
+        console.log('[PostMeta] 解析后的浏览量:', {
+          viewCount,
+          type: typeof viewCount
+        })
+        
         setViews(viewCount)
         
         // 数字动画效果
@@ -108,10 +131,11 @@ export function PostMeta({ date, content, slug }: PostMetaProps) {
           animateValue(viewsRef.current, 0, viewCount, 1000, '次')
         }
       } catch (error) {
-        console.error('Failed to fetch views:', error)
+        console.error('[PostMeta] 获取浏览量失败:', error)
         setViews(0)
       } finally {
         setLoading(false)
+        console.log('[PostMeta] 加载完成')
       }
     }
 
