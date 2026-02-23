@@ -380,26 +380,34 @@ export default function NewPostNotification() {
           // 新文章
           debugLog(`Step 6.${i + 1}.2: ✅ 发现新文章`, post.title)
           newOrUpdatedPosts.push({ ...post, isUpdated: false })
-        } else if (existingPost.content !== post.content) {
-          // 文章更新
-          debugLog(`Step 6.${i + 1}.2: 📝 文章内容不同`, {
-            title: post.title,
-            oldContentLength: existingPost.content?.length,
-            newContentLength: post.content?.length,
-            oldContentPreview: existingPost.content?.substring(0, 100),
-            newContentPreview: post.content?.substring(0, 100)
-          })
-          
-          const diff = computeDiff(existingPost.content, post.content)
-          
-          if (diff) {
-            debugLog(`Step 6.${i + 1}.3: ✅ 发现文章更新且有 diff`, post.title)
-            newOrUpdatedPosts.push({ ...post, isUpdated: true, diff })
-          } else {
-            debugLog(`Step 6.${i + 1}.3: ⚠️ 内容不同但 diff 为空`)
-          }
         } else {
-          debugLog(`Step 6.${i + 1}.2: ➖ 文章无变更`, post.title)
+          // 检查标题、描述、内容是否有变化
+          const titleChanged = existingPost.title !== post.title
+          const descriptionChanged = existingPost.description !== post.description
+          const contentChanged = existingPost.content !== post.content
+          
+          if (titleChanged || descriptionChanged || contentChanged) {
+            debugLog(`Step 6.${i + 1}.2: 📝 文章有变更`, {
+              title: post.title,
+              titleChanged,
+              descriptionChanged,
+              contentChanged
+            })
+            
+            // 计算内容 diff
+            const diff = contentChanged ? computeDiff(existingPost.content, post.content) : null
+            
+            if (diff) {
+              debugLog(`Step 6.${i + 1}.3: ✅ 发现文章更新且有 diff`, post.title)
+              newOrUpdatedPosts.push({ ...post, isUpdated: true, diff })
+            } else {
+              // 即使没有 content diff，只要有标题或描述变化也算更新
+              debugLog(`Step 6.${i + 1}.3: ✅ 发现文章更新（标题/描述变更）`, post.title)
+              newOrUpdatedPosts.push({ ...post, isUpdated: true, diff: [] })
+            }
+          } else {
+            debugLog(`Step 6.${i + 1}.2: ➖ 文章无变更`, post.title)
+          }
         }
       }
 
@@ -407,6 +415,18 @@ export default function NewPostNotification() {
         changedCount: newOrUpdatedPosts.length,
         changedTitles: newOrUpdatedPosts.map(p => p.title)
       })
+
+      // 拦截：如果所有文章都是新的（可能是 ID 变更或缓存问题），抑制通知
+      const isAllNew = newOrUpdatedPosts.length === fetchedPosts.length && newOrUpdatedPosts.every(p => !p.isUpdated)
+      // 拦截：如果所有文章都检测到更新（可能是全文重建），抑制通知
+      const isAllUpdated = newOrUpdatedPosts.length === fetchedPosts.length && newOrUpdatedPosts.every(p => p.isUpdated)
+      
+      if (isAllNew || isAllUpdated) {
+        debugLog('Step 7.1: ⚠️ 检测到全部新文章/全部更新，可能是缓存问题，抑制通知')
+        await savePosts(db, STORE_OLD, fetchedPosts)
+        localStorage.setItem(INIT_TIME_KEY, currentTime.toString())
+        return
+      }
 
       // 用新数据覆盖旧数据
       debugLog('Step 8: 保存新数据到 IndexedDB')
