@@ -444,7 +444,8 @@ export default function NewPostNotification() {
           // 为每个文章单独存储 diff 数据（用于文章页面）
           updatedPostsWithDiff.forEach(post => {
             try {
-              const postPath = new URL(post.link, window.location.origin).pathname
+              // 使用 guid 作为路径（guid 已经是 pathname 格式，如 /blog/文章名）
+              const postPath = post.guid
               const postKey = `post-diff-${postPath}`
               const postData = {
                 title: post.title,
@@ -453,7 +454,7 @@ export default function NewPostNotification() {
                 diff: post.diff,
                 timestamp: currentTime
               }
-              debugLog(`Step 10.2a: 存储文章 diff 数据`, { key: postKey, title: post.title })
+              debugLog(`Step 10.2a: 存储文章 diff 数据`, { key: postKey, title: post.title, path: postPath })
               sessionStorage.setItem(postKey, JSON.stringify(postData))
             } catch (e) {
               debugError('Step 10.2a: 存储文章 diff 失败', e)

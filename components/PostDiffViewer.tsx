@@ -54,9 +54,26 @@ export default function PostDiffViewer() {
   useEffect(() => {
     debugLog('===== useEffect 触发，检查 diff 数据 =====')
     
-    // 获取当前文章的路径
-    const currentPath = window.location.pathname
-    debugLog('Step 1: 当前路径', currentPath)
+    // 获取当前文章的路径（使用编码后的路径以匹配 RSS 中的格式）
+    const pathParts = window.location.pathname.split('/')
+    const encodedParts = pathParts.map(part => {
+      // 如果部分已经是编码的，保持不变；否则进行编码
+      try {
+        // 尝试解码，如果成功说明已经是编码的
+        const decoded = decodeURIComponent(part)
+        if (decoded !== part) {
+          // 已经是编码的，保持原样
+          return part
+        }
+        // 未编码，进行编码
+        return encodeURIComponent(part)
+      } catch {
+        // 解码失败，说明不是有效的编码字符串，进行编码
+        return encodeURIComponent(part)
+      }
+    })
+    const currentPath = encodedParts.join('/')
+    debugLog('Step 1: 当前路径（编码后）', currentPath)
 
     // 检查是否设置了"不再提醒"
     const dismissKey = `post-diff-dismissed-${currentPath}`
