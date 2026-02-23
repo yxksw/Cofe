@@ -777,8 +777,11 @@ export function applyInlineDiff(container: HTMLElement, diffParts: DiffPart[]) {
 						// 在上下文元素之前插入
 						debugLog('在上下文元素前插入新增节点');
 						before.parentNode?.insertBefore(addNode, before.nextSibling);
+					} else {
+						// 如果没有上下文，插入到容器末尾
+						debugLog('没有上下文，插入到容器末尾');
+						container.appendChild(addNode);
 					}
-					// 如果没有上下文，不插入（避免显示在错误位置）
 				}
 			}
 			}
