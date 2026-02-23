@@ -195,17 +195,12 @@
                     status += '⚠️ sendBeacon API 不可用\n';
                 }
                 
-                // 显示 Origin 信息（用于调试 TRACKED_SITE_HOST）
-                status += `\n📍 当前路径: ${location.pathname}\n`;
-                status += `🌐 当前域名: ${location.hostname}\n`;
-                status += `📤 Origin: ${location.origin}\n`;
+                status += `📍 当前路径: ${location.pathname}\n`;
                 status += `🔧 Worker URL: ${WORKER_URL}\n`;
-                status += `\n⚠️ 注意: cf-umami 的 TRACKED_SITE_HOST 必须设置为 "${location.hostname}"\n`;
                 
                 statusLog.textContent = status;
                 
                 log('页面加载完成，准备测试...');
-                log(`当前 Origin: ${location.origin}`);
             }, 1000);
         });
 

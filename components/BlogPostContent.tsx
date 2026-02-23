@@ -56,7 +56,7 @@ export function BlogPostContent({ title, date, content, slug, headerContent, dis
       <main className='bg-card rounded-lg border border-border p-8'>
         <header className='mb-8'>
           <h1 className='text-3xl font-bold leading-tight mb-4 text-foreground'>{title}</h1>
-          <PostMeta date={date} content={content} slug={slug} />
+          <PostMeta date={date} content={content} />
           {location?.city && (
             <div className='mt-2 text-sm text-muted-foreground flex items-center gap-1'>
               <Icon icon="lucide:map-pin" className="w-4 h-4" />
