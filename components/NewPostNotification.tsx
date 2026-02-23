@@ -492,6 +492,26 @@ export default function NewPostNotification() {
     setTimeout(() => setIsMinimized(true), 300)
   }, [])
 
+  // 从 sessionStorage 恢复之前检测到的变更
+  useEffect(() => {
+    debugLog('===== 尝试从 sessionStorage 恢复数据 =====')
+    try {
+      const stored = sessionStorage.getItem(DEBUG_STATE_KEY)
+      if (stored) {
+        const data = JSON.parse(stored)
+        if (data.items && data.items.length > 0) {
+          debugLog('从 sessionStorage 恢复变更数据', { count: data.items.length })
+          setNewPosts(data.items)
+          setHasNewPosts(true)
+          setInitTime(data.timestamp || Date.now())
+          setLastCheckTime(data.timestamp || Date.now())
+        }
+      }
+    } catch (e) {
+      debugError('从 sessionStorage 恢复数据失败', e)
+    }
+  }, [])
+
   useEffect(() => {
     debugLog('===== useEffect 触发，开始检查 =====')
     checkForNewPosts()
@@ -622,17 +642,10 @@ export default function NewPostNotification() {
             </div>
           ) : (
             newPosts.map((post) => {
-              let postHref = post.link
+              // 使用 guid（pathname）作为跳转路径
+              let postHref = post.guid
               if (post.isUpdated && post.diff) {
-                try {
-                  const url = new URL(post.link, window.location.origin)
-                  url.searchParams.set('diff', '1')
-                  url.hash = 'post-diff'
-                  postHref = `${url.pathname}${url.search}${url.hash}`
-                } catch {
-                  const base = post.link.split('#')[0]
-                  postHref = base.includes('?') ? `${base}&diff=1#post-diff` : `${base}?diff=1#post-diff`
-                }
+                postHref = `${post.guid}?diff=1#post-diff`
               }
 
               return (
