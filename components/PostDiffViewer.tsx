@@ -75,13 +75,7 @@ export default function PostDiffViewer() {
     const currentPath = encodedParts.join('/')
     debugLog('Step 1: 当前路径（编码后）', currentPath)
 
-    // 检查是否设置了"不再提醒"
-    const dismissKey = `post-diff-dismissed-${currentPath}`
-    const isDismissed = sessionStorage.getItem(dismissKey)
-    if (isDismissed) {
-      debugLog('Step 2: 用户已选择不再提醒此文章的变更')
-      return
-    }
+
 
     // 构建 storage key
     const postKey = `post-diff-${currentPath}`
@@ -140,20 +134,7 @@ export default function PostDiffViewer() {
     setIsVisible(false)
   }, [])
 
-  const handleDismiss = useCallback(() => {
-    debugLog('点击不再提醒按钮')
-    
-    // 获取当前文章的路径
-    const currentPath = window.location.pathname
-    const dismissKey = `post-diff-dismissed-${currentPath}`
-    
-    // 设置不再提醒标记
-    sessionStorage.setItem(dismissKey, 'true')
-    debugSuccess(`已设置不再提醒标记: ${dismissKey}`)
-    
-    // 隐藏弹窗
-    setIsVisible(false)
-  }, [])
+
 
   debugLog('===== 渲染检查 =====', { 
     isVisible, 
@@ -269,12 +250,12 @@ export default function PostDiffViewer() {
                 文章已更新
               </span>
               <button
-                onClick={handleDismiss}
+                onClick={handleClose}
                 className="text-xs text-muted-foreground hover:text-foreground transition-colors flex items-center gap-1"
-                title="不再提醒此文章的变更"
+                title="关闭"
               >
-                <Icon icon="material-symbols:notifications-off" className="w-3 h-3" />
-                不再提醒
+                <Icon icon="material-symbols:close" className="w-3 h-3" />
+                关闭
               </button>
             </div>
           </div>

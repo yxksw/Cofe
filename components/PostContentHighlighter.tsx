@@ -270,8 +270,17 @@ export default function PostContentHighlighter() {
       debugLog('找到 #post-diff，滚动')
       postDiffEl.scrollIntoView({ behavior: 'smooth', block: 'center' })
     } else {
-      debugLog('未找到 #post-diff，调用 highlightChanges')
+      debugLog('未找到 #post-diff，尝试高亮并滚动到文章顶部')
       highlightChanges()
+      // 延迟滚动到文章容器
+      setTimeout(() => {
+        const container = document.querySelector('.markdown-body, .markdown-content, .prose, article')
+        if (container) {
+          container.scrollIntoView({ behavior: 'smooth', block: 'start' })
+        } else {
+          window.scrollTo({ top: 0, behavior: 'smooth' })
+        }
+      }, 100)
     }
   }, [highlightChanges])
 
@@ -337,7 +346,15 @@ export default function PostContentHighlighter() {
                 <button
                   onClick={() => {
                     debugLog('点击"查看变更"按钮')
+                    // 先尝试高亮变更，然后滚动到变更位置
                     highlightChanges()
+                    // 延迟滚动，确保高亮已应用
+                    setTimeout(() => {
+                      const postDiffEl = document.getElementById('post-diff')
+                      if (postDiffEl) {
+                        postDiffEl.scrollIntoView({ behavior: 'smooth', block: 'center' })
+                      }
+                    }, 100)
                   }}
                   className={cn(
                     'flex items-center gap-1 px-3 py-1.5 rounded-lg',
