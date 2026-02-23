@@ -58,9 +58,12 @@ export function PostMeta({ date, content, slug }: PostMetaProps) {
     
     async function fetchPageViews() {
       try {
-        const pathname = `/blog/${encodeURIComponent(slug || '')}`
+        // 构建路径：/blog/编码后的slug
+        const encodedSlug = encodeURIComponent(slug || '')
+        const pathname = `/blog/${encodedSlug}`
+        // 只对 pathname 编码一次
         const response = await fetch(
-          `https://cf-umami-cofe.050815.xyz/share?pathname=${encodeURIComponent(pathname)}`
+          `https://cf-umami-cofe.050815.xyz/share?pathname=${pathname}`
         )
         if (!response.ok) return
         

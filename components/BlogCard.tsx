@@ -51,9 +51,12 @@ export const BlogCard = ({ post }: { post: BlogPost }) => {
   useEffect(() => {
     const fetchViews = async () => {
       try {
-        const pathname = `/blog/${encodeURIComponent(post.id)}`;
+        // 构建路径：/blog/编码后的post.id
+        const encodedId = encodeURIComponent(post.id);
+        const pathname = `/blog/${encodedId}`;
+        // 只对 pathname 编码一次
         const response = await fetch(
-          `https://cf-umami-cofe.050815.xyz/share?pathname=${encodeURIComponent(pathname)}`
+          `https://cf-umami-cofe.050815.xyz/share?pathname=${pathname}`
         );
         const data = await response.json();
         const viewCount = data.views || 0;
