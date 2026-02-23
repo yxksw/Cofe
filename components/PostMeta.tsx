@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import { Icon } from '@iconify/react'
 import { format } from 'date-fns'
 import { zhCN } from 'date-fns/locale'
@@ -9,6 +9,43 @@ interface PostMetaProps {
   date: string
   content: string
   slug: string
+}
+
+// 数字动画函数
+function animateValue(
+  element: HTMLElement,
+  start: number,
+  end: number,
+  duration: number,
+  suffix: string = ''
+) {
+  if (start === end) {
+    element.textContent = `${start} ${suffix}`
+    return
+  }
+  
+  const range = end - start
+  const minTimer = 50
+  let stepTime = Math.abs(Math.floor(duration / range))
+  stepTime = Math.max(stepTime, minTimer)
+  
+  const startTime = Date.now()
+  const endTime = startTime + duration
+  let timer: NodeJS.Timeout | null = null
+  
+  const run = () => {
+    const now = Date.now()
+    const remaining = Math.max((endTime - now) / duration, 0)
+    const value = Math.round(end - (remaining * range))
+    element.textContent = `${value} ${suffix}`
+    
+    if (value === end && timer) {
+      clearInterval(timer)
+    }
+  }
+  
+  timer = setInterval(run, stepTime)
+  run()
 }
 
 // 计算字数（中文按字符，英文按单词）
@@ -49,6 +86,7 @@ function formatNumber(num: number): string {
 export function PostMeta({ date, content, slug }: PostMetaProps) {
   const [views, setViews] = useState<number | null>(null)
   const [loading, setLoading] = useState(true)
+  const viewsRef = useRef<HTMLSpanElement>(null)
 
   const wordCount = countWords(content)
   const readingTime = calculateReadingTime(wordCount)
@@ -62,7 +100,13 @@ export function PostMeta({ date, content, slug }: PostMetaProps) {
           `https://cf-umami-cofe.050815.xyz/share?pathname=${encodeURIComponent(pathname)}`
         )
         const data = await response.json()
-        setViews(data.views || 0)
+        const viewCount = data.views || 0
+        setViews(viewCount)
+        
+        // 数字动画效果
+        if (viewsRef.current && viewCount > 0) {
+          animateValue(viewsRef.current, 0, viewCount, 1000, '次')
+        }
       } catch (error) {
         console.error('Failed to fetch views:', error)
         setViews(0)
@@ -111,7 +155,7 @@ export function PostMeta({ date, content, slug }: PostMetaProps) {
         {loading ? (
           <span className="animate-pulse">--</span>
         ) : (
-          <span>{formatNumber(views || 0)} 次</span>
+          <span ref={viewsRef}>{formatNumber(views || 0)} 次</span>
         )}
       </div>
     </div>
