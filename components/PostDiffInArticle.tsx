@@ -4,23 +4,29 @@ import { useEffect, useState, useCallback } from 'react'
 import { Icon } from '@iconify/react'
 import { cn } from '@/lib/utils'
 
-// 调试日志工具
+// 调试日志工具（生产环境禁用）
 const DEBUG_PREFIX = '[PostDiffInArticle]'
 function debugLog(step: string, data?: unknown) {
-  const timestamp = new Date().toLocaleTimeString()
-  if (data !== undefined) {
-    console.log(`${DEBUG_PREFIX} [${timestamp}] ${step}`, data)
-  } else {
-    console.log(`${DEBUG_PREFIX} [${timestamp}] ${step}`)
+  if (process.env.NODE_ENV === 'development') {
+    const timestamp = new Date().toLocaleTimeString()
+    if (data !== undefined) {
+      console.log(`${DEBUG_PREFIX} [${timestamp}] ${step}`, data)
+    } else {
+      console.log(`${DEBUG_PREFIX} [${timestamp}] ${step}`)
+    }
   }
 }
 function debugError(step: string, error: unknown) {
-  const timestamp = new Date().toLocaleTimeString()
-  console.error(`${DEBUG_PREFIX} [${timestamp}] ❌ ${step}`, error)
+  if (process.env.NODE_ENV === 'development') {
+    const timestamp = new Date().toLocaleTimeString()
+    console.error(`${DEBUG_PREFIX} [${timestamp}] ❌ ${step}`, error)
+  }
 }
 function debugSuccess(step: string) {
-  const timestamp = new Date().toLocaleTimeString()
-  console.log(`${DEBUG_PREFIX} [${timestamp}] ✅ ${step}`)
+  if (process.env.NODE_ENV === 'development') {
+    const timestamp = new Date().toLocaleTimeString()
+    console.log(`${DEBUG_PREFIX} [${timestamp}] ✅ ${step}`)
+  }
 }
 
 export interface Post {

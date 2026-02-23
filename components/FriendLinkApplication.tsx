@@ -89,10 +89,6 @@ export function FriendLinkApplication() {
 
     setIsLoading(true)
     try {
-      // 这里应该实现友链申请的API调用
-      // 暂时使用模拟成功的响应
-      console.log('友链申请数据:', formData)
-      
       // 模拟API调用延迟
       await new Promise(resolve => setTimeout(resolve, 1000))
 

@@ -111,7 +111,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
           strategy="afterInteractive"
         />
         <Script
-          src="/js/tracker-fixed.js"
+          src="/js/tracker.js"
           strategy="afterInteractive"
         />
         <Script

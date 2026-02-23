@@ -105,12 +105,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
 
   // 切换主题
   const toggleTheme = () => {
-    console.log('Current theme before toggle:', theme)
-    setTheme(prev => {
-      const newTheme = prev === 'light' ? 'dark' : 'light'
-      console.log('New theme after toggle:', newTheme)
-      return newTheme
-    })
+    setTheme(prev => prev === 'light' ? 'dark' : 'light')
   }
 
   // 设置主题

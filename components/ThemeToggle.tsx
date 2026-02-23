@@ -81,7 +81,6 @@ export function ThemeToggle({ className }: ThemeToggleProps) {
   const isDark = isClient ? theme === 'dark' : false
 
   const handleClick = () => {
-    console.log('ThemeToggle clicked, current theme:', theme)
     toggleTheme()
   }
 
