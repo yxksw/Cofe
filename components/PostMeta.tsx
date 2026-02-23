@@ -59,11 +59,12 @@ export function PostMeta({ date, content, slug }: PostMetaProps) {
     async function fetchPageViews() {
       try {
         // 构建路径：/blog/编码后的slug
+        // Worker 存储的是编码后的路径，如 /blog/%E6%96%B0%E6%96%87%E7%AB%A0%E9%80%9A%E7%9F%A5
         const encodedSlug = encodeURIComponent(slug || '')
         const pathname = `/blog/${encodedSlug}`
-        // 只对 pathname 编码一次
+        // URL 参数需要再次编码 % 字符
         const response = await fetch(
-          `https://cf-umami-cofe.050815.xyz/share?pathname=${pathname}`
+          `https://cf-umami-cofe.050815.xyz/share?pathname=${encodeURIComponent(pathname)}`
         )
         if (!response.ok) return
         

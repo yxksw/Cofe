@@ -52,11 +52,12 @@ export const BlogCard = ({ post }: { post: BlogPost }) => {
     const fetchViews = async () => {
       try {
         // 构建路径：/blog/编码后的post.id
+        // Worker 存储的是编码后的路径，如 /blog/%E6%96%B0%E6%96%87%E7%AB%A0%E9%80%9A%E7%9F%A5
         const encodedId = encodeURIComponent(post.id);
         const pathname = `/blog/${encodedId}`;
-        // 只对 pathname 编码一次
+        // URL 参数需要再次编码 % 字符
         const response = await fetch(
-          `https://cf-umami-cofe.050815.xyz/share?pathname=${pathname}`
+          `https://cf-umami-cofe.050815.xyz/share?pathname=${encodeURIComponent(pathname)}`
         );
         const data = await response.json();
         const viewCount = data.views || 0;
