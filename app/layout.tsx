@@ -71,7 +71,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         <meta name='apple-mobile-web-app-status-bar-style' content='default' />
         <link rel='apple-touch-icon' href={iconPath} />
         <script defer src="https://um.050815.xyz/script.js" data-website-id="25a1f616-f12e-4441-ad5b-f0c9d5c39b1c"></script>
-        <script src="https://cf-umami-cofe.050815.xyz/tracker.js" defer></script>
+        <script src="/js/tracker-fixed.js" defer></script>
         <script src="/js/articletoc.js" defer></script>
         {/* 主题初始化脚本 - 防止闪烁 */}
         <script
