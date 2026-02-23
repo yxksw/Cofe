@@ -338,124 +338,34 @@ export function findBlockByText(container: HTMLElement, line: string) {
 		return null;
 	}
 	
-	// 使用不同长度的 needle 进行匹配
-	const fullNeedle = key.value;
+	// 简化为 fuwari-main 的实现方式
 	const needle = key.value.slice(0, Math.min(48, key.value.length));
-	const shortNeedle = key.value.slice(0, Math.min(20, key.value.length));
-	const tinyNeedle = key.value.slice(0, Math.min(10, key.value.length));
-	// 提取核心文本（用于模糊匹配）
-	const coreText = key.value.replace(/[^\u4e00-\u9fa5a-zA-Z0-9]/g, '').toLowerCase();
-	const coreNeedle = coreText.slice(0, Math.min(15, coreText.length));
-	debugLog('搜索关键词', { 
-		fullNeedle: fullNeedle.substring(0, 50), 
-		needle: needle.substring(0, 30), 
-		shortNeedle, 
-		tinyNeedle,
-		coreNeedle,
-		fullLength: key.value.length 
-	});
+	debugLog('搜索关键词', { needle: needle.substring(0, 50) });
 	
 	const blocks = Array.from(container.querySelectorAll(
-		"p, li, blockquote, pre, h1, h2, h3, h4, h5, h6, code, td, th, .code-block, [class*='language-']",
+		"p, li, blockquote, pre, h1, h2, h3, h4, h5, h6",
 	));
 	debugLog('找到块级元素数量', blocks.length);
 	
-	// 第一轮：严格匹配
 	for (let i = 0; i < blocks.length; i++) {
 		const el = blocks[i];
 		if (!(el instanceof HTMLElement)) continue;
+		// 跳过已处理的 diff 元素
 		if (el.closest(".post-inline-diff-add-line")) continue;
 		if (el.closest(".post-inline-diff-del-line")) continue;
 		if (el.classList.contains("post-inline-diff-del-target")) continue;
-		if (el.classList.contains("post-inline-diff-add-target")) continue;
 		
 		const content = el.textContent || "";
 		const normalizedContent = normalizeLineText(content);
 		
-		// 跳过空内容
-		if (!normalizedContent) continue;
-		
-		// 尝试多种匹配方式（双向包含检查）
-		const matchExact = normalizedContent === fullNeedle;
-		const matchFull = normalizedContent.includes(fullNeedle) || (fullNeedle.length > 5 && fullNeedle.includes(normalizedContent));
-		const matchLong = needle.length > 10 && (normalizedContent.includes(needle) || needle.includes(normalizedContent));
-		const matchShort = shortNeedle.length > 5 && (normalizedContent.includes(shortNeedle) || shortNeedle.includes(normalizedContent));
-		const matchTiny = tinyNeedle.length > 3 && (normalizedContent.includes(tinyNeedle) || tinyNeedle.includes(normalizedContent));
-		
-		if (matchExact || matchFull || matchLong || matchShort || matchTiny) {
-			const similarity = Math.min(normalizedContent.length, fullNeedle.length) / Math.max(normalizedContent.length, fullNeedle.length);
+		// 简单的 includes 检查（参考 fuwari-main）
+		if (normalizedContent.includes(needle)) {
 			debugLog(`找到匹配块 #${i + 1}`, { 
 				tag: el.tagName, 
-				text: content.substring(0, 50),
-				matchType: matchExact ? 'exact' : matchFull ? 'full' : matchLong ? 'long' : matchShort ? 'short' : 'tiny',
-				similarity: similarity.toFixed(2)
+				text: content.substring(0, 50)
 			});
 			return el;
 		}
-	}
-	
-	// 第二轮：核心文本模糊匹配（用于处理特殊字符差异）
-	if (coreNeedle.length > 3) {
-		debugLog('尝试核心文本模糊匹配', { coreNeedle });
-		for (let i = 0; i < blocks.length; i++) {
-			const el = blocks[i];
-			if (!(el instanceof HTMLElement)) continue;
-			if (el.closest(".post-inline-diff-add-line")) continue;
-			if (el.closest(".post-inline-diff-del-line")) continue;
-			if (el.classList.contains("post-inline-diff-del-target")) continue;
-			if (el.classList.contains("post-inline-diff-add-target")) continue;
-			
-			const content = el.textContent || "";
-			const normalizedContent = normalizeLineText(content);
-			if (!normalizedContent) continue;
-			
-			// 提取元素内容的核心文本
-			const contentCore = normalizedContent.replace(/[^\u4e00-\u9fa5a-zA-Z0-9]/g, '').toLowerCase();
-			
-			// 核心文本包含检查
-			if (contentCore.includes(coreNeedle) || coreText.includes(contentCore.slice(0, coreNeedle.length))) {
-				debugLog(`核心文本匹配块 #${i + 1}`, { 
-					tag: el.tagName, 
-					text: content.substring(0, 50),
-					contentCore: contentCore.substring(0, 30)
-				});
-				return el;
-			}
-		}
-	}
-	
-	// 第三轮：高相似度匹配
-	debugLog('尝试高相似度匹配');
-	let bestMatch: HTMLElement | null = null;
-	let bestSimilarity = 0;
-	
-	for (let i = 0; i < blocks.length; i++) {
-		const el = blocks[i];
-		if (!(el instanceof HTMLElement)) continue;
-		if (el.closest(".post-inline-diff-add-line")) continue;
-		if (el.closest(".post-inline-diff-del-line")) continue;
-		if (el.classList.contains("post-inline-diff-del-target")) continue;
-		if (el.classList.contains("post-inline-diff-add-target")) continue;
-		
-		const content = el.textContent || "";
-		const normalizedContent = normalizeLineText(content);
-		if (!normalizedContent || normalizedContent.length < 3) continue;
-		
-		const similarity = Math.min(normalizedContent.length, fullNeedle.length) / Math.max(normalizedContent.length, fullNeedle.length);
-		
-		if (similarity > bestSimilarity && similarity > 0.7) {
-			bestSimilarity = similarity;
-			bestMatch = el;
-		}
-	}
-	
-	if (bestMatch) {
-		debugLog(`高相似度匹配结果`, { 
-			tag: bestMatch.tagName, 
-			text: bestMatch.textContent?.substring(0, 50),
-			similarity: bestSimilarity.toFixed(2)
-		});
-		return bestMatch;
 	}
 	
 	debugLog('未找到匹配块');
